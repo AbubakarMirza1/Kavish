@@ -21,43 +21,50 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    fontFamily: "'Montserrat', sans-serif", // Apply Montserrat globally
     h1: {
       fontSize: '2rem',
-      fontWeight: 700,
-      color: '#FFFFFF', // White - For prominent headings
+      fontWeight: 700, // Bold weight for h1
+      color: '#FFFFFF',
     },
     h2: {
       fontSize: '1.75rem',
-      fontWeight: 500,
+      fontWeight: 600, // Semi-bold for h2
       color: '#FFFFFF',
     },
     h3: {
       fontSize: '1.5rem',
-      fontWeight: 500,
+      fontWeight: 500, // Medium weight for h3
       color: '#FFFFFF',
     },
     h4: {
       fontSize: '1.25rem',
-      fontWeight: 500,
+      fontWeight: 500, // Medium weight for h4
       color: '#FFFFFF',
     },
     h5: {
       fontSize: '1rem',
-      fontWeight: 500,
+      fontWeight: 400, // Regular weight for h5
       color: '#14FFEC', // Cyan - Highlights secondary headers
+    },
+    h6: {
+      fontSize: '0.875rem',
+      fontWeight: 400, // Regular weight for h6
+      color: '#FFFFFF',
     },
     body1: {
       fontSize: '1rem',
+      fontWeight: 400, // Regular weight for body text
       color: '#FFFFFF',
     },
     body2: {
       fontSize: '0.875rem',
+      fontWeight: 300, // Light weight for smaller body text
       color: '#B0BEC5', // Light Gray - Muted text for less emphasis
     },
     button: {
+      fontWeight: 500, // Medium weight for buttons
       textTransform: 'none', // Disable uppercase transformation for buttons
-      fontWeight: 600,
     },
   },
   components: {
