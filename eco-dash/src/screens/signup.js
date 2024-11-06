@@ -33,7 +33,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   alignItems: 'center',
   backgroundColor: 'rgba(255, 255, 255, 0.85)',
   boxShadow: '0px 4px 30px rgba(0, 0, 0, 0.5)',
-  borderRadius: '16px',
+  borderRadius: '40px',
   position: 'relative',
   zIndex: 1,
 }));
