@@ -65,6 +65,12 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const navigate = useNavigate();
+
+  const handleSignIn = () => {
+    // Directly navigate to Dashboard.js without any validation or checks
+    navigate('/dashboard');
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -167,7 +173,7 @@ const Login = () => {
             variant="contained"
             color="primary"
             size="large"
-            onClick={validateInputs}
+            onClick={handleSignIn}
             sx={{
               fontWeight: 600,
               py: 1.5,
