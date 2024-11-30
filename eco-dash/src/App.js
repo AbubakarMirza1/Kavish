@@ -5,6 +5,7 @@ import Login from './screens/login';
 import Signup from './screens/signup';
 import SustainabilityDashboard from './screens/dashboard'
 import Setupform1 from './screens/Setupform1'
+import Scope1SC from './screens/Scope1SC'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<SustainabilityDashboard />} />
         <Route path="/Setupform1" element={<Setupform1 />} />
+        <Route path="/Scope1SC" element={<Scope1SC />} />
       </Routes>
     </Router>
   );
