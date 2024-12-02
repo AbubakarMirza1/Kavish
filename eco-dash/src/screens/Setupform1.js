@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  Box,
-  Container,
-  TextField,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  CssBaseline,
-  IconButton,
-  Avatar,
-  createTheme,
-  ThemeProvider,
-  Checkbox,
-  //Link, 
-} from '@mui/material';
+    Button,
+    TextField,
+    Checkbox,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Drawer,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    AppBar,
+    Toolbar,
+    Typography,
+    Box,
+    Container,
+    IconButton,
+    Avatar,
+} from "@mui/material";
 import {
     Dashboard as DashboardIcon,
     QueryStats as EmissionsIcon,
@@ -35,213 +30,371 @@ import {
     CloudUpload as DataEntryIcon,
     Assessment as ReportsIcon,
     Analytics as AnalyticsIcon,
-    Settings as SettingsIcon,
     HelpOutline as HelpIcon,
-    Notifications as NotificationsIcon,
-    AccountCircle as ProfileIcon,
-  } from '@mui/icons-material';
+    NotificationImportant as NotificationIcon,
+} from '@mui/icons-material';
 
-const initialData = [
-  { id: 1, name: 'John Doe', active: true },
-  { id: 2, name: 'Jane Smith', active: false },
-];
+const Scope1EmissionsSetup = () => {
+    const [formValues, setFormValues] = useState({
+        stationaryCombustion: "",
+        mobile: "",
+        refrigeration: "",
+        fireSuppression: "",
+        purchasedGases: "",
+        units: "", // General units
+    });
 
-const SingleColumnTablePage = () => {
-  const [formValue, setFormValue] = useState('');
-  const [rows, setRows] = useState(initialData);
-  const [selectedSection, setSelectedSection] = useState('dashboard');
-
-  const handleInputChange = (e) => {
-    setFormValue(e.target.value);
-  };
-
-  const handleAddRow = () => {
-    if (formValue.trim() === '') return;
-    setRows((prev) => [
-      ...prev,
-      { id: prev.length + 1, name: formValue, active: false },
+    // State for each section with predefined values
+    const [stationaryCombustionRows, setStationaryCombustionRows] = useState([
+        { id: 1, name: "Petrol", active: true },
+        { id: 2, name: "Diesel", active: false },
     ]);
-    setFormValue(''); // Reset form
-  };
+    const [unitRows, setUnitRows] = useState([
+        { id: 1, name: "KG", active: true },
+        { id: 2, name: "tonnes", active: false },
+    ]);
+    const [mobileRows, setMobileRows] = useState([
+        { id: 1, name: "Light-Duty Trucks - Gasoline", active: true },
+        { id: 2, name: "Heavy-Duty Vehicles - Gasoline", active: false },
+    ]);
+    const [refrigerationRows, setRefrigerationRows] = useState([
+        { id: 1, name: "Stand-Alone Commercial", active: true },
+        { id: 2, name: "Medium/Large Commercial", active: false },
+    ]);
+    const [fireSuppressionRows, setFireSuppressionRows] = useState([]);
+    const [purchasedGasesRows, setPurchasedGasesRows] = useState([
+        { id: 1, name: "Natural Gas", active: true },
+        { id: 2, name: "Propane", active: false },
+    ]);
 
-  const handleDeleteRow = (id) => {
-    setRows((prev) => prev.filter((row) => row.id !== id));
-  };
+    // Add Row Function
+    const handleAddRow = (section) => {
+        const value = formValues[section];
+        if (!value || value.trim() === "") return;
 
-  const handleToggleActive = (id) => {
-    setRows((prev) =>
-      prev.map((row) =>
-        row.id === id ? { ...row, active: !row.active } : row
-      )
+        const newRow = {
+            id: Date.now(),
+            name: value,
+            active: false,
+        };
+
+        switch (section) {
+            case "stationaryCombustion":
+                setStationaryCombustionRows((prev) => [...prev, newRow]);
+                break;
+            case "mobile":
+                setMobileRows((prev) => [...prev, newRow]);
+                break;
+            case "refrigeration":
+                setRefrigerationRows((prev) => [...prev, newRow]);
+                break;
+            case "fireSuppression":
+                setFireSuppressionRows((prev) => [...prev, newRow]);
+                break;
+            case "purchasedGases":
+                setPurchasedGasesRows((prev) => [...prev, newRow]);
+                break;
+            case "units":
+                setUnitRows((prev) => [...prev, newRow]);
+                break;
+            default:
+                break;
+        }
+
+        setFormValues((prev) => ({...prev, [section]: "" }));
+    };
+
+    // Delete Row Function
+    const handleDeleteRow = (section, id) => {
+        switch (section) {
+            case "stationaryCombustion":
+                setStationaryCombustionRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            case "mobile":
+                setMobileRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            case "refrigeration":
+                setRefrigerationRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            case "fireSuppression":
+                setFireSuppressionRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            case "purchasedGases":
+                setPurchasedGasesRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            case "units":
+                setUnitRows((prev) => prev.filter((row) => row.id !== id));
+                break;
+            default:
+                break;
+        }
+    };
+
+    // Toggle Active Function
+    const handleToggleActive = (section, id) => {
+        switch (section) {
+            case "stationaryCombustion":
+                setStationaryCombustionRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            case "mobile":
+                setMobileRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            case "refrigeration":
+                setRefrigerationRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            case "fireSuppression":
+                setFireSuppressionRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            case "purchasedGases":
+                setPurchasedGasesRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            case "units":
+                setUnitRows((prev) =>
+                    prev.map((row) =>
+                        row.id === id ? {...row, active: !row.active } : row
+                    )
+                );
+                break;
+            default:
+                break;
+        }
+    };
+
+    // Table Rendering Function
+    const renderTable = (section, rows, title) => ( <
+        TableContainer component = { Paper }
+        style = {
+            { marginTop: "16px" }
+        } >
+        <
+        Table >
+        <
+        TableHead >
+        <
+        TableRow >
+        <
+        TableCell > { title } < /TableCell> <
+        TableCell > Active < /TableCell> <
+        TableCell > Actions < /TableCell> < /
+        TableRow > <
+        /TableHead> <
+        TableBody > {
+            rows.map((row) => ( <
+                TableRow key = { row.id } >
+                <
+                TableCell > { row.name } < /TableCell> <
+                TableCell >
+                <
+                Checkbox checked = { row.active }
+                onChange = {
+                    () => handleToggleActive(section, row.id)
+                }
+                /> < /
+                TableCell > <
+                TableCell >
+                <
+                Button variant = "outlined"
+                color = "error"
+                onClick = {
+                    () => handleDeleteRow(section, row.id)
+                } >
+                Delete <
+                /Button> < /
+                TableCell > <
+                /TableRow>
+            ))
+        } <
+        /TableBody> < /
+        Table > <
+        /TableContainer>
     );
-  };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
-    },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
-  });
+    return ( <
+        Box sx = {
+            { display: "flex" }
+        } > { /* Sidebar Navigation */ } <
+        Drawer variant = "permanent"
+        sx = {
+            { width: 240, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: 240, boxSizing: "border-box", backgroundColor: "#c8e8d0" } }
+        } >
+        <
+        Toolbar >
+        <
+        Typography variant = "h6"
+        noWrap > EcoDash < /Typography> < /
+        Toolbar > <
+        List >
+        <
+        ListItem button >
+        <
+        ListItemIcon > < DashboardIcon / > < /ListItemIcon> <
+        ListItemText primary = "Dashboard" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < EmissionsIcon / > < /ListItemIcon> <
+        ListItemText primary = "Emissions" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < WasteIcon / > < /ListItemIcon> <
+        ListItemText primary = "Waste" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < DataEntryIcon / > < /ListItemIcon> <
+        ListItemText primary = "Data Entry" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < ReportsIcon / > < /ListItemIcon> <
+        ListItemText primary = "Reports" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < AnalyticsIcon / > < /ListItemIcon> <
+        ListItemText primary = "Analytics" / >
+        <
+        /ListItem> <
+        ListItem button >
+        <
+        ListItemIcon > < HelpIcon / > < /ListItemIcon> <
+        ListItemText primary = "Help" / >
+        <
+        /ListItem> < /
+        List > <
+        /Drawer>
 
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-    // Other sections can be added here
-  ];
+        { /* Main Content */ } <
+        Box component = "main"
+        sx = {
+            { flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 }
+        } >
+        <
+        AppBar position = "static" >
+        <
+        Toolbar >
+        <
+        Typography variant = "h6" > GHG Scope 1 Emissions Setup < /Typography> <
+        IconButton sx = {
+            { ml: 'auto' }
+        } >
+        <
+        Avatar alt = "User"
+        src = "/static/images/avatar/1.jpg" / >
+        <
+        /IconButton> < /
+        Toolbar > <
+        /AppBar>
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        {/* Sidebar */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: 240,
-              boxSizing: 'border-box',
-              backgroundColor: '#f4f4f4',
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {sidebarSections.map((section) => (
-              <ListItem
-                button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
-              >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
+        <
+        Container >
+        <
+        h2 > Stationary Combustion < /h2> <
+        TextField label = "Add Fuel Type"
+        value = { formValues.stationaryCombustion }
+        onChange = {
+            (e) => setFormValues({...formValues, stationaryCombustion: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("stationaryCombustion")
+        }
+        variant = "contained" > Add < /Button> { renderTable("stationaryCombustion", stationaryCombustionRows, "Fuel Type") }
 
-        {/* Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          {/* Top Bar */}
-          <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-            <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-                
-              </Typography>
-              <IconButton color="inherit">
-                <NotificationsIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <HelpIcon />
-              </IconButton>
-              <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-            </Toolbar>
-          </AppBar>
+        <
+        h2 > Mobile Sources < /h2> <
+        TextField label = "Add Vehicle Type"
+        value = { formValues.mobile }
+        onChange = {
+            (e) => setFormValues({...formValues, mobile: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("mobile")
+        }
+        variant = "contained" > Add < /Button> { renderTable("mobile", mobileRows, "Vehicle Type") }
 
-          {/* Page Content */}
-          <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom>
-              Waste Records
-            </Typography>
+        <
+        h2 > Refrigeration < /h2> <
+        TextField label = "Add Refrigeration Type"
+        value = { formValues.refrigeration }
+        onChange = {
+            (e) => setFormValues({...formValues, refrigeration: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("refrigeration")
+        }
+        variant = "contained" > Add < /Button> { renderTable("refrigeration", refrigerationRows, "Refrigeration Type") }
 
-            {/* Form */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6">Add New Waste Item</Typography>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
-                <TextField
-                  label="Item Name"
-                  value={formValue}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <Button variant="contained" color="primary" onClick={handleAddRow}>
-                  Add
-                </Button>
-              </Box>
-            </Box>
+        <
+        h2 > Fire Suppression < /h2> <
+        TextField label = "Add Fire Suppression Type"
+        value = { formValues.fireSuppression }
+        onChange = {
+            (e) => setFormValues({...formValues, fireSuppression: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("fireSuppression")
+        }
+        variant = "contained" > Add < /Button> { renderTable("fireSuppression", fireSuppressionRows, "Fire Suppression Type") }
 
-            {/* Table */}
-            <Typography variant="h6">Records</Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Active</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>
-                        <Checkbox
-                          checked={row.active}
-                          onChange={() => handleToggleActive(row.id)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Container>
+        <
+        h2 > Purchased Gases < /h2> <
+        TextField label = "Add Gas Type"
+        value = { formValues.purchasedGases }
+        onChange = {
+            (e) => setFormValues({...formValues, purchasedGases: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("purchasedGases")
+        }
+        variant = "contained" > Add < /Button> { renderTable("purchasedGases", purchasedGasesRows, "Gas Type") }
 
-            
-        </Box>
-        
-        
-        
-        </Box>
-            <Box sx={{position: 'fixed', // Fixes the position on the screen    
-                    bottom: 20,        // Distance from the bottom of the screen
-                    left: 250,          // Distance from the left side of the screen
-                    mt: 10,
-                    zIndex:1000,   
-                    backgroundColor: 'lightblue',
-                    padding: '8px',
-                    border: '2px solid blue',          // Removes the top margin (optional)
-                    }}>
-                    <Link to="/dashboard2" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: '#0D7377' }}>
-                    <span style={{ marginRight: '8px' }}>←</span> {/* Back arrow */}
-                    Go back to the main page
-                    </Link>
-            </Box>
-    </ThemeProvider>
-  );
+        <
+        h2 > Units < /h2> <
+        TextField label = "Add Unit"
+        value = { formValues.units }
+        onChange = {
+            (e) => setFormValues({...formValues, units: e.target.value })
+        }
+        /> <
+        Button onClick = {
+            () => handleAddRow("units")
+        }
+        variant = "contained" > Add < /Button> { renderTable("units", unitRows, "Unit") } < /
+        Container > <
+        /Box> < /
+        Box >
+    );
 };
 
-export default SingleColumnTablePage;
+export default Scope1EmissionsSetup;
