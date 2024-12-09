@@ -28,6 +28,13 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -51,6 +58,9 @@ const DashboardPage = () => {
   const [formValues, setFormValues] = useState({ sourceId: '', description: '', date: '', fuel: '', quantity: '', unit: '' });
   const [rows, setRows] = useState(initialData);
   const [selectedSection, setSelectedSection] = useState('dashboard');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false); // New state for Snackbar
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,8 +68,26 @@ const DashboardPage = () => {
   };
 
   const handleAddRow = () => {
+    if (Object.values(formValues).some(value => value === '')) {
+      setOpenSnackbar(true); // Show error message
+      return; // Prevent adding the row
+    }
     setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
     setFormValues({ sourceId: '', description: '', date: '', fuel: '', quantity: '', unit: '' }); // Reset form
+  };
+  const handleClickOpen = (id) => {
+    setOpenDialog(true);
+    setDeleteId(id);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+    setOpenSnackbar(false);
+  };
+
+  const handleDeleteRow = () => {
+    setRows(prev => prev.filter(row => row.id !== deleteId));
+    setOpenDialog(false);
   };
 
   const theme = createTheme({
@@ -90,9 +118,6 @@ const DashboardPage = () => {
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
-  const handleDeleteRow = (id) => {
-    setRows((prev) => prev.filter((row) => row.id !== id));
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -148,13 +173,14 @@ const DashboardPage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
+          <Typography variant="h2" gutterBottom>
+              Scope 1
+            </Typography>
 
           {/* Page Content */}
           <Container sx={{ mt: 10 }}>
-            <Typography variant="h1" gutterBottom>
-              Scope 1
-            </Typography>
-            <Typography variant="h3" gutterBottom> {/* Change this line */}
+            
+            <Typography variant="h4" gutterBottom> {/* Change this line */}
                 Stationary Combustion
             </Typography>
 
@@ -264,7 +290,7 @@ const DashboardPage = () => {
                       <TableCell>{row.quantity}</TableCell>
                       <TableCell>{row.unit}</TableCell>
                       <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
+                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
                         </Button>
                       </TableCell>
@@ -275,6 +301,34 @@ const DashboardPage = () => {
             </TableContainer>
           </Container>
         </Box>
+        {/* Confirmation Dialog for deletions */}
+        <Dialog
+          open={openDialog}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this record?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Dialogs and Snackbar for error messages */}
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            Please fill in all fields before adding a record.
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
  
