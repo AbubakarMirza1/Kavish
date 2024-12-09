@@ -28,6 +28,13 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -60,6 +67,9 @@ const RefrigerationAndACPage = () => {
 
   const [rows, setRows] = useState(initialData);
   const [selectedSection, setSelectedSection] = useState('dashboard');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false); // New state for Snackbar
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,6 +77,10 @@ const RefrigerationAndACPage = () => {
   };
 
   const handleAddRow = () => {
+    if (Object.values(formValues).some(value => value === '')) {
+        setOpenSnackbar(true); // Show error message
+        return; // Prevent adding the row
+      }
     setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
     setFormValues({
       sourceId: '',
@@ -77,6 +91,20 @@ const RefrigerationAndACPage = () => {
       unitCharge: '',
       co2Emissions: '',
     }); // Reset form
+  };
+  const handleClickOpen = (id) => {
+    setOpenDialog(true);
+    setDeleteId(id);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+    setOpenSnackbar(false);
+  };
+
+  const handleDeleteRow = () => {
+    setRows(prev => prev.filter(row => row.id !== deleteId));
+    setOpenDialog(false);
   };
 
   const theme = createTheme({
@@ -107,10 +135,7 @@ const RefrigerationAndACPage = () => {
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
-  const handleDeleteRow = (id) => {
-    setRows((prev) => prev.filter((row) => row.id !== id));
-  };
-
+  
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -152,6 +177,9 @@ const RefrigerationAndACPage = () => {
           {/* Top Bar */}
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography variant="h2">
+            
+            </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <IconButton color="inherit">
                 <NotificationsIcon />
@@ -166,14 +194,14 @@ const RefrigerationAndACPage = () => {
             </Box>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2" sx={{ mt: 10 }}>
+          <Typography variant="h2">
             Scope 1
           </Typography>
 
           {/* Page Content */}
-          <Container sx={{ mt: 2 }}>
+          <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>
-              Refrigeration and AC Data Entry
+              Refrigeration and AC
             </Typography>
 
             {/* Form */}
@@ -289,7 +317,7 @@ const RefrigerationAndACPage = () => {
                       <TableCell>{row.unitCharge}</TableCell>
                       <TableCell>{row.co2Emissions}</TableCell>
                       <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
+                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
                         </Button>
                       </TableCell>
@@ -300,6 +328,34 @@ const RefrigerationAndACPage = () => {
             </TableContainer>
           </Container>
         </Box>
+        {/* Confirmation Dialog for deletions */}
+        <Dialog
+          open={openDialog}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this record?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Dialogs and Snackbar for error messages */}
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            Please fill in all fields before adding a record.
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
   );
