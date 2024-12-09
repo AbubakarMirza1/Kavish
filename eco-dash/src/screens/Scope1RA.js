@@ -1,0 +1,308 @@
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Box,
+  Container,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CssBaseline,
+  IconButton,
+  Avatar,
+  createTheme,
+  ThemeProvider,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import {
+  Dashboard as DashboardIcon,
+  QueryStats as EmissionsIcon,
+  Delete as WasteIcon,
+  CloudUpload as DataEntryIcon,
+  Assessment as ReportsIcon,
+  Analytics as AnalyticsIcon,
+  Settings as SettingsIcon,
+  HelpOutline as HelpIcon,
+  Notifications as NotificationsIcon,
+  AccountCircle as ProfileIcon,
+} from '@mui/icons-material';
+
+const initialData = [
+  { id: 1, sourceId: '001', description: 'Refrigeration A', gas: 'R134a', equipmentType: 'Chiller', gasGWP: 1430, unitCharge: 10, co2Emissions: 14.3 },
+  { id: 2, sourceId: '002', description: 'Refrigeration B', gas: 'R410A', equipmentType: 'AC Unit', gasGWP: 2088, unitCharge: 15, co2Emissions: 31.32 },
+];
+
+const RefrigerationAndACPage = () => {
+  const [formValues, setFormValues] = useState({
+    sourceId: '',
+    description: '',
+    gas: '',
+    equipmentType: '',
+    gasGWP: '',
+    unitCharge: '',
+    co2Emissions: '',
+  });
+
+  const [rows, setRows] = useState(initialData);
+  const [selectedSection, setSelectedSection] = useState('dashboard');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddRow = () => {
+    setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
+    setFormValues({
+      sourceId: '',
+      description: '',
+      gas: '',
+      equipmentType: '',
+      gasGWP: '',
+      unitCharge: '',
+      co2Emissions: '',
+    }); // Reset form
+  };
+
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#0D7377',
+      },
+      secondary: {
+        main: '#14FFEC',
+      },
+    },
+    typography: {
+      h6: {
+        fontWeight: 'bold',
+      },
+    },
+  });
+
+  const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
+  const equipmentTypeOptions = ['Chiller', 'AC Unit', 'Refrigerator', 'Freezer'];
+  const sidebarSections = [
+    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
+    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
+    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
+    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
+    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
+    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
+    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
+  ];
+
+  const handleDeleteRow = (id) => {
+    setRows((prev) => prev.filter((row) => row.id !== id));
+  };
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: 'flex' }}>
+        {/* Sidebar */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: 240,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: {
+              width: 240,
+              boxSizing: 'border-box',
+              backgroundColor: '#f4f4f4',
+            },
+          }}
+        >
+          <Toolbar><Typography variant="h6" sx={{ color: '#0D7377' }}>
+              EcoDash
+            </Typography>
+          </Toolbar>
+          <List>
+            {sidebarSections.map((section) => (
+              <ListItem
+                button
+                key={section.section}
+                selected={selectedSection === section.section}
+                onClick={() => setSelectedSection(section.section)}
+              >
+                <ListItemIcon>{section.icon}</ListItemIcon>
+                <ListItemText primary={section.label} />
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+
+        {/* Main Content */}
+        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+          {/* Top Bar */}
+          <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton color="inherit">
+                <NotificationsIcon />
+              </IconButton>
+              <IconButton color="inherit">
+                <HelpIcon />
+              </IconButton>
+              <IconButton color="inherit">
+                <ProfileIcon />
+              </IconButton>
+              <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
+            </Box>
+            </Toolbar>
+          </AppBar>
+          <Typography variant="h2" sx={{ mt: 10 }}>
+            Scope 1
+          </Typography>
+
+          {/* Page Content */}
+          <Container sx={{ mt: 2 }}>
+            <Typography variant="h4" gutterBottom>
+              Refrigeration and AC Data Entry
+            </Typography>
+
+            {/* Form */}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6">Add New Record</Typography>
+              <Box
+                component="form"
+                sx={{
+                  display: 'flex',
+                  gap: 2,
+                  mt: 2,
+                }}
+              >
+                <TextField
+                  label="Source ID"
+                  name="sourceId"
+                  value={formValues.sourceId}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Source Description"
+                  name="description"
+                  value={formValues.description}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                  <InputLabel>Gas</InputLabel>
+                  <Select
+                    name="gas"
+                    value={formValues.gas}
+                    onChange={handleInputChange}
+                    label="Gas"
+                  >
+                    {gasOptions.map((gas) => (
+                      <MenuItem key={gas} value={gas}>
+                        {gas}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                  <InputLabel>Type of Equipment</InputLabel>
+                  <Select
+                    name="equipmentType"
+                    value={formValues.equipmentType}
+                    onChange={handleInputChange}
+                    label="Type of Equipment"
+                  >
+                    {equipmentTypeOptions.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Gas GWP"
+                  name="gasGWP"
+                  type="number"
+                  value={formValues.gasGWP}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Unit Charge (kg)"
+                  name="unitCharge"
+                  type="number"
+                  value={formValues.unitCharge}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="CO2 Equivalent Emissions (kg)"
+                  name="co2Emissions"
+                  type="number"
+                  value={formValues.co2Emissions}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <Button variant="contained" color="primary" onClick={handleAddRow}>
+                  Add
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Table */}
+            <Typography variant="h6">Records</Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Source ID</TableCell>
+                    <TableCell>Description</TableCell>
+                    <TableCell>Gas</TableCell>
+                    <TableCell>Type of Equipment</TableCell> 
+                    <TableCell>Gas GWP</TableCell>
+                    <TableCell>Unit Charge (kg)</TableCell>
+                    <TableCell>CO2 Equivalent Emissions (kg)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.sourceId}</TableCell>
+                      <TableCell>{row.description}</TableCell>
+                      <TableCell>{row.gas}</TableCell>
+                      <TableCell>{row.equipmentType}</TableCell>
+                      <TableCell>{row.gasGWP}</TableCell>
+                      <TableCell>{row.unitCharge}</TableCell>
+                      <TableCell>{row.co2Emissions}</TableCell>
+                      <TableCell>
+                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default RefrigerationAndACPage;
