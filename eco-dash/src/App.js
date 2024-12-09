@@ -10,6 +10,9 @@ import Setupform3 from './screens/Setupform3'
 import Scope1SC from './screens/Scope1SC'
 import Scope1MS from './screens/Scope1MS'
 import Scope1RA from './screens/Scope1RA'
+import Scope1FS from './screens/Scope1FS'
+import Scope1PG from './screens/Scope1PG'
+
 
 function App() {
   return (
@@ -25,6 +28,8 @@ function App() {
         <Route path="/Scope1SC" element={<Scope1SC />} />
         <Route path="/Scope1MS" element={<Scope1MS />} />
         <Route path="/Scope1RA" element={<Scope1RA />} />
+        <Route path="/Scope1FS" element={<Scope1FS />} />
+        <Route path="/Scope1PG" element={<Scope1PG />} />
       </Routes>
     </Router>
   );
