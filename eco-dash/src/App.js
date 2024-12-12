@@ -12,7 +12,8 @@ import Scope1MS from './screens/Scope1MS'
 import Scope1RA from './screens/Scope1RA'
 import Scope1FS from './screens/Scope1FS'
 import Scope1PG from './screens/Scope1PG'
-
+import Scope2E from './screens/Scope2E'
+import Scope2S from './screens/Scope2S'
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
         <Route path="/Scope1RA" element={<Scope1RA />} />
         <Route path="/Scope1FS" element={<Scope1FS />} />
         <Route path="/Scope1PG" element={<Scope1PG />} />
+        <Route path="/Scope2E" element={<Scope2E />} />
+        <Route path="/Scope2S" element={<Scope2S />} />
       </Routes>
     </Router>
   );
