@@ -205,31 +205,36 @@ const SteamPage = () => {
               Steam
             </Typography>
             {/* Form for adding new records */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 4 , gap: 2}}>
               <Typography variant="h6">Add New Record</Typography>
               <Box
-                component="form"
+                component="form" 
                 sx={{
                   display: 'flex',
+                   //flexDirection: 'column',
+                   //flexDirection: 'row', // Change to row for horizontal layout
+                  flexWrap: 'wrap',
                   gap: 2,
                   mt: 2,
-                }}
-              >
-                <TextField
+                  height: 'auto',
+                  width: 'auto', // Allow height to adjust automatically
+                  overflow: 'auto', // Add scrollbars if content overflows
+                }}              >
+                <TextField 
                   label="Source ID"
                   name="sourceId"
                   value={formValues.sourceId}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="Description"
                   name="description"
                   value={formValues.description}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="Source Area (Kms)"
                   name="sourceArea"
                   type="number"
@@ -237,7 +242,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <FormControl sx={{ minWidth: 120 }}>
+                <FormControl sx={{ minWidth: 150 }}>
                   <InputLabel id="fuel-type-label">Fuel Type</InputLabel>
                   <Select
                     labelId="fuel-type-label"
@@ -259,7 +264,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="Steam Purchased (KWH)"
                   name="steamPurchased"
                   type="number"
@@ -267,7 +272,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="CO2 Emission factor (kg/KWH)"
                   name="co2EmissionFactor"
                   type="number"
@@ -275,7 +280,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="CH4 Emission factor (kg/KWH)"
                   name="ch4EmissionFactor"
                   type="number"
@@ -283,7 +288,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="N2O Emission factor (kg/KWH)"
                   name="n2oEmissionFactor"
                   type="number"
@@ -291,7 +296,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="CO2 emissions(Kg)"
                   name="co2Emissions"
                   type="number"
@@ -299,7 +304,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="CH4 emissions(Kg)"
                   name="ch4Emissions"
                   type="number"
@@ -307,7 +312,7 @@ const SteamPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
+                <TextField 
                   label="N2O emissions(Kg)"
                   name="n2oEmissions"
                   type="number"
