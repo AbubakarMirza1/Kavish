@@ -43,11 +43,11 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   {
@@ -64,6 +64,8 @@ const initialData = [
 ];
 
 const ElectricityPage = () => {
+  const navigate = useNavigate(); // Use React Router's useNavigate
+
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
@@ -119,20 +121,25 @@ const ElectricityPage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+    };
+    if (routes[section]) navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
+      primary: { main: '#0D7377' },
+      secondary: { main: '#14FFEC' },
     },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
+    typography: { h6: { fontWeight: 'bold' } },
   });
 
   const sidebarSections = [
@@ -142,7 +149,6 @@ const ElectricityPage = () => {
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
   return (
@@ -168,15 +174,15 @@ const ElectricityPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -213,20 +219,8 @@ const ElectricityPage = () => {
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
               <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <TextField
-                  label="Source ID"
-                  name="sourceId"
-                  value={formValues.sourceId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Description"
-                  name="description"
-                  value={formValues.description}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
                 <TextField
                   label="Date"
                   name="date"
@@ -236,14 +230,7 @@ const ElectricityPage = () => {
                   variant="outlined"
                   InputLabelProps={{ shrink: true }}
                 />
-                <TextField
-                  label="Area (sq ft)"
-                  name="area"
-                  type="number"
-                  value={formValues.area}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Area (sq ft)" name="area" type="number" value={formValues.area} onChange={handleInputChange} variant="outlined" />
                 <TextField
                   label="Electricity Consumed (units)"
                   name="electricityConsumed"
@@ -252,30 +239,9 @@ const ElectricityPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                <TextField
-                  label="CO2 Emissions (kgs)"
-                  name="co2Emissions"
-                  type="number"
-                  value={formValues.co2Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="CH4 Emissions (kgs)"
-                  name="ch4Emissions"
-                  type="number"
-                  value={formValues.ch4Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="N2O Emissions (kgs)"
-                  name="n2oEmissions"
-                  type="number"
-                  value={formValues.n2oEmissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="CO2 Emissions (kgs)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CH4 Emissions (kgs)" name="ch4Emissions" type="number" value={formValues.ch4Emissions} onChange={handleInputChange} variant="outlined" />
+                <TextField label="N2O Emissions (kgs)" name="n2oEmissions" type="number" value={formValues.n2oEmissions} onChange={handleInputChange} variant="outlined" />
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
                 </Button>
@@ -324,46 +290,38 @@ const ElectricityPage = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => (window.location.href = '/Scope1PG')}
-              >
+              <Button variant="contained" color="primary" onClick={() => navigate('/Scope1PG')}>
                 Back to Scope 1
               </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => (window.location.href = '/Scope2S')}
-              >
+              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope2S')}>
                 Proceed to Steam
               </Button>
             </Box>
           </Container>
+
+          {/* Confirmation Dialog */}
+          <Dialog open={openDialog} onClose={handleClose}>
+            <DialogTitle>{"Confirm Deletion"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Snackbar */}
+          <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+            <Alert onClose={handleClose} severity="error">
+              Please fill in all fields before adding a record.
+            </Alert>
+          </Snackbar>
         </Box>
-
-        {/* Confirmation Dialog */}
-        <Dialog open={openDialog} onClose={handleClose}>
-          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Snackbar */}
-        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error">
-            Please fill in all fields before adding a record.
-          </Alert>
-        </Snackbar>
       </Box>
     </ThemeProvider>
   );
