@@ -41,11 +41,11 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   {
@@ -57,6 +57,7 @@ const initialData = [
     gasGWP: 2088,
     unitCharge: 5,
     co2Emissions: 10440,
+    date: '2024-01-01',
   },
   {
     id: 2,
@@ -67,10 +68,13 @@ const initialData = [
     gasGWP: 1430,
     unitCharge: 3,
     co2Emissions: 4290,
-  }
+    date: '2024-01-02',
+  },
 ];
 
 const FireSuppressionPage = () => {
+  const navigate = useNavigate();
+
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
@@ -79,6 +83,7 @@ const FireSuppressionPage = () => {
     gasGWP: '',
     unitCharge: '',
     co2Emissions: '',
+    date: '', // Initialize date
   });
 
   const [rows, setRows] = useState(initialData);
@@ -92,7 +97,13 @@ const FireSuppressionPage = () => {
   };
 
   const handleAddRow = () => {
-    setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
+    setRows((prev) => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        ...formValues,
+      },
+    ]);
     setFormValues({
       sourceId: '',
       description: '',
@@ -101,7 +112,21 @@ const FireSuppressionPage = () => {
       gasGWP: '',
       unitCharge: '',
       co2Emissions: '',
+      date: '', // Reset date field
     });
+  };
+
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+    };
+    navigate(routes[section]);
   };
 
   const handleClickOpen = (id) => {
@@ -120,22 +145,13 @@ const FireSuppressionPage = () => {
 
   const theme = createTheme({
     palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
+      primary: { main: '#0D7377' },
+      secondary: { main: '#14FFEC' },
     },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
+    typography: { h6: { fontWeight: 'bold' } },
   });
 
   const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
-
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
@@ -143,7 +159,6 @@ const FireSuppressionPage = () => {
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
   return (
@@ -168,15 +183,15 @@ const FireSuppressionPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -184,98 +199,33 @@ const FireSuppressionPage = () => {
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-                
-              </Typography>
-              <IconButton color="inherit">
-                <NotificationsIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <HelpIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <ProfileIcon />
-              </IconButton>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }} />
+              <IconButton color="inherit"><NotificationsIcon /></IconButton>
+              <IconButton color="inherit"><HelpIcon /></IconButton>
+              <IconButton color="inherit"><ProfileIcon /></IconButton>
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2">
-            Scope 1
-          </Typography>
+          <Typography variant="h2">Scope 1</Typography>
           <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom>
-              Fire Suppression
-            </Typography>
+            <Typography variant="h4" gutterBottom>Fire Suppression</Typography>
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
-                <TextField
-                  label="Source ID"
-                  name="sourceId"
-                  value={formValues.sourceId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Date"
-                  name="date"
-                  type="date"
-                  value={formValues.date}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
+              <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Date" name="date" type="date" value={formValues.date} onChange={handleInputChange} variant="outlined" InputLabelProps={{ shrink: true }} />
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Gas</InputLabel>
-                  <Select
-                    name="gas"
-                    value={formValues.gas}
-                    onChange={handleInputChange}
-                    label="Gas"
-                  >
+                  <Select name="gas" value={formValues.gas} onChange={handleInputChange} label="Gas">
                     {gasOptions.map((gas) => (
-                      <MenuItem key={gas} value={gas}>
-                        {gas}
-                      </MenuItem>
+                      <MenuItem key={gas} value={gas}>{gas}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-                <TextField
-                  label="Gas GWP"
-                  name="gasGWP"
-                  type="number"
-                  value={formValues.gasGWP}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Unit Charge (kg)"
-                  name="unitCharge"
-                  type="number"
-                  value={formValues.unitCharge}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="CO2 Equivalent Emissions (kg)"
-                  name="co2Emissions"
-                  type="number"
-                  value={formValues.co2Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <Button variant="contained" color="primary" onClick={handleAddRow}>
-                  Add
-                </Button>
+                <TextField label="Gas GWP" name="gasGWP" type="number" value={formValues.gasGWP} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Unit Charge (kg)" name="unitCharge" type="number" value={formValues.unitCharge} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CO2 Equivalent Emissions (kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
+                <Button variant="contained" color="primary" onClick={handleAddRow}>Add</Button>
               </Box>
             </Box>
             <Typography variant="h6">Records</Typography>
@@ -298,7 +248,7 @@ const FireSuppressionPage = () => {
                     <TableRow key={row.id}>
                       <TableCell>{row.id}</TableCell>
                       <TableCell>{row.sourceId}</TableCell>
-                      <TableCell>{row.date}</TableCell>
+                      <TableCell>{row.date || 'N/A'}</TableCell>
                       <TableCell>{row.gas}</TableCell>
                       <TableCell>{row.gasGWP}</TableCell>
                       <TableCell>{row.unitCharge}</TableCell>
@@ -313,50 +263,25 @@ const FireSuppressionPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-
-            {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => (window.location.href = '/Scope1RA')}
-              >
-                Back to Refrigeration & AC
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => (window.location.href = '/Scope1PG')}
-              >
-                Proceed to Purchased Gases
-              </Button>
+              <Button variant="contained" color="primary" onClick={() => navigate('/Scope1RA')}>Back to Refrigeration & AC</Button>
+              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1PG')}>Proceed to Purchased Gases</Button>
             </Box>
           </Container>
+          <Dialog open={openDialog} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+            <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">Are you sure you want to delete this record?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">Cancel</Button>
+              <Button onClick={handleDeleteRow} color="secondary" autoFocus>Confirm</Button>
+            </DialogActions>
+          </Dialog>
         </Box>
-        <Dialog
-          open={openDialog}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this record?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </ThemeProvider>
   );
 };
 
-export default FireSuppressionPage;
+export default FireSuppressionPage; 
