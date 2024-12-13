@@ -43,11 +43,11 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   { id: 1, sourceId: '001', description: 'Refrigeration A', gas: 'R134a', equipmentType: 'Chiller', gasGWP: 1430, unitCharge: 10, co2Emissions: 14.3 },
@@ -55,6 +55,8 @@ const initialData = [
 ];
 
 const RefrigerationAndACPage = () => {
+  const navigate = useNavigate();
+
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
@@ -108,6 +110,19 @@ const RefrigerationAndACPage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+    };
+    navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
       primary: { main: '#0D7377' },
@@ -125,7 +140,6 @@ const RefrigerationAndACPage = () => {
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
   return (
@@ -151,15 +165,15 @@ const RefrigerationAndACPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -190,35 +204,18 @@ const RefrigerationAndACPage = () => {
 
           <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>
-              Refrigeration and AC Data Entry
+              Refrigeration and AC
             </Typography>
 
             {/* Form */}
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
               <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <TextField
-                  label="Source ID"
-                  name="sourceId"
-                  value={formValues.sourceId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Source Description"
-                  name="description"
-                  value={formValues.description}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Source Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Gas</InputLabel>
-                  <Select
-                    name="gas"
-                    value={formValues.gas}
-                    onChange={handleInputChange}
-                    label="Gas"
-                  >
+                  <Select name="gas" value={formValues.gas} onChange={handleInputChange} label="Gas">
                     {gasOptions.map((gas) => (
                       <MenuItem key={gas} value={gas}>
                         {gas}
@@ -228,12 +225,7 @@ const RefrigerationAndACPage = () => {
                 </FormControl>
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Type of Equipment</InputLabel>
-                  <Select
-                    name="equipmentType"
-                    value={formValues.equipmentType}
-                    onChange={handleInputChange}
-                    label="Type of Equipment"
-                  >
+                  <Select name="equipmentType" value={formValues.equipmentType} onChange={handleInputChange} label="Type of Equipment">
                     {equipmentTypeOptions.map((type) => (
                       <MenuItem key={type} value={type}>
                         {type}
@@ -241,30 +233,9 @@ const RefrigerationAndACPage = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <TextField
-                  label="Gas GWP"
-                  name="gasGWP"
-                  type="number"
-                  value={formValues.gasGWP}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Unit Charge (kg)"
-                  name="unitCharge"
-                  type="number"
-                  value={formValues.unitCharge}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="CO2 Equivalent Emissions (kg)"
-                  name="co2Emissions"
-                  type="number"
-                  value={formValues.co2Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Gas GWP" name="gasGWP" type="number" value={formValues.gasGWP} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Unit Charge (kg)" name="unitCharge" type="number" value={formValues.unitCharge} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CO2 Equivalent Emissions (kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
                 </Button>
@@ -285,6 +256,7 @@ const RefrigerationAndACPage = () => {
                     <TableCell>Gas GWP</TableCell>
                     <TableCell>Unit Charge (kg)</TableCell>
                     <TableCell>CO2 Equivalent Emissions (kg)</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -299,7 +271,7 @@ const RefrigerationAndACPage = () => {
                       <TableCell>{row.unitCharge}</TableCell>
                       <TableCell>{row.co2Emissions}</TableCell>
                       <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
+                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
                         </Button>
                       </TableCell>
@@ -311,18 +283,10 @@ const RefrigerationAndACPage = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => (window.location.href = '/Scope1MS')}
-              >
+              <Button variant="contained" color="primary" onClick={() => navigate('/Scope1MS')}>
                 Back to Mobile Sources
               </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => (window.location.href = '/Scope1FS')}
-              >
+              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1FS')}>
                 Proceed to Fire Suppression
               </Button>
             </Box>
