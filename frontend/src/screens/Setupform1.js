@@ -34,14 +34,17 @@ import {
     NotificationImportant as NotificationIcon,
 } from '@mui/icons-material';
 
+import { useNavigate } from "react-router-dom";
 const Scope1EmissionsSetup = () => {
+    const navigate = useNavigate(); // React Router navigation hook
+
     const [formValues, setFormValues] = useState({
         stationaryCombustion: "",
         mobile: "",
         refrigeration: "",
         fireSuppression: "",
         purchasedGases: "",
-        units: "", // General units
+        units: "",
     });
 
     // State for each section with predefined values
@@ -235,55 +238,93 @@ const Scope1EmissionsSetup = () => {
         } > { /* Sidebar Navigation */ } <
         Drawer variant = "permanent"
         sx = {
-            { width: 240, flexShrink: 0, [`& .MuiDrawer-paper`]: { width: 240, boxSizing: "border-box", backgroundColor: "#c8e8d0" } }
+            {
+                width: 240,
+                flexShrink: 0,
+                [`& .MuiDrawer-paper`]: {
+                    width: 240,
+                    boxSizing: "border-box",
+                    backgroundColor: "#c8e8d0",
+                },
+            }
         } >
         <
         Toolbar >
         <
         Typography variant = "h6"
-        noWrap > EcoDash < /Typography> < /
+        noWrap >
+        EcoDash <
+        /Typography> < /
         Toolbar > <
         List >
         <
         ListItem button >
         <
-        ListItemIcon > < DashboardIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        DashboardIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Dashboard" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < EmissionsIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        EmissionsIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Emissions" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < WasteIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        WasteIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Waste" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < DataEntryIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        DataEntryIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Data Entry" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < ReportsIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        ReportsIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Reports" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < AnalyticsIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        AnalyticsIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Analytics" / >
         <
         /ListItem> <
         ListItem button >
         <
-        ListItemIcon > < HelpIcon / > < /ListItemIcon> <
+        ListItemIcon >
+        <
+        HelpIcon / >
+        <
+        /ListItemIcon> <
         ListItemText primary = "Help" / >
         <
         /ListItem> < /
@@ -300,7 +341,7 @@ const Scope1EmissionsSetup = () => {
         <
         Toolbar >
         <
-        Typography variant = "h6" > GHG Scope 1 Emissions Setup < /Typography> <
+        Typography variant = "h6" > Scope 1 Setup Form < /Typography> <
         IconButton sx = {
             { ml: 'auto' }
         } >
@@ -313,8 +354,7 @@ const Scope1EmissionsSetup = () => {
         /AppBar>
 
         <
-        Container >
-        <
+        Container > { /* Stationary Combustion */ } <
         h2 > Stationary Combustion < /h2> <
         TextField label = "Add Fuel Type"
         value = { formValues.stationaryCombustion }
@@ -325,9 +365,11 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("stationaryCombustion")
         }
-        variant = "contained" > Add < /Button> { renderTable("stationaryCombustion", stationaryCombustionRows, "Fuel Type") }
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("stationaryCombustion", stationaryCombustionRows, "Fuel Type") }
 
-        <
+        { /* Mobile Sources */ } <
         h2 > Mobile Sources < /h2> <
         TextField label = "Add Vehicle Type"
         value = { formValues.mobile }
@@ -338,9 +380,11 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("mobile")
         }
-        variant = "contained" > Add < /Button> { renderTable("mobile", mobileRows, "Vehicle Type") }
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("mobile", mobileRows, "Vehicle Type") }
 
-        <
+        { /* Refrigeration */ } <
         h2 > Refrigeration < /h2> <
         TextField label = "Add Refrigeration Type"
         value = { formValues.refrigeration }
@@ -351,9 +395,11 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("refrigeration")
         }
-        variant = "contained" > Add < /Button> { renderTable("refrigeration", refrigerationRows, "Refrigeration Type") }
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("refrigeration", refrigerationRows, "Refrigeration Type") }
 
-        <
+        { /* Fire Suppression */ } <
         h2 > Fire Suppression < /h2> <
         TextField label = "Add Fire Suppression Type"
         value = { formValues.fireSuppression }
@@ -364,9 +410,11 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("fireSuppression")
         }
-        variant = "contained" > Add < /Button> { renderTable("fireSuppression", fireSuppressionRows, "Fire Suppression Type") }
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("fireSuppression", fireSuppressionRows, "Fire Suppression Type") }
 
-        <
+        { /* Purchased Gases */ } <
         h2 > Purchased Gases < /h2> <
         TextField label = "Add Gas Type"
         value = { formValues.purchasedGases }
@@ -377,9 +425,11 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("purchasedGases")
         }
-        variant = "contained" > Add < /Button> { renderTable("purchasedGases", purchasedGasesRows, "Gas Type") }
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("purchasedGases", purchasedGasesRows, "Gas Type") }
 
-        <
+        { /* Units */ } <
         h2 > Units < /h2> <
         TextField label = "Add Unit"
         value = { formValues.units }
@@ -390,10 +440,37 @@ const Scope1EmissionsSetup = () => {
         Button onClick = {
             () => handleAddRow("units")
         }
-        variant = "contained" > Add < /Button> { renderTable("units", unitRows, "Unit") } < /
-        Container > <
+        variant = "contained" >
+        Add <
+        /Button> { renderTable("units", unitRows, "Unit") } </Container >
+
+        { /* Navigation Buttons */ } <
+        Box sx = {
+            {
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 4,
+            }
+        } >
+        <
+        Button variant = "contained"
+        color = "primary"
+        onClick = {
+            () => navigate("/dashboard")
+        } >
+        Back to Dashboard <
+        /Button> <
+        Button variant = "contained"
+        color = "secondary"
+        onClick = {
+            () => navigate("/setupform2")
+        } >
+        Scope 2 Setup Form <
+        /Button> < /
+        Box > <
         /Box> < /
         Box >
+
     );
 };
 
