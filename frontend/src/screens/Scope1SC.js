@@ -43,11 +43,10 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   { id: 1, sourceId: '001', description: 'Source A', date: '2023-01-01', fuel: 'Gasoline', quantity: 100, unit: 'Liters' },
@@ -55,7 +54,7 @@ const initialData = [
 ];
 
 const DashboardPage = () => {
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({ sourceId: '', description: '', date: '', fuel: '', quantity: '', unit: '' });
   const [rows, setRows] = useState(initialData);
@@ -93,6 +92,19 @@ const DashboardPage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+    };
+    if (routes[section]) navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
       primary: { main: '#0D7377' },
@@ -105,18 +117,13 @@ const DashboardPage = () => {
   const unitOptions = ['Liters', 'Gallons', 'Kilograms', 'Pounds'];
 
   const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' }, // Add path for navigation
+    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
     { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
-
-  const handleSidebarClick = (path) => {
-    if (path) navigate(path); // Navigate programmatically
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -141,15 +148,15 @@ const DashboardPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => handleSidebarClick(section.path)} // Handle click with navigation
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -254,6 +261,7 @@ const DashboardPage = () => {
                     <TableCell>Fuel Combusted</TableCell>
                     <TableCell>Quantity</TableCell>
                     <TableCell>Units</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -279,18 +287,10 @@ const DashboardPage = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate('/dashboard')} // Navigate back to dashboard
-              >
+              <Button variant="contained" color="primary" onClick={() => navigate('/dashboard')}>
                 Back to Dashboard
               </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => navigate('/Scope1MS')} // Navigate to Mobile Sources
-              >
+              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1MS')}>
                 Proceed to Mobile Sources
               </Button>
             </Box>
