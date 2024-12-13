@@ -48,6 +48,7 @@ import {
   Notifications as NotificationsIcon, 
   AccountCircle as ProfileIcon, 
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const initialData = [
   { 
@@ -68,6 +69,8 @@ const initialData = [
 ];
 
 const SteamPage = () => {
+  const navigate = useNavigate(); // Initialize navigate
+
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
@@ -148,14 +151,20 @@ const SteamPage = () => {
   });
 
   const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
+    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
     { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];  // Sidebar definition that matches the original
+  ];
+
+  const handleSidebarClick = (path) => {
+    if (path) {
+      navigate(path); // Navigate to the specified path
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -171,20 +180,24 @@ const SteamPage = () => {
           <List>
             {/* Sidebar items */}
             {sidebarSections.map((section) => (
-              <ListItem button key={section.section} selected={selectedSection === section.section} onClick={() => setSelectedSection(section.section)} >
+              <ListItem 
+                button 
+                key={section.section} 
+                selected={selectedSection === section.section} 
+                onClick={() => handleSidebarClick(section.path)} // Navigate on click
+              >
                 <ListItemIcon>{section.icon}</ListItemIcon>
                 <ListItemText primary={section.label} />
               </ListItem>
             ))}
           </List>
         </Drawer>
+
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-
-              </Typography>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
               <IconButton color="inherit">
                 <NotificationsIcon />
               </IconButton>
@@ -197,133 +210,45 @@ const SteamPage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2">
-            Scope 2
-          </Typography>
+
+          <Typography variant="h2">Scope 2</Typography>
+
           <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom sx={{ flexGrow: 1, color: '#0D7377' }}>
+            <Typography variant="h4" gutterBottom>
               Steam
             </Typography>
-            {/* Form for adding new records */}
-            <Box sx={{ mb: 4 , gap: 2}}>
+
+            {/* Form */}
+            <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
-              <Box
-                component="form" 
-                sx={{
-                  display: 'flex',
-                   //flexDirection: 'column',
-                   //flexDirection: 'row', // Change to row for horizontal layout
-                  flexWrap: 'wrap',
-                  gap: 2,
-                  mt: 2,
-                  height: 'auto',
-                  width: 'auto', // Allow height to adjust automatically
-                  overflow: 'auto', // Add scrollbars if content overflows
-                }}              >
-                <TextField 
-                  label="Source ID"
-                  name="sourceId"
-                  value={formValues.sourceId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="Description"
-                  name="description"
-                  value={formValues.description}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="Source Area (Kms)"
-                  name="sourceArea"
-                  type="number"
-                  value={formValues.sourceArea}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+                {/* Form fields */}
+                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Source Area (Kms)" name="sourceArea" type="number" value={formValues.sourceArea} onChange={handleInputChange} variant="outlined" />
                 <FormControl sx={{ minWidth: 150 }}>
                   <InputLabel id="fuel-type-label">Fuel Type</InputLabel>
-                  <Select
-                    labelId="fuel-type-label"
-                    name="fuelType"
-                    value={formValues.fuelType}
-                    onChange={handleInputChange}
-                    label="Fuel Type"
-                  >
+                  <Select labelId="fuel-type-label" name="fuelType" value={formValues.fuelType} onChange={handleInputChange} label="Fuel Type">
                     <MenuItem value="Natural Gas">Natural Gas</MenuItem>
                     <MenuItem value="Coal">Coal</MenuItem>
                     <MenuItem value="Oil">Oil</MenuItem>
                   </Select>
                 </FormControl>
-                <TextField
-                  label="Boiler Efficiency (%)"
-                  name="boilerEfficiency"
-                  type="number"
-                  value={formValues.boilerEfficiency}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="Steam Purchased (KWH)"
-                  name="steamPurchased"
-                  type="number"
-                  value={formValues.steamPurchased}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="CO2 Emission factor (kg/KWH)"
-                  name="co2EmissionFactor"
-                  type="number"
-                  value={formValues.co2EmissionFactor}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="CH4 Emission factor (kg/KWH)"
-                  name="ch4EmissionFactor"
-                  type="number"
-                  value={formValues.ch4EmissionFactor}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="N2O Emission factor (kg/KWH)"
-                  name="n2oEmissionFactor"
-                  type="number"
-                  value={formValues.n2oEmissionFactor}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="CO2 emissions(Kg)"
-                  name="co2Emissions"
-                  type="number"
-                  value={formValues.co2Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="CH4 emissions(Kg)"
-                  name="ch4Emissions"
-                  type="number"
-                  value={formValues.ch4Emissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField 
-                  label="N2O emissions(Kg)"
-                  name="n2oEmissions"
-                  type="number"
-                  value={formValues.n2oEmissions}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <Button variant="contained" color="primary" onClick={handleAddRow}> Add </Button>
+                <TextField label="Boiler Efficiency (%)" name="boilerEfficiency" type="number" value={formValues.boilerEfficiency} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Steam Purchased (KWH)" name="steamPurchased" type="number" value={formValues.steamPurchased} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CO2 Emission factor (kg/KWH)" name="co2EmissionFactor" type="number" value={formValues.co2EmissionFactor} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CH4 Emission factor (kg/KWH)" name="ch4EmissionFactor" type="number" value={formValues.ch4EmissionFactor} onChange={handleInputChange} variant="outlined" />
+                <TextField label="N2O Emission factor (kg/KWH)" name="n2oEmissionFactor" type="number" value={formValues.n2oEmissionFactor} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CO2 emissions(Kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
+                <TextField label="CH4 emissions(Kg)" name="ch4Emissions" type="number" value={formValues.ch4Emissions} onChange={handleInputChange} variant="outlined" />
+                <TextField label="N2O emissions(Kg)" name="n2oEmissions" type="number" value={formValues.n2oEmissions} onChange={handleInputChange} variant="outlined" />
+                <Button variant="contained" color="primary" onClick={handleAddRow}>
+                  Add
+                </Button>
               </Box>
             </Box>
-            {/* Table to display records */}
+
+            {/* Table */}
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -361,31 +286,51 @@ const SteamPage = () => {
                       <TableCell>{row.ch4Emissions}</TableCell>
                       <TableCell>{row.n2oEmissions}</TableCell>
                       <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}> Delete </Button>
+                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
+                          Delete
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate('/Scope2E')}
+              >
+                Back to Electricity
+              </Button>
+              <Button variant="contained" color="secondary">
+                Proceed to Scope 3
+              </Button>
+            </Box>
           </Container>
         </Box>
-        {/* Confirmation Dialog for deletions */}
-        <Dialog open={openDialog} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" >
-          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDialog} onClose={handleClose}>
+          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this record?
-            </DialogContentText>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary"> Cancel </Button>
-            <Button onClick={handleDeleteRow} color="secondary" autoFocus> Confirm </Button>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+              Confirm
+            </Button>
           </DialogActions>
         </Dialog>
-        {/* Dialogs and Snackbar for error messages */}
+
+        {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          <Alert onClose={handleClose} severity="error">
             Please fill in all fields before adding a record.
           </Alert>
         </Snackbar>
