@@ -43,11 +43,11 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   { id: 1, sourceId: '001', description: 'Vehicle A', vehicleType: 'Car', fuelUsage: 'Gasoline', unit: 'Liters', milesTravelled: 150 },
@@ -55,6 +55,8 @@ const initialData = [
 ];
 
 const MobileSourcePage = () => {
+  const navigate = useNavigate();
+
   const [formValues, setFormValues] = useState({ 
     sourceId: '', 
     description: '', 
@@ -99,6 +101,19 @@ const MobileSourcePage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+    };
+    navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
       primary: { main: '#0D7377' },
@@ -118,7 +133,6 @@ const MobileSourcePage = () => {
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
   return (
@@ -144,15 +158,15 @@ const MobileSourcePage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -190,28 +204,11 @@ const MobileSourcePage = () => {
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Vehicle Record</Typography>
               <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <TextField
-                  label="Source ID"
-                  name="sourceId"
-                  value={formValues.sourceId}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
-                <TextField
-                  label="Source Description"
-                  name="description"
-                  value={formValues.description}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
+                <TextField label="Source Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Vehicle Type</InputLabel>
-                  <Select
-                    name="vehicleType"
-                    value={formValues.vehicleType}
-                    onChange={handleInputChange}
-                    label="Vehicle Type"
-                  >
+                  <Select name="vehicleType" value={formValues.vehicleType} onChange={handleInputChange} label="Vehicle Type">
                     {vehicleTypeOptions.map((type) => (
                       <MenuItem key={type} value={type}>
                         {type}
@@ -221,12 +218,7 @@ const MobileSourcePage = () => {
                 </FormControl>
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Fuel Usage</InputLabel>
-                  <Select
-                    name="fuelUsage"
-                    value={formValues.fuelUsage}
-                    onChange={handleInputChange}
-                    label="Fuel Usage"
-                  >
+                  <Select name="fuelUsage" value={formValues.fuelUsage} onChange={handleInputChange} label="Fuel Usage">
                     {fuelUsageOptions.map((fuel) => (
                       <MenuItem key={fuel} value={fuel}>
                         {fuel}
@@ -234,22 +226,10 @@ const MobileSourcePage = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <TextField
-                  label="Miles Travelled"
-                  name="milesTravelled"
-                  type="number"
-                  value={formValues.milesTravelled}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                />
+                <TextField label="Miles Travelled" name="milesTravelled" type="number" value={formValues.milesTravelled} onChange={handleInputChange} variant="outlined" />
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Units</InputLabel>
-                  <Select
-                    name="unit"
-                    value={formValues.unit}
-                    onChange={handleInputChange}
-                    label="Units"
-                  >
+                  <Select name="unit" value={formValues.unit} onChange={handleInputChange} label="Units">
                     {unitOptions.map((unit) => (
                       <MenuItem key={unit} value={unit}>
                         {unit}
@@ -276,6 +256,7 @@ const MobileSourcePage = () => {
                     <TableCell>Fuel Usage</TableCell>
                     <TableCell>Miles Travelled</TableCell>
                     <TableCell>Units</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -289,7 +270,7 @@ const MobileSourcePage = () => {
                       <TableCell>{row.milesTravelled}</TableCell>
                       <TableCell>{row.unit}</TableCell>
                       <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleDeleteRow(row.id)}>
+                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
                         </Button>
                       </TableCell>
@@ -301,18 +282,10 @@ const MobileSourcePage = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => (window.location.href = '/Scope1SC')}
-              >
+              <Button variant="contained" color="primary" onClick={() => navigate('/Scope1SC')}>
                 Back to Stationary Combustion
               </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => (window.location.href = '/Scope1RA')}
-              >
+              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1RA')}>
                 Proceed to Refrigeration & AC
               </Button>
             </Box>
@@ -347,3 +320,4 @@ const MobileSourcePage = () => {
 };
 
 export default MobileSourcePage;
+
