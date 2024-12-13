@@ -48,7 +48,7 @@ import {
   Notifications as NotificationsIcon, 
   AccountCircle as ProfileIcon, 
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   { 
@@ -134,6 +134,20 @@ const SteamPage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+      settings: '/Settings',
+    };
+    if (routes[section]) navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
       primary: {
@@ -151,43 +165,47 @@ const SteamPage = () => {
   });
 
   const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' },
+    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
     { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
+    // { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
-
-  const handleSidebarClick = (path) => {
-    if (path) {
-      navigate(path); // Navigate to the specified path
-    }
-  };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         {/* Sidebar */}
-        <Drawer variant="permanent" sx={{ width: 240, flexShrink: 0, ['& .MuiDrawer-paper']: { width: 240, boxSizing: 'border-box', backgroundColor: '#f4f4f4', }, }} >
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: 240,
+            flexShrink: 0,
+            ['& .MuiDrawer-paper']: {
+              width: 240,
+              boxSizing: 'border-box',
+              backgroundColor: '#f4f4f4',
+            },
+          }}
+        >
           <Toolbar>
             <Typography variant="h6" sx={{ color: '#0D7377' }}>
               EcoDash
             </Typography>
           </Toolbar>
           <List>
-            {/* Sidebar items */}
-            {sidebarSections.map((section) => (
-              <ListItem 
-                button 
-                key={section.section} 
-                selected={selectedSection === section.section} 
-                onClick={() => handleSidebarClick(section.path)} // Navigate on click
+            {sidebarSections.map(({ label, icon, section }) => (
+              <ListItem
+                button
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -305,7 +323,11 @@ const SteamPage = () => {
               >
                 Back to Electricity
               </Button>
-              <Button variant="contained" color="secondary">
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => navigate('/Scope3BT')} // Navigate to Scope3BT.js
+              >
                 Proceed to Scope 3
               </Button>
             </Box>
