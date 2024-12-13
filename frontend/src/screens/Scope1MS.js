@@ -28,6 +28,13 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -59,6 +66,9 @@ const MobileSourcePage = () => {
   
   const [rows, setRows] = useState(initialData);
   const [selectedSection, setSelectedSection] = useState('dashboard');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,24 +76,35 @@ const MobileSourcePage = () => {
   };
 
   const handleAddRow = () => {
+    if (Object.values(formValues).some((value) => value === '')) {
+      setOpenSnackbar(true);
+      return;
+    }
     setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
-    setFormValues({ sourceId: '', description: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' }); // Reset form
+    setFormValues({ sourceId: '', description: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
+  };
+
+  const handleClickOpen = (id) => {
+    setOpenDialog(true);
+    setDeleteId(id);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+    setOpenSnackbar(false);
+  };
+
+  const handleDeleteRow = () => {
+    setRows((prev) => prev.filter((row) => row.id !== deleteId));
+    setOpenDialog(false);
   };
 
   const theme = createTheme({
     palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
+      primary: { main: '#0D7377' },
+      secondary: { main: '#14FFEC' },
     },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
+    typography: { h6: { fontWeight: 'bold' } },
   });
 
   const vehicleTypeOptions = ['Car', 'Truck', 'Bus', 'Motorcycle'];
@@ -99,10 +120,6 @@ const MobileSourcePage = () => {
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
-
-  const handleDeleteRow = (id) => {
-    setRows((prev) => prev.filter((row) => row.id !== id));
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -146,9 +163,7 @@ const MobileSourcePage = () => {
           {/* Top Bar */}
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-               
-               </Typography>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
               <IconButton color="inherit">
                 <NotificationsIcon />
               </IconButton>
@@ -161,27 +176,20 @@ const MobileSourcePage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2">
+
+          <Typography variant="h2" gutterBottom>
             Scope 1
           </Typography>
 
-          {/* Page Content */}
           <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>
-                Mobile Sources
+              Mobile Sources
             </Typography>
 
             {/* Form */}
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Vehicle Record</Typography>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
+              <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <TextField
                   label="Source ID"
                   name="sourceId"
@@ -271,7 +279,7 @@ const MobileSourcePage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
- {rows.map((row) => (
+                  {rows.map((row) => (
                     <TableRow key={row.id}>
                       <TableCell>{row.id}</TableCell>
                       <TableCell>{row.sourceId}</TableCell>
@@ -290,8 +298,49 @@ const MobileSourcePage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => (window.location.href = '/Scope1SC')}
+              >
+                Back to Stationary Combustion
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => (window.location.href = '/Scope1RA')}
+              >
+                Proceed to Refrigeration & AC
+              </Button>
+            </Box>
           </Container>
         </Box>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDialog} onClose={handleClose}>
+          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar */}
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error">
+            Please fill in all fields before adding a record.
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
   );
