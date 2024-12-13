@@ -43,17 +43,19 @@ import {
   CloudUpload as DataEntryIcon,
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
-  Notifications as NotificationsIcon,
+  Settings as SettingsIcon,
   HelpOutline as HelpIcon,
+  Notifications as NotificationsIcon,
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
+import useScope1Store from '../store/scope1Store'; // Importing the Zustand store
 
 const initialData = [
-  { id: 1, sourceId: '001', description: 'Source A', date: '2023-01-01', fuel: 'Gasoline', quantity: 100, unit: 'Liters' },
-  { id: 2, sourceId: '002', description: 'Source B', date: '2023-01-02', fuel: 'Diesel', quantity: 200, unit: 'Liters' },
+  { id: 1, sourceId: '001', description: 'Source A', date: '2023-01-01', fuel: 'Petrol', quantity: 100, unit: 'KG' },
+  { id: 2, sourceId: '002', description: 'Source B', date: '2023-01-02', fuel: 'Diesel', quantity: 200, unit: 'KG' },
 ];
 
-const DashboardPage = () => {
+const Scope1SC = () => {
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({ sourceId: '', description: '', date: '', fuel: '', quantity: '', unit: '' });
@@ -62,6 +64,14 @@ const DashboardPage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Get data from Zustand store
+  const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
+  const unitRows = useScope1Store((state) => state.unitRows);
+
+  // Filter only active rows for fuels and units
+  const activeFuels = stationaryCombustionRows.filter((row) => row.active);
+  const activeUnits = unitRows.filter((row) => row.active);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -92,19 +102,6 @@ const DashboardPage = () => {
     setOpenDialog(false);
   };
 
-  const handleSectionNavigation = (section) => {
-    setSelectedSection(section);
-    const routes = {
-      dashboard: '/dashboard',
-      emissions: '/GHGEmissions',
-      waste: '/WasteManagement',
-      'data-entry': '/Scope1SC',
-      reports: '/Reports',
-      analytics: '/analytics',
-    };
-    if (routes[section]) navigate(routes[section]);
-  };
-
   const theme = createTheme({
     palette: {
       primary: { main: '#0D7377' },
@@ -113,17 +110,19 @@ const DashboardPage = () => {
     typography: { h6: { fontWeight: 'bold' } },
   });
 
-  const fuelOptions = ['Gasoline', 'Diesel', 'Electric', 'Biofuel'];
-  const unitOptions = ['Liters', 'Gallons', 'Kilograms', 'Pounds'];
-
   const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
+    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
     { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
+    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
+
+  const handleSidebarClick = (path) => {
+    if (path) navigate(path);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -148,15 +147,15 @@ const DashboardPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map(({ label, icon, section }) => (
+            {sidebarSections.map((section) => (
               <ListItem
                 button
-                key={section}
-                selected={selectedSection === section}
-                onClick={() => handleSectionNavigation(section)}
+                key={section.section}
+                selected={selectedSection === section.section}
+                onClick={() => handleSidebarClick(section.path)}
               >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
+                <ListItemIcon>{section.icon}</ListItemIcon>
+                <ListItemText primary={section.label} />
               </ListItem>
             ))}
           </List>
@@ -178,7 +177,7 @@ const DashboardPage = () => {
             </Toolbar>
           </AppBar>
 
-          <Typography variant="h2" gutterBottom>
+          <Typography variant="h2" gutterBottom sx={{ mt: 8 }}>
             Scope 1
           </Typography>
 
@@ -217,9 +216,9 @@ const DashboardPage = () => {
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Fuel Combusted</InputLabel>
                   <Select name="fuel" value={formValues.fuel} onChange={handleInputChange} label="Fuel Combusted">
-                    {fuelOptions.map((fuel) => (
-                      <MenuItem key={fuel} value={fuel}>
-                        {fuel}
+                    {activeFuels.map((fuel) => (
+                      <MenuItem key={fuel.id} value={fuel.name}>
+                        {fuel.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -235,9 +234,9 @@ const DashboardPage = () => {
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Units</InputLabel>
                   <Select name="unit" value={formValues.unit} onChange={handleInputChange} label="Units">
-                    {unitOptions.map((unit) => (
-                      <MenuItem key={unit} value={unit}>
-                        {unit}
+                    {activeUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.name}>
+                        {unit.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -287,10 +286,18 @@ const DashboardPage = () => {
 
             {/* Navigation Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button variant="contained" color="primary" onClick={() => navigate('/dashboard')}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate('/dashboard')}
+              >
                 Back to Dashboard
               </Button>
-              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1MS')}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => navigate('/Scope1MS')} 
+              >
                 Proceed to Mobile Sources
               </Button>
             </Box>
@@ -298,7 +305,7 @@ const DashboardPage = () => {
 
           {/* Confirmation Dialog */}
           <Dialog open={openDialog} onClose={handleClose}>
-            <DialogTitle>{"Confirm Deletion"}</DialogTitle>
+            <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogContent>
               <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
             </DialogContent>
@@ -324,4 +331,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default Scope1SC;
