@@ -13,8 +13,13 @@ const useScope1Store = create((set) => ({
   refrigerationRows: [
     { id: 1, name: "Stand-Alone Commercial", active: true },
     { id: 2, name: "Medium/Large Commercial", active: true },
+    { id: 3, name: "Chiller", active: true },
   ],
-  fireSuppressionRows: [],
+  fireSuppressionRows: [
+    { id: 1, name: "Clean Agent", active: true },
+    { id: 2, name: "Carbon Dioxide (CO2)", active: true },
+    { id: 3, name: "Novec 1230", active: true },
+  ],
   purchasedGasesRows: [
     { id: 1, name: "Natural Gas", active: true },
     { id: 2, name: "Propane", active: true },
