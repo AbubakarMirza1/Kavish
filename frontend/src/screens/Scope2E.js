@@ -34,7 +34,7 @@ import {
   DialogContentText,
   DialogTitle,
   Snackbar,
-  Alert
+  Alert,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -59,8 +59,8 @@ const initialData = [
     electricityConsumed: 500,
     co2Emissions: 200,
     ch4Emissions: 10,
-    n2oEmissions: 5
-  }
+    n2oEmissions: 5,
+  },
 ];
 
 const ElectricityPage = () => {
@@ -72,26 +72,26 @@ const ElectricityPage = () => {
     electricityConsumed: '',
     co2Emissions: '',
     ch4Emissions: '',
-    n2oEmissions: ''
+    n2oEmissions: '',
   });
 
   const [rows, setRows] = useState(initialData);
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [openSnackbar, setOpenSnackbar] = useState(false); // New state for Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
+    setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddRow = () => {
-    if (Object.values(formValues).some(value => value === '')) {
-      setOpenSnackbar(true); // Show error message
-      return; // Prevent adding the row
+    if (Object.values(formValues).some((value) => value === '')) {
+      setOpenSnackbar(true);
+      return;
     }
-    setRows(prev => [...prev, { id: prev.length + 1, ...formValues }]);
+    setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
     setFormValues({
       sourceId: '',
       description: '',
@@ -100,7 +100,7 @@ const ElectricityPage = () => {
       electricityConsumed: '',
       co2Emissions: '',
       ch4Emissions: '',
-      n2oEmissions: ''
+      n2oEmissions: '',
     });
   };
 
@@ -115,7 +115,7 @@ const ElectricityPage = () => {
   };
 
   const handleDeleteRow = () => {
-    setRows(prev => prev.filter(row => row.id !== deleteId));
+    setRows((prev) => prev.filter((row) => row.id !== deleteId));
     setOpenDialog(false);
   };
 
@@ -143,7 +143,7 @@ const ElectricityPage = () => {
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];  // Sidebar definition that matches the original
+  ];
 
   return (
     <ThemeProvider theme={theme}>
@@ -168,7 +168,6 @@ const ElectricityPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {/* Sidebar items */}
             {sidebarSections.map((section) => (
               <ListItem
                 button
@@ -182,13 +181,12 @@ const ElectricityPage = () => {
             ))}
           </List>
         </Drawer>
+
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-                
-              </Typography>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
               <IconButton color="inherit">
                 <NotificationsIcon />
               </IconButton>
@@ -201,24 +199,20 @@ const ElectricityPage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2" sx={{ flexGrow: 1, color: '#0D7377' }}>
+
+          <Typography variant="h2" sx={{ mt: 10 }}>
             Scope 2
           </Typography>
-          <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom sx={{ flexGrow: 1, color: '#0D7377' }}>
+
+          <Container>
+            <Typography variant="h4" gutterBottom>
               Electricity
             </Typography>
-            {/* Form for adding new records */}
+
+            {/* Form */}
             <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>Add New Record</Typography>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
+              <Typography variant="h6">Add New Record</Typography>
+              <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
                 <TextField
                   label="Source ID"
                   name="sourceId"
@@ -261,7 +255,7 @@ const ElectricityPage = () => {
                 <TextField
                   label="CO2 Emissions (kgs)"
                   name="co2Emissions"
- type="number"
+                  type="number"
                   value={formValues.co2Emissions}
                   onChange={handleInputChange}
                   variant="outlined"
@@ -287,7 +281,8 @@ const ElectricityPage = () => {
                 </Button>
               </Box>
             </Box>
-            {/* Table to display records */}
+
+            {/* Table */}
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -326,20 +321,32 @@ const ElectricityPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => (window.location.href = '/Scope1PG')}
+              >
+                Back to Scope 1
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => (window.location.href = '/Scope2S')}
+              >
+                Proceed to Steam
+              </Button>
+            </Box>
           </Container>
         </Box>
-        {/* Confirmation Dialog for deletions */}
-        <Dialog
-          open={openDialog}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDialog} onClose={handleClose}>
+          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this record?
-            </DialogContentText>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
@@ -350,9 +357,10 @@ const ElectricityPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-        {/* Dialogs and Snackbar for error messages */}
+
+        {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          <Alert onClose={handleClose} severity="error">
             Please fill in all fields before adding a record.
           </Alert>
         </Snackbar>
