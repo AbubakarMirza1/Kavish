@@ -33,8 +33,9 @@ import {
     HelpOutline as HelpIcon,
     NotificationImportant as NotificationIcon,
 } from '@mui/icons-material';
-
+import { useNavigate } from "react-router-dom";
 const Scope2EmissionsSetup = () => {
+    const navigate = useNavigate(); // React Router navigation hook
     const [formValues, setFormValues] = useState({
         fuelType: "",
         units: "", // General units
@@ -117,7 +118,8 @@ const Scope2EmissionsSetup = () => {
     const renderTable = (section, rows, title) => ( <
         TableContainer component = { Paper }
         style = {
-            { marginTop: "16px" } } >
+            { marginTop: "16px" }
+        } >
         <
         Table >
         <
@@ -127,8 +129,8 @@ const Scope2EmissionsSetup = () => {
         <
         TableCell > { title } < /TableCell> <
         TableCell > Active < /TableCell> <
-        TableCell > Actions < /TableCell> <
-        /TableRow> <
+        TableCell > Actions < /TableCell> < /
+        TableRow > <
         /TableHead> <
         TableBody > {
             rows.map((row) => ( <
@@ -139,29 +141,32 @@ const Scope2EmissionsSetup = () => {
                 <
                 Checkbox checked = { row.active }
                 onChange = {
-                    () => handleToggleActive(section, row.id) }
-                /> <
-                /TableCell> <
+                    () => handleToggleActive(section, row.id)
+                }
+                /> < /
+                TableCell > <
                 TableCell >
                 <
                 Button variant = "outlined"
                 color = "error"
                 onClick = {
-                    () => handleDeleteRow(section, row.id) } >
+                    () => handleDeleteRow(section, row.id)
+                } >
                 Delete <
-                /Button> <
-                /TableCell> <
+                /Button> < /
+                TableCell > <
                 /TableRow>
             ))
         } <
-        /TableBody> <
-        /Table> <
+        /TableBody> < /
+        Table > <
         /TableContainer>
     );
 
     return ( <
         Box sx = {
-            { display: "flex" } } > { /* Sidebar Navigation */ } <
+            { display: "flex" }
+        } > { /* Sidebar Navigation */ } <
         Drawer variant = "permanent"
         sx = {
             {
@@ -180,8 +185,8 @@ const Scope2EmissionsSetup = () => {
         Typography variant = "h6"
         noWrap >
         EcoDash <
-        /Typography> <
-        /Toolbar> <
+        /Typography> < /
+        Toolbar > <
         List >
         <
         ListItem button >
@@ -225,28 +230,30 @@ const Scope2EmissionsSetup = () => {
         ListItemIcon > < HelpIcon / > < /ListItemIcon> <
         ListItemText primary = "Help" / >
         <
-        /ListItem> <
-        /List> <
+        /ListItem> < /
+        List > <
         /Drawer>
 
         { /* Main Content */ } <
         Box component = "main"
         sx = {
-            { flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 } } >
+            { flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 }
+        } >
         <
         AppBar position = "static" >
         <
         Toolbar >
         <
-        Typography variant = "h6" > GHG Scope 2 Emissions Setup < /Typography> <
+        Typography variant = "h6" > Scope 2 Setup form < /Typography> <
         IconButton sx = {
-            { ml: 'auto' } } >
+            { ml: 'auto' }
+        } >
         <
         Avatar alt = "User"
         src = "/static/images/avatar/1.jpg" / >
         <
-        /IconButton> <
-        /Toolbar> <
+        /IconButton> < /
+        Toolbar > <
         /AppBar>
 
         <
@@ -256,10 +263,12 @@ const Scope2EmissionsSetup = () => {
         TextField label = "Add Fuel Type"
         value = { formValues.fuelType }
         onChange = {
-            (e) => setFormValues({...formValues, fuelType: e.target.value }) }
+            (e) => setFormValues({...formValues, fuelType: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("fuelType") }
+            () => handleAddRow("fuelType")
+        }
         variant = "contained" >
         Add <
         /Button> { renderTable("fuelType", fuelTypeRows, "Fuel Type") }
@@ -269,16 +278,42 @@ const Scope2EmissionsSetup = () => {
         TextField label = "Add Unit"
         value = { formValues.units }
         onChange = {
-            (e) => setFormValues({...formValues, units: e.target.value }) }
+            (e) => setFormValues({...formValues, units: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("units") }
+            () => handleAddRow("units")
+        }
         variant = "contained" >
         Add <
-        /Button> { renderTable("units", unitRows, "Unit") } <
-        /Container> <
-        /Box> <
-        /Box>
+        /Button> { renderTable("units", unitRows, "Unit") } </Container >
+
+        { /* Navigation Buttons */ } <
+        Box sx = {
+            {
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 4,
+            }
+        } >
+        <
+        Button variant = "contained"
+        color = "primary"
+        onClick = {
+            () => navigate("/dashboard")
+        } >
+        Back to Dashboard <
+        /Button> <
+        Button variant = "contained"
+        color = "secondary"
+        onClick = {
+            () => navigate("/setupform3")
+        } >
+        Scope 3 Setup Form <
+        /Button> < /
+        Box > <
+        /Box> < /
+        Box >
     );
 };
 
