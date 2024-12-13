@@ -1,8 +1,27 @@
 import React, { useState } from "react";
 import {
-  Button, TextField, Checkbox, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Drawer, List, ListItem, ListItemIcon, ListItemText,
-  AppBar, Toolbar, Typography, Box, Container, IconButton, Avatar
+  Button,
+  TextField,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Container,
+  IconButton,
+  Avatar,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -12,13 +31,13 @@ import {
   Assessment as ReportsIcon,
   Analytics as AnalyticsIcon,
   HelpOutline as HelpIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
 import useScope1Store from "../store/scope1Store";
 
 const Scope1EmissionsSetup = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   // Local state for form inputs only
   const [formValues, setFormValues] = useState({
@@ -31,11 +50,17 @@ const Scope1EmissionsSetup = () => {
   });
 
   // Select state slices individually
-  const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
+  const stationaryCombustionRows = useScope1Store(
+    (state) => state.stationaryCombustionRows
+  );
   const mobileRows = useScope1Store((state) => state.mobileRows);
   const refrigerationRows = useScope1Store((state) => state.refrigerationRows);
-  const fireSuppressionRows = useScope1Store((state) => state.fireSuppressionRows);
-  const purchasedGasesRows = useScope1Store((state) => state.purchasedGasesRows);
+  const fireSuppressionRows = useScope1Store(
+    (state) => state.fireSuppressionRows
+  );
+  const purchasedGasesRows = useScope1Store(
+    (state) => state.purchasedGasesRows
+  );
   const unitRows = useScope1Store((state) => state.unitRows);
 
   // Select actions individually
@@ -180,6 +205,35 @@ const Scope1EmissionsSetup = () => {
     </TableContainer>
   );
 
+  // Handle Sidebar Navigation
+  const handleSidebarNavigation = (section) => {
+    switch (section) {
+      case "dashboard":
+        navigate("/dashboard");
+        break;
+      case "emissions":
+        navigate("/emissions");
+        break;
+      case "waste":
+        navigate("/waste");
+        break;
+      case "data-entry":
+        navigate("/data-entry");
+        break;
+      case "reports":
+        navigate("/reports");
+        break;
+      case "analytics":
+        navigate("/analytics");
+        break;
+      case "help":
+        navigate("/help");
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       {/* Sidebar Navigation */}
@@ -201,43 +255,43 @@ const Scope1EmissionsSetup = () => {
           </Typography>
         </Toolbar>
         <List>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("dashboard")}>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Dashboard" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("emissions")}>
             <ListItemIcon>
               <EmissionsIcon />
             </ListItemIcon>
             <ListItemText primary="Emissions" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("waste")}>
             <ListItemIcon>
               <WasteIcon />
             </ListItemIcon>
             <ListItemText primary="Waste" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("data-entry")}>
             <ListItemIcon>
               <DataEntryIcon />
             </ListItemIcon>
             <ListItemText primary="Data Entry" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("reports")}>
             <ListItemIcon>
               <ReportsIcon />
             </ListItemIcon>
             <ListItemText primary="Reports" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("analytics")}>
             <ListItemIcon>
               <AnalyticsIcon />
             </ListItemIcon>
             <ListItemText primary="Analytics" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => handleSidebarNavigation("help")}>
             <ListItemIcon>
               <HelpIcon />
             </ListItemIcon>
@@ -247,11 +301,18 @@ const Scope1EmissionsSetup = () => {
       </Drawer>
 
       {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          bgcolor: (theme) => theme.palette.background.default,
+          p: 3,
+        }}
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6">Scope 1 Setup Form</Typography>
-            <IconButton sx={{ ml: 'auto' }}>
+            <IconButton sx={{ ml: "auto" }}>
               <Avatar alt="User" src="/static/images/avatar/1.jpg" />
             </IconButton>
           </Toolbar>
@@ -263,7 +324,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Fuel Type"
             value={formValues.stationaryCombustion}
-            onChange={(e) => setFormValues({ ...formValues, stationaryCombustion: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                stationaryCombustion: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("stationaryCombustion")} variant="contained">
             Add
@@ -275,7 +341,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Vehicle Type"
             value={formValues.mobile}
-            onChange={(e) => setFormValues({ ...formValues, mobile: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                mobile: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("mobile")} variant="contained">
             Add
@@ -287,7 +358,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Refrigeration Type"
             value={formValues.refrigeration}
-            onChange={(e) => setFormValues({ ...formValues, refrigeration: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                refrigeration: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("refrigeration")} variant="contained">
             Add
@@ -299,7 +375,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Fire Suppression Type"
             value={formValues.fireSuppression}
-            onChange={(e) => setFormValues({ ...formValues, fireSuppression: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                fireSuppression: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("fireSuppression")} variant="contained">
             Add
@@ -311,7 +392,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Gas Type"
             value={formValues.purchasedGases}
-            onChange={(e) => setFormValues({ ...formValues, purchasedGases: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                purchasedGases: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("purchasedGases")} variant="contained">
             Add
@@ -323,7 +409,12 @@ const Scope1EmissionsSetup = () => {
           <TextField
             label="Add Unit"
             value={formValues.units}
-            onChange={(e) => setFormValues({ ...formValues, units: e.target.value })}
+            onChange={(e) =>
+              setFormValues({
+                ...formValues,
+                units: e.target.value,
+              })
+            }
           />
           <Button onClick={() => handleAddRow("units")} variant="contained">
             Add
