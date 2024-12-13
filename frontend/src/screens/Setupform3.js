@@ -33,8 +33,10 @@ import {
     HelpOutline as HelpIcon,
     NotificationImportant as NotificationIcon,
 } from '@mui/icons-material';
+import { useNavigate } from "react-router-dom";
 
 const Scope3EmissionsSetup = () => {
+    const navigate = useNavigate(); // React Router navigation hook
     const [formValues, setFormValues] = useState({
         vehicleType: "",
         units: "",
@@ -153,7 +155,8 @@ const Scope3EmissionsSetup = () => {
     const renderTable = (section, rows, title) => ( <
         TableContainer component = { Paper }
         style = {
-            { marginTop: "16px" } } >
+            { marginTop: "16px" }
+        } >
         <
         Table >
         <
@@ -163,8 +166,8 @@ const Scope3EmissionsSetup = () => {
         <
         TableCell > { title } < /TableCell> <
         TableCell > Active < /TableCell> <
-        TableCell > Actions < /TableCell> <
-        /TableRow> <
+        TableCell > Actions < /TableCell> < /
+        TableRow > <
         /TableHead> <
         TableBody > {
             rows.map((row) => ( <
@@ -175,29 +178,32 @@ const Scope3EmissionsSetup = () => {
                 <
                 Checkbox checked = { row.active }
                 onChange = {
-                    () => handleToggleActive(section, row.id) }
-                /> <
-                /TableCell> <
+                    () => handleToggleActive(section, row.id)
+                }
+                /> < /
+                TableCell > <
                 TableCell >
                 <
                 Button variant = "outlined"
                 color = "error"
                 onClick = {
-                    () => handleDeleteRow(section, row.id) } >
+                    () => handleDeleteRow(section, row.id)
+                } >
                 Delete <
-                /Button> <
-                /TableCell> <
+                /Button> < /
+                TableCell > <
                 /TableRow>
             ))
         } <
-        /TableBody> <
-        /Table> <
+        /TableBody> < /
+        Table > <
         /TableContainer>
     );
 
     return ( <
         Box sx = {
-            { display: "flex" } } > { /* Sidebar Navigation */ } <
+            { display: "flex" }
+        } > { /* Sidebar Navigation */ } <
         Drawer variant = "permanent"
         sx = {
             {
@@ -216,8 +222,8 @@ const Scope3EmissionsSetup = () => {
         Typography variant = "h6"
         noWrap >
         EcoDash <
-        /Typography> <
-        /Toolbar> <
+        /Typography> < /
+        Toolbar > <
         List >
         <
         ListItem button >
@@ -261,28 +267,30 @@ const Scope3EmissionsSetup = () => {
         ListItemIcon > < HelpIcon / > < /ListItemIcon> <
         ListItemText primary = "Help" / >
         <
-        /ListItem> <
-        /List> <
+        /ListItem> < /
+        List > <
         /Drawer>
 
         { /* Main Content */ } <
         Box component = "main"
         sx = {
-            { flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 } } >
+            { flexGrow: 1, bgcolor: (theme) => theme.palette.background.default, p: 3 }
+        } >
         <
         AppBar position = "static" >
         <
         Toolbar >
         <
-        Typography variant = "h6" > GHG Scope 3 Emissions Setup < /Typography> <
+        Typography variant = "h6" > Scope 3 Setup form < /Typography> <
         IconButton sx = {
-            { ml: 'auto' } } >
+            { ml: 'auto' }
+        } >
         <
         Avatar alt = "User"
         src = "/static/images/avatar/1.jpg" / >
         <
-        /IconButton> <
-        /Toolbar> <
+        /IconButton> < /
+        Toolbar > <
         /AppBar>
 
         <
@@ -292,10 +300,12 @@ const Scope3EmissionsSetup = () => {
         TextField label = "Add Vehicle Type"
         value = { formValues.vehicleType }
         onChange = {
-            (e) => setFormValues({...formValues, vehicleType: e.target.value }) }
+            (e) => setFormValues({...formValues, vehicleType: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("vehicleType") }
+            () => handleAddRow("vehicleType")
+        }
         variant = "contained" >
         Add <
         /Button> { renderTable("vehicleType", vehicleTypeRows, "Vehicle Type") }
@@ -305,10 +315,12 @@ const Scope3EmissionsSetup = () => {
         TextField label = "Add Unit"
         value = { formValues.units }
         onChange = {
-            (e) => setFormValues({...formValues, units: e.target.value }) }
+            (e) => setFormValues({...formValues, units: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("units") }
+            () => handleAddRow("units")
+        }
         variant = "contained" >
         Add <
         /Button> { renderTable("units", unitRows, "Unit") }
@@ -318,10 +330,12 @@ const Scope3EmissionsSetup = () => {
         TextField label = "Add Waste Material"
         value = { formValues.wasteMaterial }
         onChange = {
-            (e) => setFormValues({...formValues, wasteMaterial: e.target.value }) }
+            (e) => setFormValues({...formValues, wasteMaterial: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("wasteMaterial") }
+            () => handleAddRow("wasteMaterial")
+        }
         variant = "contained" >
         Add <
         /Button> { renderTable("wasteMaterial", wasteMaterialRows, "Waste Material") }
@@ -331,14 +345,32 @@ const Scope3EmissionsSetup = () => {
         TextField label = "Add Disposal Method"
         value = { formValues.disposalMethod }
         onChange = {
-            (e) => setFormValues({...formValues, disposalMethod: e.target.value }) }
+            (e) => setFormValues({...formValues, disposalMethod: e.target.value })
+        }
         /> <
         Button onClick = {
-            () => handleAddRow("disposalMethod") }
+            () => handleAddRow("disposalMethod")
+        }
         variant = "contained" >
         Add <
-        /Button> { renderTable("disposalMethod", disposalMethodRows, "Disposal Method") } <
-        /Container> <
+        /Button> { renderTable("disposalMethod", disposalMethodRows, "Disposal Method") } </Container >
+
+        { /* Navigation Buttons */ } <
+        Box sx = {
+            {
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 4,
+            }
+        } >
+        <
+        Button variant = "contained"
+        color = "primary"
+        onClick = {
+            () => navigate("/dashboard") } >
+        Back to Dashboard <
+        /Button> <
+        /Box> <
         /Box> <
         /Box>
     );
