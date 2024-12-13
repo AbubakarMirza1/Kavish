@@ -3,17 +3,20 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './screens/landingPage';
 import Login from './screens/login';
 import Signup from './screens/signup';
-import SustainabilityDashboard from './screens/dashboard'
-import Setupform1 from './screens/Setupform1'
-import Setupform2 from './screens/Setupform2'
-import Setupform3 from './screens/Setupform3'
-import Scope1SC from './screens/Scope1SC'
-import Scope1MS from './screens/Scope1MS'
-import Scope1RA from './screens/Scope1RA'
-import Scope1FS from './screens/Scope1FS'
-import Scope1PG from './screens/Scope1PG'
-import Scope2E from './screens/Scope2E'
-import Scope2S from './screens/Scope2S'
+import SustainabilityDashboard from './screens/dashboard';
+import Setupform1 from './screens/Setupform1';
+import Setupform2 from './screens/Setupform2';
+import Setupform3 from './screens/Setupform3';
+import Scope1SC from './screens/Scope1SC';
+import Scope1MS from './screens/Scope1MS';
+import Scope1RA from './screens/Scope1RA';
+import Scope1FS from './screens/Scope1FS';
+import Scope1PG from './screens/Scope1PG';
+import Scope2E from './screens/Scope2E';
+import Scope2S from './screens/Scope2S';
+import WasteManagement from './screens/WasteManagement'; // Import the new screen
+import GHGEmissions from './screens/GHGEmissions'; // Import the new screen
+
 
 function App() {
   return (
@@ -33,10 +36,11 @@ function App() {
         <Route path="/Scope1PG" element={<Scope1PG />} />
         <Route path="/Scope2E" element={<Scope2E />} />
         <Route path="/Scope2S" element={<Scope2S />} />
+        <Route path="/WasteManagement" element={<WasteManagement />} /> {/* New Route */}
+        <Route path="/GHGEmissions" element={<GHGEmissions />} /> {/* Add this route */}
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
