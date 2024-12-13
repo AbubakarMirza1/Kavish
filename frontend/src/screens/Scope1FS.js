@@ -144,8 +144,8 @@ const FireSuppressionPage = () => {
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];  // Sidebar definition that matches the original
-  
+  ];
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -313,6 +313,24 @@ const FireSuppressionPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => (window.location.href = '/Scope1RA')}
+              >
+                Back to Refrigeration & AC
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => (window.location.href = '/Scope1PG')}
+              >
+                Proceed to Purchased Gases
+              </Button>
+            </Box>
           </Container>
         </Box>
         <Dialog
