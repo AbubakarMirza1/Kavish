@@ -34,7 +34,7 @@ import {
   DialogContentText,
   DialogTitle,
   Snackbar,
-  Alert
+  Alert,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -57,8 +57,8 @@ const initialData = [
     date: '2024-12-01',
     purchasedAmount: 500,
     unit: 'Kilograms',
-    unitCapacity: '500'
-  }
+    unitCapacity: '500',
+  },
 ];
 
 const PurchasedGasesPage = () => {
@@ -68,34 +68,35 @@ const PurchasedGasesPage = () => {
     date: '',
     purchasedAmount: '',
     unit: '',
-    unitCapacity: ''
+    unitCapacity: '',
   });
 
   const [rows, setRows] = useState(initialData);
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  const [openSnackbar, setOpenSnackbar] = useState(false); // New state for Snackbar
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
+    setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddRow = () => {
-    if (Object.values(formValues).some(value => value === '')) {
-        setOpenSnackbar(true); // Show error message
-        return; // Prevent adding the row
+    if (Object.values(formValues).some((value) => value === '')) {
+      setOpenSnackbar(true);
+      return;
     }
-    setRows(prev => [...prev, { id: prev.length + 1, ...formValues }]);
+    setRows((prev) => [...prev, { id: prev.length + 1, ...formValues }]);
     setFormValues({
       sourceId: '',
+      description: '',
       date: '',
       purchasedAmount: '',
       unit: '',
-      unitCapacity: ''
+      unitCapacity: '',
     });
- };
+  };
 
   const handleClickOpen = (id) => {
     setOpenDialog(true);
@@ -108,24 +109,16 @@ const PurchasedGasesPage = () => {
   };
 
   const handleDeleteRow = () => {
-    setRows(prev => prev.filter(row => row.id !== deleteId));
+    setRows((prev) => prev.filter((row) => row.id !== deleteId));
     setOpenDialog(false);
   };
 
   const theme = createTheme({
     palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
+      primary: { main: '#0D7377' },
+      secondary: { main: '#14FFEC' },
     },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
+    typography: { h6: { fontWeight: 'bold' } },
   });
 
   const unitOptions = ['Liters', 'Kilograms', 'Cubic meters'];
@@ -137,7 +130,7 @@ const PurchasedGasesPage = () => {
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
     { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];  // Sidebar definition that matches the original
+  ];
 
   return (
     <ThemeProvider theme={theme}>
@@ -162,7 +155,6 @@ const PurchasedGasesPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {/* Sidebar items */}
             {sidebarSections.map((section) => (
               <ListItem
                 button
@@ -176,13 +168,12 @@ const PurchasedGasesPage = () => {
             ))}
           </List>
         </Drawer>
+
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-                
-              </Typography>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
               <IconButton color="inherit">
                 <NotificationsIcon />
               </IconButton>
@@ -195,14 +186,15 @@ const PurchasedGasesPage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2">
-            Scope 1
-          </Typography>
+
+          <Typography variant="h2">Scope 1</Typography>
+
           <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>
               Purchased Gases
             </Typography>
-            {/* Form for adding new records */}
+
+            {/* Form */}
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
               <Box
@@ -220,7 +212,6 @@ const PurchasedGasesPage = () => {
                   onChange={handleInputChange}
                   variant="outlined"
                 />
-                
                 <TextField
                   label="Date"
                   name="date"
@@ -246,7 +237,7 @@ const PurchasedGasesPage = () => {
                     onChange={handleInputChange}
                     label="Unit"
                   >
-                    {unitOptions.map(option => (
+                    {unitOptions.map((option) => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>
@@ -266,7 +257,8 @@ const PurchasedGasesPage = () => {
                 </Button>
               </Box>
             </Box>
-            {/* Table to display records */}
+
+            {/* Table */}
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -299,20 +291,32 @@ const PurchasedGasesPage = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Navigation Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => (window.location.href = '/Scope1FS')}
+              >
+                Back to Fire Suppression
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => (window.location.href = '/Scope2E')}
+              >
+                Proceed to Scope 2
+              </Button>
+            </Box>
           </Container>
         </Box>
-        {/* Confirmation Dialog for deletions */}
-        <Dialog
-          open={openDialog}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDialog} onClose={handleClose}>
+          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this record?
-            </DialogContentText>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
@@ -323,9 +327,10 @@ const PurchasedGasesPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-        {/* Dialogs and Snackbar for error messages */}
+
+        {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          <Alert onClose={handleClose} severity="error">
             Please fill in all fields before adding a record.
           </Alert>
         </Snackbar>
