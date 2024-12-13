@@ -1,4 +1,4 @@
-import create  from 'zustand';
+import { create } from 'zustand';
 
 const useScope1Store = create((set) => ({
   // Initial state for each section
