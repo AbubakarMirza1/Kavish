@@ -91,10 +91,12 @@ const SustainabilityDashboard = () => {
 
   const handleSidebarClick = (section) => {
     setSelectedSection(section);
-    if (section === 'data-entry') navigate('/Scope1SC');
-    if (section === 'waste') navigate('/WasteManagement');
     if (section === 'dashboard') navigate('/dashboard');
     if (section === 'emissions') navigate('/GHGEmissions');
+    if (section === 'waste') navigate('/WasteManagement');
+    if (section === 'data-entry') navigate('/Scope1SC');
+    if (section === 'reports') navigate('/Reports');
+    if (section === 'analytics') navigate('/analytics');
   };
 
   return (
