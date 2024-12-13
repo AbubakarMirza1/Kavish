@@ -48,6 +48,7 @@ import {
   Notifications as NotificationsIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const initialData = [
   {
@@ -62,6 +63,8 @@ const initialData = [
 ];
 
 const PurchasedGasesPage = () => {
+  const navigate = useNavigate();
+
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
@@ -113,6 +116,20 @@ const PurchasedGasesPage = () => {
     setOpenDialog(false);
   };
 
+  const handleSectionNavigation = (section) => {
+    setSelectedSection(section);
+    const routes = {
+      dashboard: '/dashboard',
+      emissions: '/GHGEmissions',
+      waste: '/WasteManagement',
+      'data-entry': '/Scope1SC',
+      reports: '/Reports',
+      analytics: '/analytics',
+      // settings: '/Settings',
+    };
+    navigate(routes[section]);
+  };
+
   const theme = createTheme({
     palette: {
       primary: { main: '#0D7377' },
@@ -129,7 +146,7 @@ const PurchasedGasesPage = () => {
     { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
     { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
     { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
+    // { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
   ];
 
   return (
@@ -155,15 +172,15 @@ const PurchasedGasesPage = () => {
             </Typography>
           </Toolbar>
           <List>
-            {sidebarSections.map((section) => (
+            {sidebarSections.map(({ label, icon, section }) => (
               <ListItem
                 button
-                key={section.section}
-                selected={selectedSection === section.section}
-                onClick={() => setSelectedSection(section.section)}
+                key={section}
+                selected={selectedSection === section}
+                onClick={() => handleSectionNavigation(section)}
               >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
               </ListItem>
             ))}
           </List>
@@ -297,14 +314,14 @@ const PurchasedGasesPage = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => (window.location.href = '/Scope1FS')}
+                onClick={() => navigate('/Scope1FS')}
               >
                 Back to Fire Suppression
               </Button>
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={() => (window.location.href = '/Scope2E')}
+                onClick={() => navigate('/Scope2E')}
               >
                 Proceed to Scope 2
               </Button>
