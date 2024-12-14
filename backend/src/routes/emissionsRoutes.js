@@ -6,7 +6,9 @@ const {
   getRefrigerationEmissions,
   getFireSuppressionEmissions,
   getPurchasedGasEmissions,
-  getScope1KPIs
+  getScope1KPIs,
+  createStationaryEmission,
+  deleteStationaryEmission
 } = require('../controllers/emissionsController');
 
 router.get('/stationary', getStationaryEmissions);
