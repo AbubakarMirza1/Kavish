@@ -12,3 +12,81 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Source {
+  id                       Int                       @id @default(autoincrement())
+  sourceId                 String                    @unique
+  name                     String
+  type                     String
+  location                 String
+  StationaryEmissions      StationaryCombustion[]
+  MobileEmissions          MobileSource[]
+  RefrigerationEmissions   RefrigerationAC[]
+  FireSuppressionEmissions FireSuppression[]
+  PurchasedGasesEmissions  PurchasedGas[]
+}
+
+model StationaryCombustion {
+  id           Int      @id @default(autoincrement())
+  sourceId     String
+  description  String
+  date         DateTime
+  fuelCombusted String
+  quantity     Float
+  units        String
+  source       Source   @relation(fields: [sourceId], references: [sourceId])
+
+  @@index([sourceId])
+}
+
+model MobileSource {
+  id           Int      @id @default(autoincrement())
+  sourceId     String
+  description  String
+  vehicleType  String
+  fuelUsage    String
+  milesTravelled Float
+  units        String
+  source       Source   @relation(fields: [sourceId], references: [sourceId])
+
+  @@index([sourceId])
+}
+
+model RefrigerationAC {
+  id                       Int      @id @default(autoincrement())
+  sourceId                 String
+  description              String
+  gas                      String
+  typeOfEquipment          String
+  gasGWP                   Float
+  unitChargeKg             Float
+  co2EquivalentEmissionsKg Float
+  source                   Source   @relation(fields: [sourceId], references: [sourceId])
+
+  @@index([sourceId])
+}
+
+model FireSuppression {
+  id                       Int      @id @default(autoincrement())
+  sourceId                 String
+  date                     DateTime
+  gas                      String
+  gasGWP                   Float
+  unitChargeKg             Float
+  co2EquivalentEmissionsKg Float
+  source                   Source   @relation(fields: [sourceId], references: [sourceId])
+
+  @@index([sourceId])
+}
+
+model PurchasedGas {
+  id             Int      @id @default(autoincrement())
+  sourceId       String
+  date           DateTime
+  purchasedAmount Float
+  unit           String
+  unitCapacity    String
+  source         Source   @relation(fields: [sourceId], references: [sourceId])
+
+  @@index([sourceId])
+}
