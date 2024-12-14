@@ -48,10 +48,11 @@ import {
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import useScope1Store from '../store/scope1Store'; // Import Zustand store
 
 const initialData = [
-  { id: 1, sourceId: '001', description: 'Refrigeration A', gas: 'R134a', equipmentType: 'Chiller', gasGWP: 1430, unitCharge: 10, co2Emissions: 14.3 },
-  { id: 2, sourceId: '002', description: 'Refrigeration B', gas: 'R410A', equipmentType: 'AC Unit', gasGWP: 2088, unitCharge: 15, co2Emissions: 31.32 },
+  { id: 1, sourceId: '001', description: 'Refrigeration A', gas: 'R134a', equipmentType: 'Stand-Alone Commercial', gasGWP: 1430, unitCharge: 10, co2Emissions: 14.3 },
+  { id: 2, sourceId: '002', description: 'Refrigeration B', gas: 'R410A', equipmentType: 'Medium/Large Commercial', gasGWP: 2088, unitCharge: 15, co2Emissions: 31.32 },
 ];
 
 const RefrigerationAndACPage = () => {
@@ -72,6 +73,12 @@ const RefrigerationAndACPage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Import refrigerationRows from the store
+  const refrigerationRows = useScope1Store((state) => state.refrigerationRows);
+
+  // Filter only active refrigeration types for the dropdown
+  const activeRefrigerationOptions = refrigerationRows.filter((row) => row.active);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -132,7 +139,7 @@ const RefrigerationAndACPage = () => {
   });
 
   const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
-  const equipmentTypeOptions = ['Chiller', 'AC Unit', 'Refrigerator', 'Freezer'];
+
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
     { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
@@ -198,7 +205,7 @@ const RefrigerationAndACPage = () => {
             </Toolbar>
           </AppBar>
 
-          <Typography variant="h2" gutterBottom>
+          <Typography variant="h2" gutterBottom sx={{ mt: 8 }}>
             Scope 1
           </Typography>
 
@@ -211,8 +218,20 @@ const RefrigerationAndACPage = () => {
             <Box sx={{ mb: 4 }}>
               <Typography variant="h6">Add New Record</Typography>
               <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Source Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
+                <TextField
+                  label="Source ID"
+                  name="sourceId"
+                  value={formValues.sourceId}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Source Description"
+                  name="description"
+                  value={formValues.description}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
                 <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                   <InputLabel>Gas</InputLabel>
                   <Select name="gas" value={formValues.gas} onChange={handleInputChange} label="Gas">
@@ -223,19 +242,40 @@ const RefrigerationAndACPage = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <FormControl variant="outlined" sx={{ minWidth: 200 }}>
                   <InputLabel>Type of Equipment</InputLabel>
                   <Select name="equipmentType" value={formValues.equipmentType} onChange={handleInputChange} label="Type of Equipment">
-                    {equipmentTypeOptions.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
+                    {activeRefrigerationOptions.map((option) => (
+                      <MenuItem key={option.id} value={option.name}>
+                        {option.name}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
-                <TextField label="Gas GWP" name="gasGWP" type="number" value={formValues.gasGWP} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Unit Charge (kg)" name="unitCharge" type="number" value={formValues.unitCharge} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CO2 Equivalent Emissions (kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
+                <TextField
+                  label="Gas GWP"
+                  name="gasGWP"
+                  type="number"
+                  value={formValues.gasGWP}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="Unit Charge (kg)"
+                  name="unitCharge"
+                  type="number"
+                  value={formValues.unitCharge}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <TextField
+                  label="CO2 Equivalent Emissions (kg)"
+                  name="co2Emissions"
+                  type="number"
+                  value={formValues.co2Emissions}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
                 </Button>
@@ -291,30 +331,30 @@ const RefrigerationAndACPage = () => {
               </Button>
             </Box>
           </Container>
+
+          {/* Confirmation Dialog */}
+          <Dialog open={openDialog} onClose={handleClose}>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Snackbar */}
+          <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+            <Alert onClose={handleClose} severity="error">
+              Please fill in all fields before adding a record.
+            </Alert>
+          </Snackbar>
         </Box>
-
-        {/* Confirmation Dialog */}
-        <Dialog open={openDialog} onClose={handleClose}>
-          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Snackbar */}
-        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error">
-            Please fill in all fields before adding a record.
-          </Alert>
-        </Snackbar>
       </Box>
     </ThemeProvider>
   );
