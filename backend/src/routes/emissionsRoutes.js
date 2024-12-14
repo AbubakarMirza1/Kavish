@@ -19,5 +19,6 @@ router.get('/purchased', getPurchasedGasEmissions);
 router.get('/kpis', getScope1KPIs);
 router.post('/stationary', createStationaryEmission);
 router.delete('/stationary/:id', deleteStationaryEmission);
+router.get('/kpis', getScope1KPIs);
 
 module.exports = router;
