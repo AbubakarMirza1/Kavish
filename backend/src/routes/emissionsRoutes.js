@@ -15,5 +15,7 @@ router.get('/refrigeration', getRefrigerationEmissions);
 router.get('/fire', getFireSuppressionEmissions);
 router.get('/purchased', getPurchasedGasEmissions);
 router.get('/kpis', getScope1KPIs);
+router.post('/stationary', createStationaryEmission);
+router.delete('/stationary/:id', deleteStationaryEmission);
 
 module.exports = router;

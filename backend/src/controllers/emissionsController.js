@@ -51,11 +51,46 @@ async function getScope1KPIs(req, res) {
   });
 }
 
+async function createStationaryEmission(req, res) {
+  const { sourceId, description, date, fuelCombusted, quantity, units } = req.body;
+  try {
+    const newRecord = await prisma.stationaryCombustion.create({
+      data: {
+        sourceId,
+        description,
+        date: new Date(date),
+        fuelCombusted,
+        quantity: parseFloat(quantity),
+        units
+      }
+    });
+    res.status(201).json(newRecord);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error creating record' });
+  }
+}
+
+async function deleteStationaryEmission(req, res) {
+  const { id } = req.params;
+  try {
+    await prisma.stationaryCombustion.delete({
+      where: { id: parseInt(id) }
+    });
+    res.status(200).json({ message: 'Record deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error deleting record' });
+  }
+}
+
 module.exports = {
   getStationaryEmissions,
   getMobileEmissions,
   getRefrigerationEmissions,
   getFireSuppressionEmissions,
   getPurchasedGasEmissions,
-  getScope1KPIs
+  getScope1KPIs,
+  createStationaryEmission,
+  deleteStationaryEmission
 };
