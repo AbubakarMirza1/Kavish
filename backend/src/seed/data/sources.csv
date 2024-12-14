@@ -1,0 +1,21 @@
+ID,sourceId,name,type,location
+1,SCB001,Stationary Boiler 1,Stationary Combustion,Building A
+2,SCB002,Stationary Boiler 2,Stationary Combustion,Building A
+3,SCB003,Stationary Boiler 3,Stationary Combustion,Building B
+4,SCD001,Stationary Diesel Gen 1,Stationary Combustion,Building A
+5,SCD002,Stationary Diesel Gen 2,Stationary Combustion,Building C
+6,MSV001,Delivery Truck A,Mobile Source,On Road Fleet
+7,MSV002,Pickup Truck B,Mobile Source,On Road Fleet
+8,MSV003,Car C,Mobile Source,On Road Fleet
+9,MSV004,Van D,Mobile Source,On Road Fleet
+10,MSV005,Bus E,Mobile Source,On Road Fleet
+11,RAC001,Refrigeration Unit A,Refrigeration & AC,Store A
+12,RAC002,Refrigeration Unit B,Refrigeration & AC,Store B
+13,RAC003,AC Unit C,Refrigeration & AC,Office A
+14,RAC004,Industrial Chiller D,Refrigeration & AC,Factory A
+15,FS001,Fire Suppression Sys 1,Fire Suppression,Building A
+16,FS002,Fire Suppression Sys 2,Fire Suppression,Building B
+17,PG001,Natural Gas Supply A,Purchased Gas,Building A
+18,PG002,Propane Supply B,Purchased Gas,Building C
+19,PG003,Acetylene Supply C,Purchased Gas,Workshop A
+20,PG004,Hydrogen Supply D,Purchased Gas,Lab A

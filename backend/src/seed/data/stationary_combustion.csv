@@ -1,0 +1,21 @@
+ID,Source-ID,Description,Date,Fuel-Combusted,Quantity,Units
+1,SCB001,Boiler operation day shift,2023-01-01,Natural Gas,500,m3
+2,SCB001,Boiler operation night shift,2023-01-02,Natural Gas,480,m3
+3,SCB002,Boiler #2 day run,2023-01-03,Natural Gas,520,m3
+4,SCB002,Boiler #2 maintenance run,2023-01-04,Natural Gas,450,m3
+5,SCB003,Boiler #3 weekend load,2023-01-05,Natural Gas,600,m3
+6,SCB003,Boiler #3 partial load,2023-01-06,Natural Gas,300,m3
+7,SCD001,Diesel Gen test run,2023-01-07,Diesel,200,liters
+8,SCD001,Diesel Gen full load,2023-01-08,Diesel,350,liters
+9,SCD002,Diesel Gen #2 test,2023-01-09,Diesel,180,liters
+10,SCD002,Diesel Gen #2 partial load,2023-01-10,Diesel,220,liters
+11,SCB001,Boiler #1 max load,2023-01-11,Natural Gas,700,m3
+12,SCB002,Boiler #2 evening run,2023-01-12,Natural Gas,490,m3
+13,SCB003,Boiler #3 reduced load,2023-01-13,Natural Gas,250,m3
+14,SCD001,Diesel Gen monthly test,2023-01-14,Diesel,210,liters
+15,SCD002,Diesel Gen #2 maintenance run,2023-01-15,Diesel,230,liters
+16,SCB001,Boiler #1 normal day,2023-01-16,Natural Gas,400,m3
+17,SCB002,Boiler #2 normal day,2023-01-17,Natural Gas,410,m3
+18,SCB003,Boiler #3 normal day,2023-01-18,Natural Gas,500,m3
+19,SCD001,Diesel Gen early morning run,2023-01-19,Diesel,190,liters
+20,SCD002,Diesel Gen #2 normal load,2023-01-20,Diesel,240,liters
