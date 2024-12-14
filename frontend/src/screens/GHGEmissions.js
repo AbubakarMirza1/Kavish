@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -10,9 +10,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
   IconButton,
   Avatar,
   Container,
@@ -29,6 +26,7 @@ import {
   Notifications as NotificationIcon,
   HelpOutline as HelpIcon,
 } from '@mui/icons-material';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -40,57 +38,33 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  AreaChart,
-  Area,
   PieChart,
   Pie,
+  Cell
 } from 'recharts';
 
-// Mock Data for GHG Emissions Graphs
-const totalEmissionsData = [
-  { year: '2018', emissions: 1000 },
-  { year: '2019', emissions: 950 },
-  { year: '2020', emissions: 900 },
-  { year: '2021', emissions: 850 },
-  { year: '2022', emissions: 800 },
-];
+const COLORS = ['#0D7377', '#14FFEC', '#8884d8', '#82ca9d', '#ffc658'];
 
-const emissionsBySourceData = [
-  { name: 'Landfill', emissions: 300 },
-  { name: 'Waste-to-Energy', emissions: 400 },
-  { name: 'Recycling', emissions: 200 },
-  { name: 'Composting', emissions: 100 },
-];
+const formatValue = (value) => {
+  // Format to 2 decimal places and append units
+  if (typeof value === 'number') {
+    return `${value.toFixed(2)} kg CO₂e`;
+  }
+  return value;
+};
 
-const emissionsByGasData = [
-  { name: 'CO2', value: 65 },
-  { name: 'CH4', value: 25 },
-  { name: 'N2O', value: 10 },
-];
-
-const carbonFootprintData = [
-  { activity: 'Collection', footprint: 300 },
-  { activity: 'Transportation', footprint: 400 },
-  { activity: 'Processing', footprint: 500 },
-];
-
-const emissionsReductionData = [
-  { year: '2018', reduction: 50 },
-  { year: '2019', reduction: 100 },
-  { year: '2020', reduction: 150 },
-  { year: '2021', reduction: 200 },
-  { year: '2022', reduction: 250 },
-];
-
-const comparativeEmissionsData = [
-  { facility: 'Facility A', emissions: 500 },
-  { facility: 'Facility B', emissions: 400 },
-  { facility: 'Facility C', emissions: 300 },
-];
+const formatTick = (value) => {
+  // Round axis tick to 2 decimals
+  if (typeof value === 'number') {
+    return Number(value.toFixed(2));
+  }
+  return value;
+};
 
 const GHGEmissions = () => {
   const [selectedSection, setSelectedSection] = useState('emissions');
   const navigate = useNavigate();
+  const [kpiData, setKpiData] = useState(null);
 
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
@@ -110,6 +84,25 @@ const GHGEmissions = () => {
     if (section === 'reports') navigate('/Reports');
     if (section === 'analytics') navigate('/analytics');
   };
+
+  useEffect(() => {
+    fetchKpis();
+  }, []);
+
+  const fetchKpis = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/emissions/kpis');
+      setKpiData(res.data);
+    } catch (error) {
+      console.error('Error fetching KPIs:', error);
+    }
+  };
+
+  if (!kpiData) {
+    return <div>Loading KPIs...</div>;
+  }
+
+  const { emissionsOverTime, categoryBreakdown, fuelBreakdown } = kpiData;
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -137,7 +130,7 @@ const GHGEmissions = () => {
               button
               key={section.section}
               selected={selectedSection === section.section}
-              onClick={() => handleSidebarClick(section.section)} 
+              onClick={() => handleSidebarClick(section.section)}
             >
               <ListItemIcon>{section.icon}</ListItemIcon>
               <ListItemText primary={section.label} />
@@ -150,8 +143,8 @@ const GHGEmissions = () => {
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         <AppBar position="static" color="transparent" elevation={0}>
           <Toolbar>
-            <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377' }}>
-              GHG Emissions Dashboard
+            <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377', fontWeight:'bold' }}>
+              Scope 1 Emissions Dashboard
             </Typography>
             <IconButton>
               <NotificationIcon />
@@ -164,123 +157,88 @@ const GHGEmissions = () => {
         </AppBar>
 
         <Container maxWidth="xl" sx={{ mt: 4 }}>
-          <Grid container spacing={3}>
-            {/* Total GHG Emissions Over Time */}
-            <Grid item xs={12} md={6}>
+          <Typography variant="h4" sx={{ mb:4, color:'#0D7377', fontWeight:'bold' }}>
+            Key Performance Indicators
+          </Typography>
+          <Grid container spacing={4}>
+
+            {/* Emissions Over Time (Line Chart) */}
+            <Grid item xs={12}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Total GHG Emissions Over Time
+                  Total Scope 1 Emissions Over Time (kg CO₂e)
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <LineChart data={totalEmissionsData}>
+                  <LineChart data={emissionsOverTime} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip />
+                    <XAxis dataKey="period" />
+                    <YAxis tickFormatter={formatTick}/>
+                    <Tooltip formatter={(value) => formatValue(value)} />
                     <Legend />
-                    <Line type="monotone" dataKey="emissions" stroke="#0D7377" />
+                    <Line type="monotone" dataKey="co2e" stroke="#0D7377" dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </Paper>
             </Grid>
 
-            {/* GHG Emissions by Source */}
+            {/* Emissions Breakdown by Category (Pie Chart) */}
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  GHG Emissions by Source
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <BarChart data={emissionsBySourceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="emissions" stackId="a" fill="#0D7377" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-
-            {/* GHG Emissions by Type of Gas */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  GHG Emissions by Type of Gas
+                  Emissions Breakdown by Category (kg CO₂e)
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
                   <PieChart>
                     <Pie
-                      data={emissionsByGasData}
+                      data={categoryBreakdown}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
-                      cy="50%"
-                      outerRadius={120}
-                      fill="#8884d8"
-                      label
-                    />
-                    <Tooltip />
-                    <Legend />
+                      cy="45%"
+                      outerRadius={100}
+                      labelLine={false}
+                      paddingAngle={5}
+                    >
+                      {categoryBreakdown.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => formatValue(value)} />
+                    <Legend layout="horizontal" align="center" verticalAlign="bottom" />
                   </PieChart>
                 </ResponsiveContainer>
               </Paper>
             </Grid>
 
-            {/* Carbon Footprint of Waste Management Activities */}
+            {/* Emissions by Fuel Type (Pie Chart) */}
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Carbon Footprint of Waste Management Activities
+                  Emissions by Fuel Type (kg CO₂e)
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <AreaChart data={carbonFootprintData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="activity" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="footprint" stroke="#0D7377" fill="#0D737750" />
-                  </AreaChart>
+                  <PieChart>
+                    <Pie
+                      data={fuelBreakdown}
+                      dataKey="value"
+                      nameKey="fuel"
+                      cx="50%"
+                      cy="45%"
+                      outerRadius={100}
+                      labelLine={false}
+                      paddingAngle={5}
+                    >
+                      {fuelBreakdown.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => formatValue(value)} />
+                    <Legend layout="horizontal" align="center" verticalAlign="bottom" />
+                  </PieChart>
                 </ResponsiveContainer>
               </Paper>
             </Grid>
 
-            {/* GHG Emissions Reduction Over Time */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  GHG Emissions Reduction Over Time
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <LineChart data={emissionsReductionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="reduction" stroke="#14FFEC" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-
-            {/* Comparative Analysis of GHG Emissions */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Comparative Analysis of GHG Emissions
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <BarChart data={comparativeEmissionsData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="facility" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="emissions" fill="#14FFEC" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
           </Grid>
         </Container>
       </Box>
