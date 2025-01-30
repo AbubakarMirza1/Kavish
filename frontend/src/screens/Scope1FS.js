@@ -206,7 +206,7 @@ const FireSuppressionPage = () => {
               <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
             </Toolbar>
           </AppBar>
-          <Typography variant="h2">Scope 1</Typography>
+          <Typography variant="h2" gutterBottom sx={{ mt: 8 }}>Scope 1</Typography>
           <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>Fire Suppression</Typography>
             <Box sx={{ mb: 4 }}>

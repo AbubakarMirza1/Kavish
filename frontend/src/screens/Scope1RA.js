@@ -192,9 +192,7 @@ const RefrigerationAndACPage = () => {
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
               <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-              <IconButton color="inherit">
-                <NotificationsIcon />
-              </IconButton>
+              <IconButton color="inherit"><NotificationsIcon /></IconButton>
               <IconButton color="inherit">
                 <HelpIcon />
               </IconButton>

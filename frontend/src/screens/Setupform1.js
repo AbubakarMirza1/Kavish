@@ -245,7 +245,7 @@ const Scope1EmissionsSetup = () => {
           [`& .MuiDrawer-paper`]: {
             width: 240,
             boxSizing: "border-box",
-            backgroundColor: "#c8e8d0",
+            backgroundColor: "#f4f4f4",
           },
         }}
       >

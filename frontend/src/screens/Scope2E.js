@@ -206,11 +206,11 @@ const ElectricityPage = () => {
             </Toolbar>
           </AppBar>
 
-          <Typography variant="h2" sx={{ mt: 10 }}>
+          <Typography variant="h2" gutterBottom sx={{ mt: 8 }}>
             Scope 2
           </Typography>
 
-          <Container>
+          <Container sx={{ mt: 10 }}>
             <Typography variant="h4" gutterBottom>
               Electricity
             </Typography>
