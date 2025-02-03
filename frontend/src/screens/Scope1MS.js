@@ -37,12 +37,6 @@ import {
   Alert,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
   Notifications as NotificationsIcon,
   HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
@@ -121,7 +115,7 @@ const MobileSourcePage = () => {
 
       {/* Main Content */}
         
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', marginLeft: '240px' }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9'}}>
           {/* Top Bar */}
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>

@@ -35,17 +35,13 @@ import {
   DialogTitle,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
   Notifications as NotificationsIcon,
   HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
-} from '@mui/icons-material';
+} from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+
 
 const initialData = [
   {
@@ -116,18 +112,7 @@ const FireSuppressionPage = () => {
     });
   };
 
-  const handleSectionNavigation = (section) => {
-    setSelectedSection(section);
-    const routes = {
-      dashboard: '/dashboard',
-      emissions: '/GHGEmissions',
-      waste: '/WasteManagement',
-      'data-entry': '/Scope1SC',
-      reports: '/Reports',
-      analytics: '/analytics',
-    };
-    navigate(routes[section]);
-  };
+  
 
   const handleClickOpen = (id) => {
     setOpenDialog(true);
@@ -143,59 +128,14 @@ const FireSuppressionPage = () => {
     setOpenDialog(false);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: { main: '#0D7377' },
-      secondary: { main: '#14FFEC' },
-    },
-    typography: { h6: { fontWeight: 'bold' } },
-  });
 
   const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-  ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex' }}>
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: 240,
-              boxSizing: 'border-box',
-              backgroundColor: '#f4f4f4',
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {sidebarSections.map(({ label, icon, section }) => (
-              <ListItem
-                button
-                key={section}
-                selected={selectedSection === section}
-                onClick={() => handleSectionNavigation(section)}
-              >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
+    
+    <Box sx={{ display: 'flex' }}>
+    <Sidebar/>
+    
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
@@ -280,7 +220,7 @@ const FireSuppressionPage = () => {
           </Dialog>
         </Box>
       </Box>
-    </ThemeProvider>
+    
   );
 };
 

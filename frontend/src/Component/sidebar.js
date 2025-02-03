@@ -68,9 +68,9 @@ const menuStructure = [
     label: 'GHG Emissions',
     Icon: Calculate,
     children: [
-      { label: 'Scope 1', path: '/Scope1' },
-      { label: 'Scope 2', path: '/ghg-scope2' },
-      { label: 'Scope 3', path: '/ghg-scope3' }
+      { label: 'Scope 1', path: '/Scope1Emissions' },
+      { label: 'Scope 2', path: '/Scope2Emissions' },
+      { label: 'Scope 3', path: '/Scope3Emissions' }
     ]
   },
   { label: 'Waste Management', Icon: Delete, path: '/WasteManagement' },
