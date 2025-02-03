@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { 
   AppBar, 
   Toolbar, 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText, 
   Typography, 
   Box, 
   Container, 
@@ -19,11 +14,8 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  CssBaseline, 
   IconButton, 
   Avatar, 
-  createTheme, 
-  ThemeProvider, 
   InputLabel, 
   FormControl, 
   Select, 
@@ -36,20 +28,13 @@ import {
   Snackbar, 
   Alert 
 } from '@mui/material';
-import { 
-  Dashboard as DashboardIcon, 
-  QueryStats as EmissionsIcon, 
-  Delete as WasteIcon, 
-  CloudUpload as DataEntryIcon, 
-  Assessment as ReportsIcon, 
-  Analytics as AnalyticsIcon, 
-  Settings as SettingsIcon, 
-  HelpOutline as HelpIcon, 
-  Notifications as NotificationsIcon, 
-  AccountCircle as ProfileIcon, 
-} from '@mui/icons-material';
+import {
+  Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
+  AccountCircle as ProfileIcon,
+} from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
-
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 const initialData = [
   { 
     id: 1, 
@@ -77,7 +62,6 @@ const WastePage = () => {
   });
 
   const [rows, setRows] = useState(initialData);
-  const [selectedSection, setSelectedSection] = useState('waste');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -119,72 +103,12 @@ const WastePage = () => {
     setOpenDialog(false);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
-    },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
-  });
-
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste', path: '/WasteManagement' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry', path: '/Scope1SC' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports', path: '/Reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics', path: '/analytics' },
-    // { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];
-
-  const handleSidebarClick = (path, section) => {
-    if (section === 'dashboard') navigate('/dashboard');
-    if (section === 'emissions') navigate('/GHGEmissions');
-    if (section === 'waste') navigate('/WasteManagement');
-    if (section === 'data-entry') navigate('/Scope1SC');
-    if (section === 'reports') navigate('/Reports');
-    if (section === 'analytics') navigate('/analytics');
-    if (path) navigate(path); // Fall back to path if provided
-  };
-
   const unitOptions = ['Kg', 'Ton', 'Lb'];
   const wasteMaterialOptions = ['Plastic', 'Paper', 'Metal', 'Organic'];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
       <Box sx={{ display: 'flex' }}>
-        {/* Sidebar */}
-        <Drawer variant="permanent" sx={{ width: 240, flexShrink: 0, ['& .MuiDrawer-paper']: { width: 240, boxSizing: 'border-box', backgroundColor: '#f4f4f4', }, }} >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {/* Sidebar items */}
-            {sidebarSections.map((section) => (
-              <ListItem 
-                button 
-                key={section.section} 
-                selected={selectedSection === section.section} 
-                onClick={() => handleSidebarClick(section.path, section.section)}
-              >
-                <ListItemIcon>{section.icon}</ListItemIcon>
-                <ListItemText primary={section.label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
-
+        <Sidebar />
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -326,7 +250,6 @@ const WastePage = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
   );
 };
 

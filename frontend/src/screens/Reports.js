@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   AppBar,
   Toolbar,
   Typography,
@@ -19,12 +14,6 @@ import {
   TextField,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
   Notifications as NotificationIcon,
   HelpOutline as HelpIcon,
 } from '@mui/icons-material';
@@ -32,32 +21,13 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { saveAs } from 'file-saver';
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
 const Reports = () => {
   const navigate = useNavigate();
-  const [selectedSection, setSelectedSection] = useState('reports');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [reportData, setReportData] = useState(null);
-
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-  ];
-
-  const handleSidebarClick = (section) => {
-    setSelectedSection(section);
-    if (section === 'dashboard') navigate('/dashboard');
-    if (section === 'emissions') navigate('/GHGEmissions');
-    if (section === 'waste') navigate('/WasteManagement');
-    if (section === 'data-entry') navigate('/Scope1SC');
-    if (section === 'reports') navigate('/Reports');
-    if (section === 'analytics') navigate('/analytics');
-  };
 
   const handleGenerateReport = () => {
     if (!startDate || !endDate) {
@@ -96,38 +66,7 @@ const Reports = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: 240,
-            boxSizing: 'border-box',
-            backgroundColor: '#f4f4f4',
-          },
-        }}
-      >
-        <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0D7377' }}>
-            EcoTrack
-          </Typography>
-        </Toolbar>
-        <List>
-          {sidebarSections.map((section) => (
-            <ListItem
-              button
-              key={section.section}
-              selected={selectedSection === section.section}
-              onClick={() => handleSidebarClick(section.section)}
-            >
-              <ListItemIcon>{section.icon}</ListItemIcon>
-              <ListItemText primary={section.label} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
+      < Sidebar />
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>

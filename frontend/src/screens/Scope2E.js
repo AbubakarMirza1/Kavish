@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Typography,
   Box,
   Container,
@@ -19,15 +14,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CssBaseline,
   IconButton,
   Avatar,
-  createTheme,
-  ThemeProvider,
-  InputLabel,
-  FormControl,
-  Select,
-  MenuItem,
   Dialog,
   DialogActions,
   DialogContent,
@@ -37,17 +25,12 @@ import {
   Alert,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
   Notifications as NotificationsIcon,
   HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
 const initialData = [
   {
@@ -78,7 +61,6 @@ const ElectricityPage = () => {
   });
 
   const [rows, setRows] = useState(initialData);
-  const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -121,72 +103,10 @@ const ElectricityPage = () => {
     setOpenDialog(false);
   };
 
-  const handleSectionNavigation = (section) => {
-    setSelectedSection(section);
-    const routes = {
-      dashboard: '/dashboard',
-      emissions: '/GHGEmissions',
-      waste: '/WasteManagement',
-      'data-entry': '/Scope1SC',
-      reports: '/Reports',
-      analytics: '/analytics',
-    };
-    if (routes[section]) navigate(routes[section]);
-  };
-
-  const theme = createTheme({
-    palette: {
-      primary: { main: '#0D7377' },
-      secondary: { main: '#14FFEC' },
-    },
-    typography: { h6: { fontWeight: 'bold' } },
-  });
-
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-  ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
       <Box sx={{ display: 'flex' }}>
-        {/* Sidebar */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: 240,
-              boxSizing: 'border-box',
-              backgroundColor: '#f4f4f4',
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {sidebarSections.map(({ label, icon, section }) => (
-              <ListItem
-                button
-                key={section}
-                selected={selectedSection === section}
-                onClick={() => handleSectionNavigation(section)}
-              >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
+        <Sidebar />
 
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
@@ -323,7 +243,6 @@ const ElectricityPage = () => {
           </Snackbar>
         </Box>
       </Box>
-    </ThemeProvider>
   );
 };
 

@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   AppBar,
   Toolbar,
   Typography,
@@ -20,15 +15,11 @@ import {
   Paper,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
   Notifications as NotificationIcon,
   HelpOutline as HelpIcon,
-} from '@mui/icons-material';
+  AccountCircle as ProfileIcon,
+} from '@mui/icons-material'; 
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import {
   LineChart,
   Line,
@@ -68,18 +59,9 @@ const wasteManagementData = [
 
 const SustainabilityDashboard = () => {
   const [setupForm, setSetupForm] = useState('Select Setup Form');
-  const [selectedSection, setSelectedSection] = useState('dashboard');
   const navigate = useNavigate();
 
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-  ];
-
+  
   const handleFormChange = (event) => {
     const selectedValue = event.target.value;
     setSetupForm(selectedValue);
@@ -89,51 +71,10 @@ const SustainabilityDashboard = () => {
     else if (selectedValue === 'Scope 3 Setup Form') navigate('/Setupform3');
   };
 
-  const handleSidebarClick = (section) => {
-    setSelectedSection(section);
-    if (section === 'dashboard') navigate('/dashboard');
-    if (section === 'emissions') navigate('/GHGEmissions');
-    if (section === 'waste') navigate('/WasteManagement');
-    if (section === 'data-entry') navigate('/Scope1SC');
-    if (section === 'reports') navigate('/Reports');
-    if (section === 'analytics') navigate('/analytics');
-  };
-
+  
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Sidebar */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: 240,
-            boxSizing: 'border-box',
-            backgroundColor: '#f4f4f4',
-          },
-        }}
-      >
-        <Toolbar>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#0D7377' }}>
-            EcoTrack
-          </Typography>
-        </Toolbar>
-        <List>
-          {sidebarSections.map((section) => (
-            <ListItem
-              button
-              key={section.section}
-              selected={selectedSection === section.section}
-              onClick={() => handleSidebarClick(section.section)}
-            >
-              <ListItemIcon>{section.icon}</ListItemIcon>
-              <ListItemText primary={section.label} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
+      <Sidebar />
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         <AppBar position="static" color="transparent" elevation={0}>

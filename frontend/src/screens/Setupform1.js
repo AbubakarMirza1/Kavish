@@ -10,11 +10,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   AppBar,
   Toolbar,
   Typography,
@@ -23,16 +18,8 @@ import {
   IconButton,
   Avatar,
 } from "@mui/material";
-import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
-  HelpOutline as HelpIcon,
-} from "@mui/icons-material";
 
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import { useNavigate } from "react-router-dom";
 import useScope1Store from "../store/scope1Store";
 
@@ -205,100 +192,10 @@ const Scope1EmissionsSetup = () => {
     </TableContainer>
   );
 
-  // Handle Sidebar Navigation
-  const handleSidebarNavigation = (section) => {
-    switch (section) {
-      case "dashboard":
-        navigate("/dashboard");
-        break;
-      case "emissions":
-        navigate("/emissions");
-        break;
-      case "waste":
-        navigate("/waste");
-        break;
-      case "data-entry":
-        navigate("/data-entry");
-        break;
-      case "reports":
-        navigate("/reports");
-        break;
-      case "analytics":
-        navigate("/analytics");
-        break;
-      case "help":
-        navigate("/help");
-        break;
-      default:
-        break;
-    }
-  };
-
   return (
     <Box sx={{ display: "flex" }}>
-      {/* Sidebar Navigation */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: 240,
-            boxSizing: "border-box",
-            backgroundColor: "#f4f4f4",
-          },
-        }}
-      >
-        <Toolbar>
-          <Typography variant="h6" noWrap>
-            EcoDash
-          </Typography>
-        </Toolbar>
-        <List>
-          <ListItem button onClick={() => handleSidebarNavigation("dashboard")}>
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("emissions")}>
-            <ListItemIcon>
-              <EmissionsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Emissions" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("waste")}>
-            <ListItemIcon>
-              <WasteIcon />
-            </ListItemIcon>
-            <ListItemText primary="Waste" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("data-entry")}>
-            <ListItemIcon>
-              <DataEntryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Data Entry" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("reports")}>
-            <ListItemIcon>
-              <ReportsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Reports" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("analytics")}>
-            <ListItemIcon>
-              <AnalyticsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Analytics" />
-          </ListItem>
-          <ListItem button onClick={() => handleSidebarNavigation("help")}>
-            <ListItemIcon>
-              <HelpIcon />
-            </ListItemIcon>
-            <ListItemText primary="Help" />
-          </ListItem>
-        </List>
-      </Drawer>
+      < Sidebar />
+      
 
       {/* Main Content */}
       <Box

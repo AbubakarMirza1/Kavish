@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+
   Typography,
   Box,
   Container,
@@ -19,11 +15,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CssBaseline,
   IconButton,
   Avatar,
-  createTheme,
-  ThemeProvider,
   InputLabel,
   FormControl,
   Select,
@@ -83,7 +76,6 @@ const FireSuppressionPage = () => {
   });
 
   const [rows, setRows] = useState(initialData);
-  const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 

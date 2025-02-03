@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Typography,
   Box,
   Container,
@@ -19,11 +14,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  CssBaseline,
   IconButton,
   Avatar,
-  createTheme,
-  ThemeProvider,
   InputLabel,
   FormControl,
   Select,
@@ -37,19 +29,13 @@ import {
   Alert,
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
-  QueryStats as EmissionsIcon,
-  Delete as WasteIcon,
-  CloudUpload as DataEntryIcon,
-  Assessment as ReportsIcon,
-  Analytics as AnalyticsIcon,
-  Settings as SettingsIcon,
-  HelpOutline as HelpIcon,
   Notifications as NotificationsIcon,
+  HelpOutline as HelpIcon,
   AccountCircle as ProfileIcon,
-} from '@mui/icons-material';
+} from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
-
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 const initialData = [
   {
     id: 1,
@@ -75,11 +61,15 @@ const PurchasedGasesPage = () => {
   });
 
   const [rows, setRows] = useState(initialData);
-  const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
+   // Get data from the store
+   const mobileRows = useScope1Store((state) => state.mobileRows);
+   const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
+   const unitRows = useScope1Store((state) => state.unitRows);
+ 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
@@ -116,75 +106,12 @@ const PurchasedGasesPage = () => {
     setOpenDialog(false);
   };
 
-  const handleSectionNavigation = (section) => {
-    setSelectedSection(section);
-    const routes = {
-      dashboard: '/dashboard',
-      emissions: '/GHGEmissions',
-      waste: '/WasteManagement',
-      'data-entry': '/Scope1SC',
-      reports: '/Reports',
-      analytics: '/analytics',
-      // settings: '/Settings',
-    };
-    navigate(routes[section]);
-  };
-
-  // const theme = createTheme({
-  //   palette: {
-  //     primary: { main: '#0D7377' },
-  //     secondary: { main: '#14FFEC' },
-  //   },
-  //   typography: { h6: { fontWeight: 'bold' } },
-  // });
 
   const unitOptions = ['Liters', 'Kilograms', 'Cubic meters'];
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-    // { label: 'Settings', icon: <SettingsIcon />, section: 'settings' },
-  ];
 
   return (
-    // <ThemeProvider theme={theme}>
-    //   <CssBaseline />
       <Box sx={{ display: 'flex' }}>
-        {/* Sidebar */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: 240,
-              boxSizing: 'border-box',
-              backgroundColor: '#f4f4f4',
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {sidebarSections.map(({ label, icon, section }) => (
-              <ListItem
-                button
-                key={section}
-                selected={selectedSection === section}
-                onClick={() => handleSectionNavigation(section)}
-              >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
+        < Sidebar />
 
         {/* Main Content */}
         <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
@@ -257,14 +184,7 @@ const PurchasedGasesPage = () => {
                     ))}
                   </Select>
                 </FormControl>
-                {/* <TextField
-                  label="Unit Capacity"
-                  name="unitCapacity"
-                  type="number"
-                  value={formValues.unitCapacity}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                /> */}
+                
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
                 </Button>
@@ -281,7 +201,6 @@ const PurchasedGasesPage = () => {
                     <TableCell>Date</TableCell>
                     <TableCell>Purchased Amount</TableCell>
                     <TableCell>Unit</TableCell>
-                    {/*<TableCell>Unit Capacity</TableCell>*/}
                     <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -293,7 +212,6 @@ const PurchasedGasesPage = () => {
                       <TableCell>{row.date}</TableCell>
                       <TableCell>{row.purchasedAmount}</TableCell>
                       <TableCell>{row.unit}</TableCell>
-                      {/* <TableCell>{row.unitCapacity}</TableCell> */}
                       <TableCell>
                         <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
@@ -348,7 +266,6 @@ const PurchasedGasesPage = () => {
           </Alert>
         </Snackbar>
       </Box>
-    //</ThemeProvider>
   );
 };
 
