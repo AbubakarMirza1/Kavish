@@ -49,6 +49,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import useScope1Store from '../store/scope1Store'; // Import the Zustand store
+import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
 const initialData = [
   { id: 1, sourceId: '001', description: 'Vehicle A', vehicleType: 'Light-Duty Trucks - Gasoline', fuelUsage: 'Petrol', unit: 'KG', milesTravelled: 150 },
@@ -112,75 +113,15 @@ const MobileSourcePage = () => {
     setOpenDialog(false);
   };
 
-  const handleSectionNavigation = (section) => {
-    setSelectedSection(section);
-    const routes = {
-      dashboard: '/dashboard',
-      emissions: '/GHGEmissions',
-      waste: '/WasteManagement',
-      'data-entry': '/Scope1SC',
-      reports: '/Reports',
-      analytics: '/analytics',
-    };
-    navigate(routes[section]);
-  };
-
-  // const theme = createTheme({
-  //   palette: {
-  //     primary: { main: '#0D7377' },
-  //     secondary: { main: '#14FFEC' },
-  //   },
-  //   typography: { h6: { fontWeight: 'bold' } },
-  // });
-
-  const sidebarSections = [
-    { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
-    { label: 'GHG Emissions', icon: <EmissionsIcon />, section: 'emissions' },
-    { label: 'Waste Management', icon: <WasteIcon />, section: 'waste' },
-    { label: 'Data Entry', icon: <DataEntryIcon />, section: 'data-entry' },
-    { label: 'Reports', icon: <ReportsIcon />, section: 'reports' },
-    { label: 'Analytics', icon: <AnalyticsIcon />, section: 'analytics' },
-  ];
-
+  
   return (
-    //<ThemeProvider theme={theme}>
-      //<CssBaseline />
       <Box sx={{ display: 'flex' }}>
-        {/* Sidebar */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: 240,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: 240,
-              boxSizing: 'border-box',
-              backgroundColor: '#f4f4f4',
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6" sx={{ color: '#0D7377' }}>
-              EcoDash
-            </Typography>
-          </Toolbar>
-          <List>
-            {sidebarSections.map(({ label, icon, section }) => (
-              <ListItem
-                button
-                key={section}
-                selected={selectedSection === section}
-                onClick={() => handleSectionNavigation(section)}
-              >
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItem>
-            ))}
-          </List>
-        </Drawer>
+        <Sidebar/>
+        
 
-        {/* Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+      {/* Main Content */}
+        
+        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', marginLeft: '240px' }}>
           {/* Top Bar */}
           <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
             <Toolbar>
@@ -341,7 +282,7 @@ const MobileSourcePage = () => {
           </Snackbar>
         </Box>
       </Box>
-   // </ThemeProvider>
+      
   );
 };
 

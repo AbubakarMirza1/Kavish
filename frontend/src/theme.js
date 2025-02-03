@@ -145,7 +145,17 @@ const theme = createTheme({
         },
       },
     },
-  },
-});
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(20, 255, 236, 0.15)',
+            borderLeft: '4px solidrgb(33, 0, 142)'
+          }
+        }
+      }
+    }},
+}
+);
 
 export default theme;
