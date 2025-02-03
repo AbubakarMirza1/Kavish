@@ -125,13 +125,13 @@ const MobileSourcePage = () => {
     navigate(routes[section]);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: { main: '#0D7377' },
-      secondary: { main: '#14FFEC' },
-    },
-    typography: { h6: { fontWeight: 'bold' } },
-  });
+  // const theme = createTheme({
+  //   palette: {
+  //     primary: { main: '#0D7377' },
+  //     secondary: { main: '#14FFEC' },
+  //   },
+  //   typography: { h6: { fontWeight: 'bold' } },
+  // });
 
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
@@ -143,8 +143,8 @@ const MobileSourcePage = () => {
   ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    //<ThemeProvider theme={theme}>
+      //<CssBaseline />
       <Box sx={{ display: 'flex' }}>
         {/* Sidebar */}
         <Drawer
@@ -341,7 +341,7 @@ const MobileSourcePage = () => {
           </Snackbar>
         </Box>
       </Box>
-    </ThemeProvider>
+   // </ThemeProvider>
   );
 };
 

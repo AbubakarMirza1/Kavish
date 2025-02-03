@@ -148,21 +148,21 @@ const SteamPage = () => {
     if (routes[section]) navigate(routes[section]);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#0D7377',
-      },
-      secondary: {
-        main: '#14FFEC',
-      },
-    },
-    typography: {
-      h6: {
-        fontWeight: 'bold',
-      },
-    },
-  });
+  // const theme = createTheme({
+  //   palette: {
+  //     primary: {
+  //       main: '#0D7377',
+  //     },
+  //     secondary: {
+  //       main: '#14FFEC',
+  //     },
+  //   },
+  //   typography: {
+  //     h6: {
+  //       fontWeight: 'bold',
+  //     },
+  //   },
+  // });
 
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard' },
@@ -175,8 +175,8 @@ const SteamPage = () => {
   ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    // <ThemeProvider theme={theme}>
+    //   <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         {/* Sidebar */}
         <Drawer
@@ -254,9 +254,9 @@ const SteamPage = () => {
                 </FormControl>
                 <TextField label="Boiler Efficiency (%)" name="boilerEfficiency" type="number" value={formValues.boilerEfficiency} onChange={handleInputChange} variant="outlined" />
                 <TextField label="Steam Purchased (KWH)" name="steamPurchased" type="number" value={formValues.steamPurchased} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CO2 Emission factor (kg/KWH)" name="co2EmissionFactor" type="number" value={formValues.co2EmissionFactor} onChange={handleInputChange} variant="outlined" />
+                {/* <TextField label="CO2 Emission factor (kg/KWH)" name="co2EmissionFactor" type="number" value={formValues.co2EmissionFactor} onChange={handleInputChange} variant="outlined" />
                 <TextField label="CH4 Emission factor (kg/KWH)" name="ch4EmissionFactor" type="number" value={formValues.ch4EmissionFactor} onChange={handleInputChange} variant="outlined" />
-                <TextField label="N2O Emission factor (kg/KWH)" name="n2oEmissionFactor" type="number" value={formValues.n2oEmissionFactor} onChange={handleInputChange} variant="outlined" />
+                <TextField label="N2O Emission factor (kg/KWH)" name="n2oEmissionFactor" type="number" value={formValues.n2oEmissionFactor} onChange={handleInputChange} variant="outlined" /> */}
                 <TextField label="CO2 emissions(Kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
                 <TextField label="CH4 emissions(Kg)" name="ch4Emissions" type="number" value={formValues.ch4Emissions} onChange={handleInputChange} variant="outlined" />
                 <TextField label="N2O emissions(Kg)" name="n2oEmissions" type="number" value={formValues.n2oEmissions} onChange={handleInputChange} variant="outlined" />
@@ -278,9 +278,9 @@ const SteamPage = () => {
                     <TableCell>Fuel Type</TableCell>
                     <TableCell>Boiler Efficiency (%)</TableCell>
                     <TableCell>Steam Purchased (KWH)</TableCell>
-                    <TableCell>CO2 Emission factor (kg/KWH)</TableCell>
+                    {/* <TableCell>CO2 Emission factor (kg/KWH)</TableCell>
                     <TableCell>CH4 Emission factor (kg/KWH)</TableCell>
-                    <TableCell>N2O Emission factor (kg/KWH)</TableCell>
+                    <TableCell>N2O Emission factor (kg/KWH)</TableCell> */}
                     <TableCell>CO2 emissions(Kg)</TableCell>
                     <TableCell>CH4 emissions(Kg)</TableCell>
                     <TableCell>N2O emissions(Kg)</TableCell>
@@ -297,9 +297,9 @@ const SteamPage = () => {
                       <TableCell>{row.fuelType}</TableCell>
                       <TableCell>{row.boilerEfficiency}</TableCell>
                       <TableCell>{row.steamPurchased}</TableCell>
-                      <TableCell>{row.co2EmissionFactor}</TableCell>
+                      {/* <TableCell>{row.co2EmissionFactor}</TableCell>
                       <TableCell>{row.ch4EmissionFactor}</TableCell>
-                      <TableCell>{row.n2oEmissionFactor}</TableCell>
+                      <TableCell>{row.n2oEmissionFactor}</TableCell> */}
                       <TableCell>{row.co2Emissions}</TableCell>
                       <TableCell>{row.ch4Emissions}</TableCell>
                       <TableCell>{row.n2oEmissions}</TableCell>
@@ -357,7 +357,7 @@ const SteamPage = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    //</ThemeProvider>
   );
 };
 

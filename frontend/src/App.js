@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 import LandingPage from './screens/landingPage';
 import Login from './screens/login';
 import Signup from './screens/signup';
@@ -23,6 +25,8 @@ import Scope3W from './screens/Scope3W';
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
+
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -47,6 +51,8 @@ function App() {
         <Route path="/Scope3W" element={<Scope3W />} />
       </Routes>
     </Router>
+    </ThemeProvider>
+
   );
 }
 

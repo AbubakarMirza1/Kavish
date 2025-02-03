@@ -130,13 +130,13 @@ const PurchasedGasesPage = () => {
     navigate(routes[section]);
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: { main: '#0D7377' },
-      secondary: { main: '#14FFEC' },
-    },
-    typography: { h6: { fontWeight: 'bold' } },
-  });
+  // const theme = createTheme({
+  //   palette: {
+  //     primary: { main: '#0D7377' },
+  //     secondary: { main: '#14FFEC' },
+  //   },
+  //   typography: { h6: { fontWeight: 'bold' } },
+  // });
 
   const unitOptions = ['Liters', 'Kilograms', 'Cubic meters'];
   const sidebarSections = [
@@ -150,8 +150,8 @@ const PurchasedGasesPage = () => {
   ];
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    // <ThemeProvider theme={theme}>
+    //   <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         {/* Sidebar */}
         <Drawer
@@ -257,14 +257,14 @@ const PurchasedGasesPage = () => {
                     ))}
                   </Select>
                 </FormControl>
-                <TextField
+                {/* <TextField
                   label="Unit Capacity"
                   name="unitCapacity"
                   type="number"
                   value={formValues.unitCapacity}
                   onChange={handleInputChange}
                   variant="outlined"
-                />
+                /> */}
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
                 </Button>
@@ -281,7 +281,7 @@ const PurchasedGasesPage = () => {
                     <TableCell>Date</TableCell>
                     <TableCell>Purchased Amount</TableCell>
                     <TableCell>Unit</TableCell>
-                    <TableCell>Unit Capacity</TableCell>
+                    {/*<TableCell>Unit Capacity</TableCell>*/}
                     <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -293,7 +293,7 @@ const PurchasedGasesPage = () => {
                       <TableCell>{row.date}</TableCell>
                       <TableCell>{row.purchasedAmount}</TableCell>
                       <TableCell>{row.unit}</TableCell>
-                      <TableCell>{row.unitCapacity}</TableCell>
+                      {/* <TableCell>{row.unitCapacity}</TableCell> */}
                       <TableCell>
                         <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                           Delete
@@ -348,7 +348,7 @@ const PurchasedGasesPage = () => {
           </Alert>
         </Snackbar>
       </Box>
-    </ThemeProvider>
+    //</ThemeProvider>
   );
 };
 

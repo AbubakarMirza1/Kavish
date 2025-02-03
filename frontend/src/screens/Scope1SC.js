@@ -124,13 +124,13 @@ const Scope1SC = () => {
     }
   };
 
-  const theme = createTheme({
-    palette: {
-      primary: { main: '#0D7377' },
-      secondary: { main: '#14FFEC' },
-    },
-    typography: { h6: { fontWeight: 'bold' } },
-  });
+  // const theme = createTheme({
+  //  palette: {
+  //     primary: { main: '#0D7377' },
+  //     secondary: { main: '#14FFEC' },
+  //   },
+  //   typography: { h6: { fontWeight: 'bold' } },
+  // });
 
   const sidebarSections = [
     { label: 'Dashboard', icon: <DashboardIcon />, section: 'dashboard', path: '/dashboard' },
@@ -147,8 +147,8 @@ const Scope1SC = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    //  <ThemeProvider theme={theme}>
+    //   <CssBaseline />
       <Box sx={{ display: 'flex' }}>
         {/* Sidebar */}
         <Drawer
@@ -343,7 +343,7 @@ const Scope1SC = () => {
           </Snackbar>
         </Box>
       </Box>
-    </ThemeProvider>
+//    </ThemeProvider>
   );
 };
 
