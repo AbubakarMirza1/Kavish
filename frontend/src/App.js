@@ -17,11 +17,16 @@ import Scope1PG from './screens/Scope1PG';
 import Scope2E from './screens/Scope2E';
 import Scope2S from './screens/Scope2S';
 import WasteManagement from './screens/WasteManagement'; // Import the new screen
-import GHGEmissions from './screens/GHGEmissions'; // Import the new screen
+//import GHGEmissions from './screens/GHGEmissions'; // Import the new screen
 import Reports from './screens/Reports';
 import Scope3BT from './screens/Scope3BT';
 import AnalyticsPage from './screens/analytics';
 import Scope3W from './screens/Scope3W';
+// Import the new Scope Emission screens
+import Scope1 from './screens/Emissions/Scope1Emissions';
+import Scope2 from './screens/Emissions/Scope2Emissions';
+import Scope3 from './screens/Emissions/Scope3Emissions';
+
 
 function App() {
   return (
@@ -44,11 +49,15 @@ function App() {
         <Route path="/Scope2E" element={<Scope2E />} />
         <Route path="/Scope2S" element={<Scope2S />} />
         <Route path="/WasteManagement" element={<WasteManagement />} /> {/* New Route */}
-        <Route path="/GHGEmissions" element={<GHGEmissions />} /> {/* Add this route */}
+        {/* <Route path="/GHGEmissions" element={<GHGEmissions />} /> Add this route */}
         <Route path="/Reports" element={<Reports />} />
         <Route path="/Scope3BT" element={<Scope3BT />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/Scope3W" element={<Scope3W />} />
+        <Route path="/Scope1Emissions" element={<Scope1 />} />
+        <Route path="/Scope2Emissions" element={<Scope2 />} />
+        <Route path="/Scope3Emissions" element={<Scope3 />} />
+
       </Routes>
     </Router>
     </ThemeProvider>
