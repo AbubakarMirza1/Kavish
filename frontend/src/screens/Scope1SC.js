@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import {  AppBar,  Toolbar,  Box,  Container,  TextField,  Button,  Table,  TableBody,  TableCell,  TableContainer,  TableHead,  TableRow,  Paper,  IconButton,  Avatar,  Dialog,  DialogActions,
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Container,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Avatar,
+  Dialog,
+  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Snackbar,
   Alert,
-  Typography
+  Typography,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Notifications as NotificationsIcon, HelpOutline as HelpIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 
 const Scope1SC = () => {
   const navigate = useNavigate();
@@ -20,6 +42,14 @@ const Scope1SC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Get data from the store
+  const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
+  const unitRows = useScope1Store((state) => state.unitRows);
+
+  // Filter active items
+  const activeFuels = stationaryCombustionRows.filter((row) => row.active); // For fuel combusted
+  const activeUnits = unitRows.filter((row) => row.active); // For units
 
   useEffect(() => {
     fetchData();
@@ -39,27 +69,24 @@ const Scope1SC = () => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddRow = async () => {
+  const handleAddRow = () => {
     if (Object.values(formValues).some((value) => value === '')) {
       setOpenSnackbar(true);
       return;
     }
 
-    try {
-      const newRecordData = {
-        sourceId: formValues.sourceId,
-        description: formValues.description,
-        date: formValues.date,
-        fuelCombusted: formValues.fuelCombusted,
-        quantity: formValues.quantity,
-        units: formValues.units
-      };
-      const res = await axios.post('http://localhost:5000/api/emissions/stationary', newRecordData);
-      setRows((prev) => [...prev, res.data]);
-      setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
-    } catch (error) {
-      console.error('Error adding row:', error);
-    }
+    const newRow = {
+      id: rows.length + 1, // Generate a new ID
+      sourceId: formValues.sourceId,
+      description: formValues.description,
+      date: formValues.date,
+      fuelCombusted: formValues.fuelCombusted,
+      quantity: formValues.quantity,
+      units: formValues.units,
+    };
+
+    setRows((prev) => [...prev, newRow]); // Add the new row to the table
+    setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' }); // Reset form
   };
 
   const handleClickOpen = (id) => {
@@ -72,14 +99,9 @@ const Scope1SC = () => {
     setOpenSnackbar(false);
   };
 
-  const handleDeleteRow = async () => {
-    try {
-      await axios.delete(`http://localhost:5000/api/emissions/stationary/${deleteId}`);
-      setRows((prev) => prev.filter((row) => row.id !== deleteId));
-      setOpenDialog(false);
-    } catch (error) {
-      console.error('Error deleting row:', error);
-    }
+  const handleDeleteRow = () => {
+    setRows((prev) => prev.filter((row) => row.id !== deleteId)); // Remove the deleted entry
+    setOpenDialog(false);
   };
 
   return (
@@ -140,13 +162,21 @@ const Scope1SC = () => {
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
               />
-              <TextField
-                label="Fuel Combusted"
-                name="fuelCombusted"
-                value={formValues.fuelCombusted}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Fuel Combusted</InputLabel>
+                <Select
+                  label="Fuel Combusted"
+                  name="fuelCombusted"
+                  value={formValues.fuelCombusted}
+                  onChange={handleInputChange}
+                >
+                  {activeFuels.map((fuel) => (
+                    <MenuItem key={fuel.id} value={fuel.name}>
+                      {fuel.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <TextField
                 label="Quantity"
                 name="quantity"
@@ -155,13 +185,21 @@ const Scope1SC = () => {
                 onChange={handleInputChange}
                 variant="outlined"
               />
-              <TextField
-                label="Units"
-                name="units"
-                value={formValues.units}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Units</InputLabel>
+                <Select
+                  label="Units"
+                  name="units"
+                  value={formValues.units}
+                  onChange={handleInputChange}
+                >
+                  {activeUnits.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.name}>
+                      {unit.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <Button variant="contained" color="primary" onClick={handleAddRow}>
                 Add
               </Button>
@@ -252,3 +290,4 @@ const Scope1SC = () => {
 };
 
 export default Scope1SC;
+
