@@ -14,14 +14,14 @@ datasource db {
 }
 
 model User {
-  userId      Int        @id @default(autoincrement())
+  userId      Int         @id @default(autoincrement())
   firstName   String
   lastName    String
-  email       String     @unique
+  email       String      @unique
   password    String
   companyName String
   roleId      Int
-  role        Role       @relation(fields: [roleId], references: [roleId])
+  role        Role        @relation(fields: [roleId], references: [roleId])
   scopeTypes  ScopeType[]
 }
 
@@ -32,26 +32,26 @@ model Role {
 }
 
 model ScopeType {
-  scopeTypeId      Int                  @id @default(autoincrement())
-  userId           Int
-  date             DateTime
-  user             User                 @relation(fields: [userId], references: [userId])
-  stationary       StationaryCombustion[]
-  mobile           MobileSource[]
-  refrigeration    RefrigerationAndAC[]
-  fireSuppression  FireSuppression[]
-  purchasedGases   PurchasedGas[]
-  electricity      Electricity[]
-  steam            Steam[]
-  businessTravel   BusinessTravel[]
-  waste            Waste[]
+  scopeTypeId     Int                    @id @default(autoincrement())
+  userId          Int
+  date            DateTime
+  user            User                   @relation(fields: [userId], references: [userId])
+  stationary      StationaryCombustion[]
+  mobile          MobileSource[]
+  refrigeration   RefrigerationAndAC[]
+  fireSuppression FireSuppression[]
+  purchasedGases  PurchasedGas[]
+  electricity     Electricity[]
+  steam           Steam[]
+  businessTravel  BusinessTravel[]
+  waste           Waste[]
 
   @@index([userId], name: "scopeType_userId_index")
 }
 
 model Unit {
-  unitId   Int    @id @default(autoincrement())
-  unitName String
+  unitId               Int                    @id @default(autoincrement())
+  unitName             String
   stationaryCombustion StationaryCombustion[]
   mobileSources        MobileSource[]
   refrigeration        RefrigerationAndAC[]
@@ -63,95 +63,95 @@ model Unit {
 }
 
 model FuelType {
-  fuelTypeId Int    @id @default(autoincrement())
-  typeName   String
-  stationary StationaryCombustion[]
+  fuelTypeId      Int                    @id @default(autoincrement())
+  typeName        String
+  stationary      StationaryCombustion[]
   fireSuppression FireSuppression[]
-  steam      Steam[]
+  steam           Steam[]
 
   @@index([typeName], name: "fuelType_typeName_index")
 }
 
 model VehicleType {
-  vehicleTypeId Int    @id @default(autoincrement())
-  typeName      String
-  mobileSources MobileSource[]
+  vehicleTypeId  Int              @id @default(autoincrement())
+  typeName       String
+  mobileSources  MobileSource[]
   businessTravel BusinessTravel[]
 
   @@index([typeName], name: "vehicleType_typeName_index")
 }
 
 model EquipmentType {
-  equipmentTypeId Int    @id @default(autoincrement())
+  equipmentTypeId Int                  @id @default(autoincrement())
   typeName        String
   refrigeration   RefrigerationAndAC[]
 }
 
 model WasteType {
-  wasteTypeId Int    @id @default(autoincrement())
+  wasteTypeId Int     @id @default(autoincrement())
   typeName    String
   waste       Waste[]
 }
 
 model StationaryCombustion {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
+  id                Int       @id @default(autoincrement())
+  scopeTypeId       Int
   sourceDescription String
-  fuelTypeId      Int
-  quantity        Int
-  unitId          Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  fuelType        FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  fuelTypeId        Int
+  quantity          Int
+  unitId            Int
+  scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  fuelType          FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
+  unit              Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "stationaryCombustion_scopeTypeId_index")
 }
 
 model MobileSource {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
+  id                Int         @id @default(autoincrement())
+  scopeTypeId       Int
   sourceDescription String
-  vehicleTypeId   Int
-  fuelUsage       Int
-  unitId          Int
-  milesTravled    Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  vehicleType     VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  vehicleTypeId     Int
+  fuelUsage         Int
+  unitId            Int
+  milesTravled      Int
+  scopeType         ScopeType   @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  vehicleType       VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
+  unit              Unit        @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "mobileSource_scopeTypeId_index")
 }
 
 model RefrigerationAndAC {
-  id              Int      @id @default(autoincrement())
+  id              Int           @id @default(autoincrement())
   scopeTypeId     Int
   equipmentTypeId Int
   gas             String
   gwp             Int
   unitId          Int
   co2eKg          Int
-  scopeType       ScopeType    @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  scopeType       ScopeType     @relation(fields: [scopeTypeId], references: [scopeTypeId])
   equipmentType   EquipmentType @relation(fields: [equipmentTypeId], references: [equipmentTypeId])
-  unit            Unit         @relation(fields: [unitId], references: [unitId])
+  unit            Unit          @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "refrigeration_scopeTypeId_index")
 }
 
 model FireSuppression {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
-  fuelTypeId      Int
-  unitId          Int
-  co2eKg          Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  fuelType        FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  id          Int       @id @default(autoincrement())
+  scopeTypeId Int
+  fuelTypeId  Int
+  unitId      Int
+  co2eKg      Int
+  scopeType   ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  fuelType    FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
+  unit        Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "fireSuppression_scopeTypeId_index")
 }
 
 model PurchasedGas {
-  gasId           Int      @id @default(autoincrement())
+  gasId           Int       @id @default(autoincrement())
   scopeTypeId     Int
   purchasedAmount Int
   unitId          Int
@@ -162,64 +162,66 @@ model PurchasedGas {
 }
 
 model Electricity {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
-  description     String
-  areaSqFt        Int
-  unitId          Int
-  co2eKg          Int
-  ch4Kg           Float
-  n20Kg           Float
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  id          Int       @id @default(autoincrement())
+  scopeTypeId Int
+  description String
+  areaSqFt    Int
+  unitId      Int
+  co2eKg      Int
+  ch4Kg       Float
+  n20Kg       Float
+  scopeType   ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  unit        Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "electricity_scopeTypeId_index")
 }
 
 model Steam {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
+  id                Int       @id @default(autoincrement())
+  scopeTypeId       Int
   sourceDescription String
-  sourceArea      Int
-  fuelTypeId      Int
-  boilerEfficiency Int
+  sourceArea        Int
+  fuelTypeId        Int
+  boilerEfficiency  Int
   steamPurchasedKwh Int
-  co2Kg           Int
-  ch4g            Int
-  n20g            Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  fuelType        FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
+  co2Kg             Int
+  ch4g              Int
+  n20g              Int
+  unitId            Int // Add this line to define unitId as a foreign key
+  scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  fuelType          FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
+  unit              Unit      @relation(fields: [unitId], references: [unitId]) // Use unitId as the reference field
 
   @@index([scopeTypeId], name: "steam_scopeTypeId_index")
 }
 
 model BusinessTravel {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
+  id                Int         @id @default(autoincrement())
+  scopeTypeId       Int
   sourceDescription String
-  vehicleTypeId   Int
-  vehicleMiles    Int
-  co2Kg           Int
-  n20g            Int
-  ch4g            Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  vehicleType     VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
+  vehicleTypeId     Int
+  vehicleMiles      Int
+  co2Kg             Int
+  n20g              Int
+  ch4g              Int
+  scopeType         ScopeType   @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  vehicleType       VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
 
   @@index([scopeTypeId], name: "businessTravel_scopeTypeId_index")
 }
 
 model Waste {
-  id              Int      @id @default(autoincrement())
-  scopeTypeId     Int
+  id                Int       @id @default(autoincrement())
+  scopeTypeId       Int
   sourceDescription String
-  wasteTypeId     Int
-  disposalMethod  String
-  weight          Int
-  unitId          Int
-  co2eKg          Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  wasteType       WasteType @relation(fields: [wasteTypeId], references: [wasteTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  wasteTypeId       Int
+  disposalMethod    String
+  weight            Int
+  unitId            Int
+  co2eKg            Int
+  scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  wasteType         WasteType @relation(fields: [wasteTypeId], references: [wasteTypeId])
+  unit              Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "waste_scopeTypeId_index")
 }

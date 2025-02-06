@@ -16,10 +16,19 @@ async function loadCSV(fileName) {
 }
 
 async function main() {
-  // Seed order: Users -> Roles -> Unit -> Fuel/Vehicle/Equipment/Waste types -> Scope_type -> Others
-  
-  // 1. Base tables
+  // 1. Base tables deletion in correct order to avoid foreign key violations
+
   await prisma.$transaction([
+    prisma.stationaryCombustion.deleteMany(),
+    prisma.mobileSource.deleteMany(),
+    prisma.refrigerationAndAC.deleteMany(),
+    prisma.fireSuppression.deleteMany(),
+    prisma.purchasedGas.deleteMany(),
+    prisma.electricity.deleteMany(),
+    prisma.steam.deleteMany(),
+    prisma.businessTravel.deleteMany(),
+    prisma.waste.deleteMany(),
+    prisma.scopeType.deleteMany(),
     prisma.user.deleteMany(),
     prisma.role.deleteMany(),
     prisma.unit.deleteMany(),
@@ -29,6 +38,7 @@ async function main() {
     prisma.wasteType.deleteMany(),
   ]);
 
+  // Load CSV data
   const [roles, units, fuelTypes, vehicleTypes, equipmentTypes, wasteTypes] = await Promise.all([
     loadCSV('Role.csv'),
     loadCSV('unit.csv'),
@@ -38,15 +48,19 @@ async function main() {
     loadCSV('Waste_type.csv'),
   ]);
 
-  await prisma.role.createMany({ data: roles });
-  await prisma.unit.createMany({ data: units.map(u => ({ unitId: parseInt(u.unit_id), name: u.unit_name })) });
-  await prisma.fuelType.createMany({ data: fuelTypes.map(f => ({ fuelTypeId: parseInt(f.Fuel_type_id), name: f.type_name })) });
-  await prisma.vehicleType.createMany({ data: vehicleTypes.map(v => ({ vehicleTypeId: parseInt(v.Vehicle_type_id), name: v.type_name })) });
-  await prisma.equipmentType.createMany({ data: equipmentTypes.map(e => ({ equipmentTypeId: parseInt(e.Equipment_type_id), name: e.type_name })) });
-  await prisma.wasteType.createMany({ data: wasteTypes.map(w => ({ wasteTypeId: parseInt(w.waste_type_id), name: w.type_name })) });
+  // Insert base data
+  await prisma.role.createMany({ data: roles.map(r => ({ roleId: parseInt(r.Roleid), roleName: r.Role_name })) });
+  await prisma.unit.createMany({ data: units.map(u => ({ unitId: parseInt(u.unit_id), unitName: u.unit_name })) });
+  await prisma.fuelType.createMany({ data: fuelTypes.map(f => ({ fuelTypeId: parseInt(f.Fuel_type_id), typeName: f.type_name })) });
+  await prisma.vehicleType.createMany({ data: vehicleTypes.map(v => ({ vehicleTypeId: parseInt(v.Vehicle_type_id), typeName: v.type_name })) });
+  await prisma.equipmentType.createMany({ data: equipmentTypes.map(e => ({ equipmentTypeId: parseInt(e.Equipment_type_id), typeName: e.type_name })) });
+  await prisma.wasteType.createMany({ data: wasteTypes.map(w => ({ wasteTypeId: parseInt(w.waste_type_id), typeName: w.type_name })) });
 
-  // 2. Users (depends on roles)
+  // Users and ScopeType
   const users = await loadCSV('Users.csv');
+  const scopeTypes = await loadCSV('Scope_type.csv');
+
+  // Insert Users and ScopeType records
   await prisma.user.createMany({
     data: users.map(u => ({
       userId: parseInt(u.UserID),
@@ -59,8 +73,6 @@ async function main() {
     }))
   });
 
-  // 3. Scope_type (depends on users)
-  const scopeTypes = await loadCSV('Scope_type.csv');
   await prisma.scopeType.createMany({
     data: scopeTypes.map(s => ({
       scopeTypeId: parseInt(s.scope_type_id),
@@ -69,7 +81,7 @@ async function main() {
     }))
   });
 
-  // 4. Main tables (all depend on scope_type)
+  // Main tables (all depend on scope_type)
   const [
     stationary, mobile, refrigeration, fireSup, purchasedGases,
     electricity, steam, businessTravel, waste
@@ -85,7 +97,7 @@ async function main() {
     loadCSV('Waste.csv'),
   ]);
 
-  // Insert in parallel where possible
+  // Insert records in parallel where possible
   await Promise.all([
     // Scope 1
     prisma.stationaryCombustion.createMany({
@@ -97,7 +109,7 @@ async function main() {
         unitId: parseInt(s.Unit_id)
       }))
     }),
-    
+
     prisma.mobileSource.createMany({
       data: mobile.map(m => ({
         scopeTypeId: parseInt(m.scope_type_id),
@@ -161,7 +173,8 @@ async function main() {
         steamPurchasedKwh: parseInt(s.Steam_Purchased_KWH),
         co2Kg: parseInt(s['C02(kG)']),
         ch4g: parseInt(s['CH4(g)']),
-        n20g: parseInt(s['N20(g)'])
+        n20g: parseInt(s['N20(g)']),
+        unitId: 1 // Assuming unitId for "Kilogram" is 1
       }))
     }),
 
