@@ -1,0 +1,3 @@
+UserID,FirstName,LastName,Email,Password,CompanyName,role_id
+1,John,Doe,john@ecocorp.com,Secure123!,EcoCorp Inc,1
+2,Sarah,Smith,sarah@greenco.com,Green@2024,GreenCo Ltd,2

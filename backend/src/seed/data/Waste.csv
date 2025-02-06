@@ -1,0 +1,3 @@
+scope_type_id,Source__Description,Waste_type_id,DisposalMethod,Weight,Unit_id,CO2e(KG)
+101,Office paper waste,1,Recycling,120,1,24
+103,Cafeteria food waste,2,Composting,85,1,42

@@ -1,21 +1,3 @@
-ID,Source-ID,Description,Vehicle-Type,Fuel-Usage,Miles-Travelled,Units
-1,MSV001,Delivery route morning,Light-Duty Truck - Diesel,Diesel,100,liters
-2,MSV001,Delivery route afternoon,Light-Duty Truck - Diesel,Diesel,120,liters
-3,MSV002,Pickup local run,Light-Duty Trucks - Gasoline,Gasoline,90,liters
-4,MSV002,Pickup long trip,Light-Duty Trucks - Gasoline,Gasoline,110,liters
-5,MSV003,Car city commute,Car - Gasoline,Gasoline,60,liters
-6,MSV003,Car highway travel,Car - Gasoline,Gasoline,80,liters
-7,MSV004,Van delivery,Heavy-Duty Vehicles - Gasoline,Gasoline,130,liters
-8,MSV004,Van long haul,Heavy-Duty Vehicles - Gasoline,Gasoline,150,liters
-9,MSV005,Bus route morning,Bus - Diesel,Diesel,200,liters
-10,MSV005,Bus route evening,Bus - Diesel,Diesel,220,liters
-11,MSV001,Delivery extra route,Light-Duty Truck - Diesel,Diesel,90,liters
-12,MSV002,Pickup weekend run,Light-Duty Trucks - Gasoline,Gasoline,95,liters
-13,MSV003,Car late night trip,Car - Gasoline,Gasoline,70,liters
-14,MSV004,Van return trip,Heavy-Duty Vehicles - Gasoline,Gasoline,140,liters
-15,MSV005,Bus Sunday service,Bus - Diesel,Diesel,210,liters
-16,MSV001,Delivery short route,Light-Duty Truck - Diesel,Diesel,85,liters
-17,MSV002,Pickup shopping run,Light-Duty Trucks - Gasoline,Gasoline,100,liters
-18,MSV003,Car errand run,Car - Gasoline,Gasoline,65,liters
-19,MSV004,Van maintenance check,Heavy-Duty Vehicles - Gasoline,Gasoline,120,liters
-20,MSV005,Bus school run,Bus - Diesel,Diesel,230,liters
+scope_type_id,source_description,vechicle_type_id,Fuel_usage,Unit_id,miles_travled
+101,Delivery Van,2,45,2,120
+103,Sales Team Cars,1,32,2,210

@@ -1,0 +1,3 @@
+scope_type_id,Description,Area_(Sq_ft),unit_id,CO2e(KG),CH4(KG),N20(KG)
+101,Main Office Electricity,2500,4,420,0.2,0.05
+103,Warehouse Power,5000,4,780,0.35,0.08

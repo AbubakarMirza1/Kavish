@@ -2,12 +2,13 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const fs = require('fs');
 const { parse } = require('csv-parse');
+const path = require('path');
 
-async function loadCSV(filePath) {
+async function loadCSV(fileName) {
   const data = [];
   return new Promise((resolve, reject) => {
-    fs.createReadStream(filePath)
-      .pipe(parse({ columns: true, trim: true }))
+    fs.createReadStream(path.join(__dirname, 'data', fileName))
+      .pipe(parse({ columns: true, trim: true, skip_empty_lines: true }))
       .on('data', (row) => data.push(row))
       .on('end', () => resolve(data))
       .on('error', (err) => reject(err));
@@ -15,103 +16,189 @@ async function loadCSV(filePath) {
 }
 
 async function main() {
-  // Load CSV data
-  const sources = await loadCSV(__dirname + '/data/sources.csv');
-  const stationary = await loadCSV(__dirname + '/data/stationary_combustion.csv');
-  const mobile = await loadCSV(__dirname + '/data/mobile_sources.csv');
-  const refrig = await loadCSV(__dirname + '/data/refrigeration_ac.csv');
-  const fire = await loadCSV(__dirname + '/data/fire_suppression.csv');
-  const purchased = await loadCSV(__dirname + '/data/purchased_gases.csv');
+  // Seed order: Users -> Roles -> Unit -> Fuel/Vehicle/Equipment/Waste types -> Scope_type -> Others
+  
+  // 1. Base tables
+  await prisma.$transaction([
+    prisma.user.deleteMany(),
+    prisma.role.deleteMany(),
+    prisma.unit.deleteMany(),
+    prisma.fuelType.deleteMany(),
+    prisma.vehicleType.deleteMany(),
+    prisma.equipmentType.deleteMany(),
+    prisma.wasteType.deleteMany(),
+  ]);
 
-  // Insert sources
-  for (const s of sources) {
-    await prisma.source.create({
-      data: {
-        sourceId: s.sourceId,
-        name: s.name,
-        type: s.type,
-        location: s.location
-      }
-    });
-  }
+  const [roles, units, fuelTypes, vehicleTypes, equipmentTypes, wasteTypes] = await Promise.all([
+    loadCSV('Role.csv'),
+    loadCSV('unit.csv'),
+    loadCSV('Fuel_type.csv'),
+    loadCSV('Vehicle_type.csv'),
+    loadCSV('Equipment_type.csv'),
+    loadCSV('Waste_type.csv'),
+  ]);
 
-  // Insert Stationary Combustion
-  for (const row of stationary) {
-    await prisma.stationaryCombustion.create({
-      data: {
-        sourceId: row['Source-ID'],
-        description: row.Description,
-        date: new Date(row.Date),
-        fuelCombusted: row['Fuel-Combusted'],
-        quantity: parseFloat(row.Quantity),
-        units: row.Units
-      }
-    });
-  }
+  await prisma.role.createMany({ data: roles });
+  await prisma.unit.createMany({ data: units.map(u => ({ unitId: parseInt(u.unit_id), name: u.unit_name })) });
+  await prisma.fuelType.createMany({ data: fuelTypes.map(f => ({ fuelTypeId: parseInt(f.Fuel_type_id), name: f.type_name })) });
+  await prisma.vehicleType.createMany({ data: vehicleTypes.map(v => ({ vehicleTypeId: parseInt(v.Vehicle_type_id), name: v.type_name })) });
+  await prisma.equipmentType.createMany({ data: equipmentTypes.map(e => ({ equipmentTypeId: parseInt(e.Equipment_type_id), name: e.type_name })) });
+  await prisma.wasteType.createMany({ data: wasteTypes.map(w => ({ wasteTypeId: parseInt(w.waste_type_id), name: w.type_name })) });
 
-  // Insert Mobile Sources
-  for (const row of mobile) {
-    await prisma.mobileSource.create({
-      data: {
-        sourceId: row['Source-ID'],
-        description: row.Description,
-        vehicleType: row['Vehicle-Type'],
-        fuelUsage: row['Fuel-Usage'],
-        milesTravelled: parseFloat(row['Miles-Travelled']),
-        units: row.Units
-      }
-    });
-  }
+  // 2. Users (depends on roles)
+  const users = await loadCSV('Users.csv');
+  await prisma.user.createMany({
+    data: users.map(u => ({
+      userId: parseInt(u.UserID),
+      firstName: u.FirstName,
+      lastName: u.LastName,
+      email: u.Email,
+      password: u.Password,
+      companyName: u.CompanyName,
+      roleId: parseInt(u.role_id)
+    }))
+  });
 
-  // Insert Refrigeration & AC
-  for (const row of refrig) {
-    await prisma.refrigerationAC.create({
-      data: {
-        sourceId: row['Source ID'],
-        description: row.Description,
-        gas: row.Gas,
-        typeOfEquipment: row['Type-of-Equipment'],
-        gasGWP: parseFloat(row['Gas-GWP']),
-        unitChargeKg: parseFloat(row['Unit-Charge-(kg)']),
-        co2EquivalentEmissionsKg: parseFloat(row['CO2-Equivalent-Emissions-(kg)'])
-      }
-    });
-  }
+  // 3. Scope_type (depends on users)
+  const scopeTypes = await loadCSV('Scope_type.csv');
+  await prisma.scopeType.createMany({
+    data: scopeTypes.map(s => ({
+      scopeTypeId: parseInt(s.scope_type_id),
+      userId: parseInt(s.user_id),
+      date: new Date(s.date)
+    }))
+  });
 
-  // Insert Fire Suppression
-  for (const row of fire) {
-    await prisma.fireSuppression.create({
-      data: {
-        sourceId: row['Source-ID'],
-        date: new Date(row.Date),
-        gas: row.Gas,
-        gasGWP: parseFloat(row['Gas-GWP']),
-        unitChargeKg: parseFloat(row['Unit-Charge-(kg)']),
-        co2EquivalentEmissionsKg: parseFloat(row['CO2-Equivalent-Emissions-(kg)'])
-      }
-    });
-  }
+  // 4. Main tables (all depend on scope_type)
+  const [
+    stationary, mobile, refrigeration, fireSup, purchasedGases,
+    electricity, steam, businessTravel, waste
+  ] = await Promise.all([
+    loadCSV('Stationary_Combustion.csv'),
+    loadCSV('Mobile_sources.csv'),
+    loadCSV('Refrigeration_and_Ac.csv'),
+    loadCSV('Fire_suppression.csv'),
+    loadCSV('Purchased_Gases.csv'),
+    loadCSV('Electricity.csv'),
+    loadCSV('Steam.csv'),
+    loadCSV('Business_Travel.csv'),
+    loadCSV('Waste.csv'),
+  ]);
 
-  // Insert Purchased Gases
-  for (const row of purchased) {
-    await prisma.purchasedGas.create({
-      data: {
-        sourceId: row['Source-ID'],
-        date: new Date(row.Date),
-        purchasedAmount: parseFloat(row['Purchased-Amount']),
-        unit: row.Unit,
-        unitCapacity: row['Unit-Capacity']
-      }
-    });
-  }
+  // Insert in parallel where possible
+  await Promise.all([
+    // Scope 1
+    prisma.stationaryCombustion.createMany({
+      data: stationary.map(s => ({
+        scopeTypeId: parseInt(s.scope_type_id),
+        sourceDescription: s.Source_description,
+        fuelTypeId: parseInt(s.fuel_type_id),
+        quantity: parseInt(s.quantity),
+        unitId: parseInt(s.Unit_id)
+      }))
+    }),
+    
+    prisma.mobileSource.createMany({
+      data: mobile.map(m => ({
+        scopeTypeId: parseInt(m.scope_type_id),
+        sourceDescription: m.source_description,
+        vehicleTypeId: parseInt(m.vechicle_type_id),
+        fuelUsage: parseInt(m.Fuel_usage),
+        unitId: parseInt(m.Unit_id),
+        milesTravled: parseInt(m.miles_travled)
+      }))
+    }),
+
+    prisma.refrigerationAndAC.createMany({
+      data: refrigeration.map(r => ({
+        scopeTypeId: parseInt(r.scope_type_id),
+        equipmentTypeId: parseInt(r.Equipment_type_id),
+        gas: r.Gas,
+        gwp: parseInt(r.GWP),
+        unitId: parseInt(r.unit_id),
+        co2eKg: parseInt(r['CO2e(KG)'])
+      }))
+    }),
+
+    prisma.fireSuppression.createMany({
+      data: fireSup.map(f => ({
+        scopeTypeId: parseInt(f.scope_type_id),
+        fuelTypeId: parseInt(f.fuel_type_id),
+        unitId: parseInt(f.unit_id),
+        co2eKg: parseInt(f['CO2e(KG)'])
+      }))
+    }),
+
+    prisma.purchasedGas.createMany({
+      data: purchasedGases.map(p => ({
+        gasId: parseInt(p.Gas_id),
+        scopeTypeId: parseInt(p.scope_type_id),
+        purchasedAmount: parseInt(p.Purchased_Amount),
+        unitId: parseInt(p.unit_id)
+      }))
+    }),
+
+    // Scope 2
+    prisma.electricity.createMany({
+      data: electricity.map(e => ({
+        scopeTypeId: parseInt(e.scope_type_id),
+        description: e.Description,
+        areaSqFt: parseInt(e['Area_(Sq_ft)']),
+        unitId: parseInt(e.unit_id),
+        co2eKg: parseInt(e['CO2e(KG)']),
+        ch4Kg: parseFloat(e['CH4(KG)']),
+        n20Kg: parseFloat(e['N20(KG)'])
+      }))
+    }),
+
+    prisma.steam.createMany({
+      data: steam.map(s => ({
+        scopeTypeId: parseInt(s.scope_type_id),
+        sourceDescription: s.Source_description,
+        sourceArea: parseInt(s.Source_Area),
+        fuelTypeId: parseInt(s.Fuel_Type_id),
+        boilerEfficiency: parseInt(s['Boiler_Efficiency_(%)']),
+        steamPurchasedKwh: parseInt(s.Steam_Purchased_KWH),
+        co2Kg: parseInt(s['C02(kG)']),
+        ch4g: parseInt(s['CH4(g)']),
+        n20g: parseInt(s['N20(g)'])
+      }))
+    }),
+
+    // Scope 3
+    prisma.businessTravel.createMany({
+      data: businessTravel.map(b => ({
+        scopeTypeId: parseInt(b.scope_type_id),
+        sourceDescription: b.Source_Description,
+        vehicleTypeId: parseInt(b.Vehicle_Type_id),
+        vehicleMiles: parseInt(b.Vehicle_Miles),
+        co2Kg: parseInt(b['C02(KG)']),
+        n20g: parseInt(b['N20(g)']),
+        ch4g: parseInt(b['Ch4(g)'])
+      }))
+    }),
+
+    prisma.waste.createMany({
+      data: waste.map(w => ({
+        scopeTypeId: parseInt(w.scope_type_id),
+        sourceDescription: w.Source__Description,
+        wasteTypeId: parseInt(w.Waste_type_id),
+        disposalMethod: w.DisposalMethod,
+        weight: parseInt(w.Weight),
+        unitId: parseInt(w.Unit_id),
+        co2eKg: parseInt(w['CO2e(KG)'])
+      }))
+    })
+  ]);
 }
 
 main()
-  .then(() => {
-    console.log('Seeding complete!');
-    process.exit(0);
+  .then(async () => {
+    await prisma.$disconnect();
+    console.log('Seeding completed successfully');
   })
-  .catch((e) => {
+  .catch(async (e) => {
     console.error('Seeding error:', e);
+    await prisma.$disconnect();
     process.exit(1);
   });

@@ -1,0 +1,3 @@
+scope_type_id,Source_description,Source_Area,Fuel_Type_id,Boiler_Efficiency_(%),Steam_Purchased_KWH,C02(kG),CH4(g),N20(g)
+102,Processing Plant Steam,1500,2,82,4500,320,12,8
+103,Heating System,800,1,78,2200,180,9,5

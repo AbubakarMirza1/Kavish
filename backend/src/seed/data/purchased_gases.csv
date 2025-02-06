@@ -1,21 +1,3 @@
-ID,Source-ID,Date,Purchased-Amount,Unit,Unit-Capacity
-1,PG001,2023-01-01,100,m3,Large cylinder
-2,PG001,2023-01-05,120,m3,Large cylinder
-3,PG001,2023-01-10,90,m3,Large cylinder
-4,PG002,2023-01-02,200,liters,Standard tank
-5,PG002,2023-01-07,180,liters,Standard tank
-6,PG002,2023-01-14,220,liters,Standard tank
-7,PG003,2023-01-03,50,kg,Small cylinder
-8,PG003,2023-01-09,60,kg,Small cylinder
-9,PG003,2023-01-16,70,kg,Small cylinder
-10,PG004,2023-01-04,30,kg,Lab bottle
-11,PG004,2023-01-11,25,kg,Lab bottle
-12,PG004,2023-01-17,35,kg,Lab bottle
-13,PG001,2023-01-20,110,m3,Large cylinder
-14,PG002,2023-01-22,190,liters,Standard tank
-15,PG003,2023-01-23,55,kg,Small cylinder
-16,PG004,2023-01-25,40,kg,Lab bottle
-17,PG001,2023-01-27,95,m3,Large cylinder
-18,PG002,2023-01-29,210,liters,Standard tank
-19,PG003,2023-01-30,65,kg,Small cylinder
-20,PG004,2023-02-01,45,kg,Lab bottle
+Gas_id,scope_type_id,Purchased_Amount,unit_id
+1001,101,50,3
+1002,103,120,3
