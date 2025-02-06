@@ -1,16 +1,48 @@
-require('dotenv').config();
+/***********************************************
+ * server.js
+ * Main entry point for the Express application
+ ***********************************************/
+require('dotenv').config(); // Load environment variables if using .env
 const express = require('express');
 const cors = require('cors');
-const emissionsRoutes = require('./routes/emissionsRoutes');
-
 const app = express();
+
 app.use(cors());
+
+// Middleware for parsing JSON bodies
 app.use(express.json());
 
-// Routes
-app.use('/api/emissions', emissionsRoutes);
+// --------------------------------------------
+// ROUTE IMPORTS
+// --------------------------------------------
+const generalCrudRoutes = require('./routes/generalCrudRoutes');
+const scope1Routes = require('./routes/scope1Routes');
+const scope2Routes = require('./routes/scope2Routes');
+const scope3Routes = require('./routes/scope3Routes');
+const emissionsRoutes = require('./routes/emissionsRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
-const PORT = process.env.PORT || 5000;
+// --------------------------------------------
+// REGISTER ROUTES WITH BASE PATHS
+// --------------------------------------------
+// You can prepend base paths (e.g., /api) if desired
+
+app.use('/api/generic', generalCrudRoutes);  // e.g., /api/generic/user
+app.use('/api/scope1', scope1Routes);        // e.g., /api/scope1/stationary
+app.use('/api/scope2', scope2Routes);        // e.g., /api/scope2/electricity
+app.use('/api/scope3', scope3Routes);        // e.g., /api/scope3/travel
+app.use('/emissions', emissionsRoutes);      // e.g., /emissions/total
+app.use('/dashboard', dashboardRoutes);      // e.g., /dashboard/kpis
+
+// Optional: a simple health check endpoint
+app.get('/', (req, res) => {
+  res.send('Welcome to the Sustainability Dashboard API!');
+});
+
+// --------------------------------------------
+// START SERVER
+// --------------------------------------------
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}...`);
 });

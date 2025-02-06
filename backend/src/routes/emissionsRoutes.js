@@ -1,24 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getStationaryEmissions,
-  getMobileEmissions,
-  getRefrigerationEmissions,
-  getFireSuppressionEmissions,
-  getPurchasedGasEmissions,
-  getScope1KPIs,
-  createStationaryEmission,
-  deleteStationaryEmission
-} = require('../controllers/emissionsController');
+const emissionsController = require('../controllers/emissionsController');
 
-router.get('/stationary', getStationaryEmissions);
-router.get('/mobile', getMobileEmissions);
-router.get('/refrigeration', getRefrigerationEmissions);
-router.get('/fire', getFireSuppressionEmissions);
-router.get('/purchased', getPurchasedGasEmissions);
-router.get('/kpis', getScope1KPIs);
-router.post('/stationary', createStationaryEmission);
-router.delete('/stationary/:id', deleteStationaryEmission);
-router.get('/kpis', getScope1KPIs);
+// Scope-based totals
+router.get('/scope1', emissionsController.getScope1Emissions);
+router.get('/scope2', emissionsController.getScope2Emissions);
+router.get('/scope3', emissionsController.getScope3Emissions);
+
+// Combined total
+router.get('/total', emissionsController.getTotalEmissions);
+
+// Additional KPIs
+router.get('/scope-contributions', emissionsController.getScopeContributions);
+router.get('/emissions-per-kwh', emissionsController.getEmissionsPerKwh);
+router.get('/steam-efficiency', emissionsController.getSteamSystemEfficiency);
+router.get('/emissions-per-mile', emissionsController.getEmissionsPerMile);
 
 module.exports = router;
