@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+
 const initialData = [
   { 
     id: 1, 
@@ -119,136 +120,202 @@ const SteamPage = () => {
   };
 
   return (
-      <Box sx={{ display: 'flex' }}>
-        < Sidebar />
-        
+    <Box sx={{ display: 'flex' }}>
+      <Sidebar />
 
-        {/* Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <AppBar position="static" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-            <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-              <IconButton color="inherit">
-                <NotificationsIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <HelpIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <ProfileIcon />
-              </IconButton>
-              <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-            </Toolbar>
-          </AppBar>
+      {/* Main Content */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+        {/* Top Bar */}
+        <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
+            <IconButton color="inherit">
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <HelpIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <ProfileIcon />
+            </IconButton>
+            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
+          </Toolbar>
+        </AppBar>
 
-          <Typography variant="h2" gutterbox sx={{ mt: 8 }}>Scope 2</Typography>
+        {/* Rest of the content */}
+        <Typography variant="h2" gutterBottom sx={{ mt: 8, color: '#000000' }}>
+          Scope 2
+        </Typography>
 
-          <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom>
-              Steam
-            </Typography>
+        <Container sx={{ mt: 10 }}>
+          <Typography variant="h4" gutterBottom sx={{ color: '#000000' }}>
+            Steam
+          </Typography>
 
-            {/* Form */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6">Add New Record</Typography>
-              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-                {/* Form fields */}
-                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Source Area (Kms)" name="sourceArea" type="number" value={formValues.sourceArea} onChange={handleInputChange} variant="outlined" />
-                <FormControl sx={{ minWidth: 150 }}>
-                  <InputLabel id="fuel-type-label">Fuel Type</InputLabel>
-                  <Select labelId="fuel-type-label" name="fuelType" value={formValues.fuelType} onChange={handleInputChange} label="Fuel Type">
-                    <MenuItem value="Natural Gas">Natural Gas</MenuItem>
-                    <MenuItem value="Coal">Coal</MenuItem>
-                    <MenuItem value="Oil">Oil</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField label="Boiler Efficiency (%)" name="boilerEfficiency" type="number" value={formValues.boilerEfficiency} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Steam Purchased (KWH)" name="steamPurchased" type="number" value={formValues.steamPurchased} onChange={handleInputChange} variant="outlined" />
-                {/* <TextField label="CO2 Emission factor (kg/KWH)" name="co2EmissionFactor" type="number" value={formValues.co2EmissionFactor} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CH4 Emission factor (kg/KWH)" name="ch4EmissionFactor" type="number" value={formValues.ch4EmissionFactor} onChange={handleInputChange} variant="outlined" />
-                <TextField label="N2O Emission factor (kg/KWH)" name="n2oEmissionFactor" type="number" value={formValues.n2oEmissionFactor} onChange={handleInputChange} variant="outlined" /> */}
-                <TextField label="CO2 emissions(Kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CH4 emissions(Kg)" name="ch4Emissions" type="number" value={formValues.ch4Emissions} onChange={handleInputChange} variant="outlined" />
-                <TextField label="N2O emissions(Kg)" name="n2oEmissions" type="number" value={formValues.n2oEmissions} onChange={handleInputChange} variant="outlined" />
-                <Button variant="contained" color="primary" onClick={handleAddRow}>
-                  Add
-                </Button>
-              </Box>
+          {/* Form */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ color: '#000000' }}>Add New Record</Typography>
+            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+              {/* Form fields */}
+              <TextField
+                label="Source ID"
+                name="sourceId"
+                value={formValues.sourceId}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={formValues.description}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="Source Area (Kms)"
+                name="sourceArea"
+                type="number"
+                value={formValues.sourceArea}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+                <InputLabel sx={{ color: '#000000' }}>Fuel Type</InputLabel>
+                <Select
+                  label="Fuel Type"
+                  name="fuelType"
+                  value={formValues.fuelType}
+                  onChange={handleInputChange}
+                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+                >
+                  <MenuItem value="Natural Gas" sx={{ color: '#000000' }}>Natural Gas</MenuItem>
+                  <MenuItem value="Coal" sx={{ color: '#000000' }}>Coal</MenuItem>
+                  <MenuItem value="Oil" sx={{ color: '#000000' }}>Oil</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Boiler Efficiency (%)"
+                name="boilerEfficiency"
+                type="number"
+                value={formValues.boilerEfficiency}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="Steam Purchased (KWH)"
+                name="steamPurchased"
+                type="number"
+                value={formValues.steamPurchased}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="CO2 emissions (Kg)"
+                name="co2Emissions"
+                type="number"
+                value={formValues.co2Emissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="CH4 emissions (Kg)"
+                name="ch4Emissions"
+                type="number"
+                value={formValues.ch4Emissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="N2O emissions (Kg)"
+                name="n2oEmissions"
+                type="number"
+                value={formValues.n2oEmissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <Button variant="contained" color="primary" onClick={handleAddRow}>
+                Add
+              </Button>
             </Box>
+          </Box>
 
-            {/* Table */}
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Source ID</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Source Area (Kms)</TableCell>
-                    <TableCell>Fuel Type</TableCell>
-                    <TableCell>Boiler Efficiency (%)</TableCell>
-                    <TableCell>Steam Purchased (KWH)</TableCell>
-                    {/* <TableCell>CO2 Emission factor (kg/KWH)</TableCell>
-                    <TableCell>CH4 Emission factor (kg/KWH)</TableCell>
-                    <TableCell>N2O Emission factor (kg/KWH)</TableCell> */}
-                    <TableCell>CO2 emissions(Kg)</TableCell>
-                    <TableCell>CH4 emissions(Kg)</TableCell>
-                    <TableCell>N2O emissions(Kg)</TableCell>
-                    <TableCell>Action</TableCell>
+          {/* Table */}
+          <Typography variant="h6" sx={{ color: '#000000' }}>Records</Typography>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: '#000000' }}>ID</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Source ID</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Description</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Source Area (Kms)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Fuel Type</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Boiler Efficiency (%)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Steam Purchased (KWH)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>CO2 emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>CH4 emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>N2O emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell sx={{ color: '#000000' }}>{row.id}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.sourceId}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.description}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.sourceArea}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.fuelType}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.boilerEfficiency}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.steamPurchased}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.co2Emissions}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.ch4Emissions}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.n2oEmissions}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
+                        Delete
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.id}</TableCell>
-                      <TableCell>{row.sourceId}</TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell>{row.sourceArea}</TableCell>
-                      <TableCell>{row.fuelType}</TableCell>
-                      <TableCell>{row.boilerEfficiency}</TableCell>
-                      <TableCell>{row.steamPurchased}</TableCell>
-                      
-                      <TableCell>{row.co2Emissions}</TableCell>
-                      <TableCell>{row.ch4Emissions}</TableCell>
-                      <TableCell>{row.n2oEmissions}</TableCell>
-                      <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-            {/* Navigation Buttons */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate('/Scope2E')}
-              >
-                Back to Electricity
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => navigate('/Scope3BT')} // Navigate to Scope3BT.js
-              >
-                Proceed to Scope 3
-              </Button>
-            </Box>
-          </Container>
-        </Box>
+          {/* Navigation Buttons */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/Scope2E')}
+            >
+              Back to Electricity
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => navigate('/Scope3BT')}
+            >
+              Proceed to Scope 3
+            </Button>
+          </Box>
+        </Container>
 
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
-          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
+          <DialogTitle sx={{ color: '#000000' }}>Confirm Deletion</DialogTitle>
           <DialogContent>
-            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+            <DialogContentText sx={{ color: '#000000' }}>
+              Are you sure you want to delete this record?
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
@@ -267,7 +334,7 @@ const SteamPage = () => {
           </Alert>
         </Snackbar>
       </Box>
-
+    </Box>
   );
 };
 
