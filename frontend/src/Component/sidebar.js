@@ -1,4 +1,3 @@
-// components/Sidebar.js
 import React, { useState } from 'react';
 import { 
   Drawer,
@@ -198,7 +197,7 @@ const Sidebar = () => {
         '& .MuiDrawer-paper': {
           width: 240,
           boxSizing: 'border-box',
-          backgroundColor: '#f4f4f4',
+          backgroundColor: '#A6F1E0', // Updated background color
         },
       }}
     >

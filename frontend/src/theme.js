@@ -2,19 +2,20 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
+    mode: 'light', // Light mode
     primary: {
       main: '#0D7377', // Teal - Main theme color for primary actions
     },
     secondary: {
-      main: '#14FFEC', // Cyan - Accent color for secondary actions and highlights
+      main: '#A6F1E0', // Light Cyan - Accent color for secondary actions and highlights
     },
     background: {
-      default: '#212121', // Dark Gray - Main background color for the entire app
-      paper: '#323232', // Gray - Background for cards and surface elements
+      default: '#FFFFFF', // White - Main background color for the entire app
+      paper: '#F5F5F5', // Light Gray - Background for cards and surface elements
     },
     text: {
-      primary: '#FFFFFF', // White - Primary text color for readability on dark backgrounds
-      secondary: '#14FFEC', // Cyan - Secondary text for emphasis and accents
+      primary: '#000000', // Black - Primary text color for readability on light backgrounds
+      secondary: '#0D7377', // Teal - Secondary text for emphasis and accents
     },
     success: {
       main: '#00C853', // Green - Indicates success, progress, or positive actions
@@ -25,42 +26,42 @@ const theme = createTheme({
     h1: {
       fontSize: '2rem',
       fontWeight: 700, // Bold weight for h1
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     h2: {
       fontSize: '1.75rem',
       fontWeight: 600, // Semi-bold for h2
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     h3: {
       fontSize: '1.5rem',
       fontWeight: 500, // Medium weight for h3
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     h4: {
       fontSize: '1.25rem',
       fontWeight: 500, // Medium weight for h4
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     h5: {
       fontSize: '1rem',
       fontWeight: 400, // Regular weight for h5
-      color: '#14FFEC', // Cyan - Highlights secondary headers
+      color: '#0D7377', // Teal - Highlights secondary headers
     },
     h6: {
       fontSize: '0.875rem',
       fontWeight: 400, // Regular weight for h6
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     body1: {
       fontSize: '1rem',
       fontWeight: 400, // Regular weight for body text
-      color: '#FFFFFF',
+      color: '#000000', // Black
     },
     body2: {
       fontSize: '0.875rem',
       fontWeight: 300, // Light weight for smaller body text
-      color: '#B0BEC5', // Light Gray - Muted text for less emphasis
+      color: '#757575', // Gray - Muted text for less emphasis
     },
     button: {
       fontWeight: 500, // Medium weight for buttons
@@ -82,11 +83,11 @@ const theme = createTheme({
           },
         },
         outlinedSecondary: {
-          borderColor: '#14FFEC',
-          color: '#14FFEC',
+          borderColor: '#A6F1E0',
+          color: '#0D7377',
           '&:hover': {
             borderColor: '#0D7377',
-            backgroundColor: 'rgba(20, 255, 236, 0.1)', // Slight overlay for hover
+            backgroundColor: 'rgba(166, 241, 224, 0.1)', // Slight overlay for hover
           },
         },
       },
@@ -94,7 +95,7 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: '#323232', // Gray background for cards
+          backgroundColor: '#F5F5F5', // Light Gray background for cards
           padding: '20px',
           borderRadius: '12px',
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // Soft shadow for depth
@@ -104,15 +105,16 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         colorPrimary: {
-          backgroundColor: '#212121', // Dark background for the top bar
+          backgroundColor: '#FFFFFF', // White background for the top bar
+          color: '#000000', // Black text for the top bar
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#323232',
-          color: '#FFFFFF',
+          backgroundColor: '#F5F5F5',
+          color: '#000000',
           borderRadius: '12px',
           padding: '16px',
         },
@@ -121,8 +123,8 @@ const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#323232',
-          color: '#FFFFFF',
+          backgroundColor: '#F5F5F5',
+          color: '#000000',
           borderRadius: '8px',
           padding: '20px',
         },
@@ -131,15 +133,15 @@ const theme = createTheme({
     MuiTypography: {
       styleOverrides: {
         root: {
-          color: '#FFFFFF',
+          color: '#000000', // Black text for all typography
         },
       },
     },
     MuiInputBase: {
       styleOverrides: {
         input: {
-          color: '#FFFFFF', // White text for inputs
-          backgroundColor: '#212121', // Dark background for input fields
+          color: '#000000', // Black text for inputs
+          backgroundColor: '#FFFFFF', // White background for input fields
           borderRadius: '4px',
           padding: '10px',
         },
@@ -149,13 +151,13 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '&.Mui-selected': {
-            backgroundColor: 'rgba(20, 255, 236, 0.15)',
-            borderLeft: '4px solidrgb(33, 0, 142)'
-          }
-        }
-      }
-    }},
-}
-);
+            backgroundColor: 'rgba(166, 241, 224, 0.15)', // Light Cyan for selected items
+            borderLeft: '4px solid #0D7377', // Teal border for selected items
+          },
+        },
+      },
+    },
+  },
+});
 
 export default theme;
