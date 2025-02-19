@@ -35,6 +35,7 @@ import {
 } from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+
 const initialData = [
   { 
     id: 1, 
@@ -106,121 +107,181 @@ const BusinessTravelPage = () => {
   const vehicleTypeOptions = ['Car', 'Truck', 'Bus', 'Motorcycle'];
 
   return (
-      <Box sx={{ display: 'flex' }}>
-        <Sidebar />
+    <Box sx={{ display: 'flex' }}>
+      <Sidebar />
 
-        {/* Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-            <Toolbar>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-              <IconButton color="inherit">
-                <NotificationsIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <HelpIcon />
-              </IconButton>
-              <IconButton color="inherit">
-                <ProfileIcon />
-              </IconButton>
-              <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>AB</Avatar>
-            </Toolbar>
-          </AppBar>
+      {/* Main Content */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+        {/* Top Bar */}
+        <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
+            <IconButton color="inherit">
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <HelpIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <ProfileIcon />
+            </IconButton>
+            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>AB</Avatar>
+          </Toolbar>
+        </AppBar>
 
-          <Typography variant="h2" sx={{ flexGrow: 1, color: '#0D7377' }}>Scope 3</Typography>
+        {/* Rest of the content */}
+        <Typography variant="h2" gutterBottom sx={{ mt: 8, color: '#000000' }}>
+          Scope 3
+        </Typography>
 
-          <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom sx={{ flexGrow: 1, color: '#0D7377' }}>
-              Business Travel & Employee Commute & Upstream Transportation and Distribution
-            </Typography>
+        <Container sx={{ mt: 10 }}>
+          <Typography variant="h4" gutterBottom sx={{ color: '#000000' }}>
+            Business Travel & Employee Commute & Upstream Transportation and Distribution
+          </Typography>
 
-            {/* Form */}
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>Add New Record</Typography>
-              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Description" name="description" value={formValues.description} onChange={handleInputChange} variant="outlined" />
-                <FormControl sx={{ minWidth: 150 }}>
-                  <InputLabel id="Vehicle-type-label">Vehicle Type</InputLabel>
-                  <Select labelId="Vehicle-type-label" name="VehicleType" value={formValues.VehicleType} onChange={handleInputChange} label="Vehicle Type">
-                    {vehicleTypeOptions.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField label="Vehicle Kilometers" name="VehicleKilometers" type="number" value={formValues.VehicleKilometers} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CO2 emissions(Kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CH4 emissions(Kg)" name="ch4Emissions" type="number" value={formValues.ch4Emissions} onChange={handleInputChange} variant="outlined" />
-                <TextField label="N2O emissions(Kg)" name="n2oEmissions" type="number" value={formValues.n2oEmissions} onChange={handleInputChange} variant="outlined" />
-                <Button variant="contained" color="primary" onClick={handleAddRow}>
-                  Add
-                </Button>
-              </Box>
-            </Box>
-
-            {/* Table */}
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Source ID</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Vehicle Type</TableCell>
-                    <TableCell>Vehicle Kilometers</TableCell>
-                    <TableCell>CO2 emissions(Kg)</TableCell>
-                    <TableCell>CH4 emissions(Kg)</TableCell>
-                    <TableCell>N2O emissions(Kg)</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.id}</TableCell>
-                      <TableCell>{row.sourceId}</TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell>{row.VehicleType}</TableCell>
-                      <TableCell>{row.VehicleKilometers}</TableCell>
-                      <TableCell>{row.co2Emissions}</TableCell>
-                      <TableCell>{row.ch4Emissions}</TableCell>
-                      <TableCell>{row.n2oEmissions}</TableCell>
-                      <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+          {/* Form */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" sx={{ color: '#000000' }}>Add New Record</Typography>
+            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+              <TextField
+                label="Source ID"
+                name="sourceId"
+                value={formValues.sourceId}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={formValues.description}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+                <InputLabel sx={{ color: '#000000' }}>Vehicle Type</InputLabel>
+                <Select
+                  label="Vehicle Type"
+                  name="VehicleType"
+                  value={formValues.VehicleType}
+                  onChange={handleInputChange}
+                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+                >
+                  {vehicleTypeOptions.map((type) => (
+                    <MenuItem key={type} value={type} sx={{ color: '#000000' }}>
+                      {type}
+                    </MenuItem>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Navigation Buttons */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate('/Scope2S')}
-              >
-                Back to Scope 2
-              </Button>
-              <Button variant="contained" 
-              color="secondary"
-              onClick={() => navigate('/Scope3W')}>
-                Proceed to Waste
+                </Select>
+              </FormControl>
+              <TextField
+                label="Vehicle Kilometers"
+                name="VehicleKilometers"
+                type="number"
+                value={formValues.VehicleKilometers}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="CO2 emissions (Kg)"
+                name="co2Emissions"
+                type="number"
+                value={formValues.co2Emissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="CH4 emissions (Kg)"
+                name="ch4Emissions"
+                type="number"
+                value={formValues.ch4Emissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <TextField
+                label="N2O emissions (Kg)"
+                name="n2oEmissions"
+                type="number"
+                value={formValues.n2oEmissions}
+                onChange={handleInputChange}
+                variant="outlined"
+                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+              />
+              <Button variant="contained" color="primary" onClick={handleAddRow}>
+                Add
               </Button>
             </Box>
-          </Container>
-        </Box>
+          </Box>
+
+          {/* Table */}
+          <Typography variant="h6" sx={{ color: '#000000' }}>Records</Typography>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: '#000000' }}>ID</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Source ID</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Description</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Vehicle Type</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Vehicle Kilometers</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>CO2 emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>CH4 emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>N2O emissions (Kg)</TableCell>
+                  <TableCell sx={{ color: '#000000' }}>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell sx={{ color: '#000000' }}>{row.id}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.sourceId}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.description}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.VehicleType}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.VehicleKilometers}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.co2Emissions}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.ch4Emissions}</TableCell>
+                    <TableCell sx={{ color: '#000000' }}>{row.n2oEmissions}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Navigation Buttons */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/Scope2S')}
+            >
+              Back to Scope 2
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => navigate('/Scope3W')}
+            >
+              Proceed to Waste
+            </Button>
+          </Box>
+        </Container>
 
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
-          <DialogTitle>{"Confirm Deletion"}</DialogTitle>
+          <DialogTitle sx={{ color: '#000000' }}>Confirm Deletion</DialogTitle>
           <DialogContent>
-            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+            <DialogContentText sx={{ color: '#000000' }}>
+              Are you sure you want to delete this record?
+            </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
@@ -239,6 +300,7 @@ const BusinessTravelPage = () => {
           </Alert>
         </Snackbar>
       </Box>
+    </Box>
   );
 };
 
