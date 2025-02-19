@@ -23,7 +23,7 @@ import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
 const Scope3EmissionsSetup = () => {
     const navigate = useNavigate();
-
+    
     const [formValues, setFormValues] = useState({
         vehicleType: "",
         units: "",
