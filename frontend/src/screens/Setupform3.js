@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-// import useScope3Store from "../store/Scope3Store";
 
 const Scope3EmissionsSetup = () => {
     const navigate = useNavigate();
