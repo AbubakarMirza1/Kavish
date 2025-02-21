@@ -10,18 +10,14 @@ import {
   TableHead,
   TableRow,
   Paper,
-  AppBar,
-  Toolbar,
-  Typography,
   Box,
   Container,
-  IconButton,
-  Avatar,
-} from "@mui/material";
-
+ } from "@mui/material";
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import { useNavigate } from "react-router-dom";
 import useScope1Store from "../store/scope1Store";
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 
 const Scope1EmissionsSetup = () => {
   const navigate = useNavigate();
@@ -206,15 +202,12 @@ const Scope1EmissionsSetup = () => {
           p: 3,
         }}
       >
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6">Scope 1 Setup Form</Typography>
-            <IconButton sx={{ ml: "auto" }}>
-              <Avatar alt="User" src="/static/images/avatar/1.jpg" />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+        <TopBar 
+                title="Scope 1 Setup Form" 
+                showDropdown={false}
+            />
 
+        
         <Container>
           {/* Stationary Combustion */}
           <h2>Stationary Combustion</h2>

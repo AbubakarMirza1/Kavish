@@ -31,7 +31,7 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
         <AppBar position="sticky" color="transparent" elevation={0}>
             <Toolbar>
                 {/* Page Title */}
-                <Typography variant="h5" sx={{ flexGrow: 1, color: "#0D7377" }}>
+                <Typography variant="h3" sx={{ flexGrow: 1, color: "#0D7377" }}>
                     {title}
                 </Typography>
 
@@ -65,7 +65,8 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
                 </IconButton>
 
                 {/* User Avatar */}
-                <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar>
+                <IconButton>
+                <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar></IconButton>
             </Toolbar>
         </AppBar>
     );

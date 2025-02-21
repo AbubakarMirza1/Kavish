@@ -10,17 +10,15 @@ import {
     TableHead,
     TableRow,
     Paper,
-    AppBar,
-    Toolbar,
-    Typography,
     Box,
     Container,
-    IconButton,
-    Avatar,
+   
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../Component/sidebar.js'; 
 import useScope3Store from "../store/Scope3Store";
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 
 const Scope3EmissionsSetup = () => {
     const navigate = useNavigate();
@@ -165,14 +163,11 @@ const Scope3EmissionsSetup = () => {
                     p: 3,
                 }}
             >
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography variant="h6">Scope 3 Setup Form</Typography>
-                        <IconButton sx={{ ml: "auto" }}>
-                            <Avatar alt="User" src="/static/images/avatar/1.jpg" />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
+              <TopBar 
+                title="Scope 3 Setup Form" 
+                showDropdown={false}
+            />
+
 
                 <Container>
                     <h2>Vehicle Type</h2>

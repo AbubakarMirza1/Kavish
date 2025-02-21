@@ -10,17 +10,13 @@ import {
     TableHead,
     TableRow,
     Paper,
-   
-    AppBar,
-    Toolbar,
-    Typography,
     Box,
     Container,
-    IconButton,
-    Avatar,
-} from "@mui/material";
+   } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 
 const Scope2EmissionsSetup = () => {
     const navigate = useNavigate(); // React Router navigation hook
@@ -154,14 +150,11 @@ const Scope2EmissionsSetup = () => {
                     p: 3,
                 }}
             >
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography variant="h6">Scope 2 Setup Form</Typography>
-                        <IconButton sx={{ ml: "auto" }}>
-                            <Avatar alt="User" src="/static/images/avatar/1.jpg" />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
+               <TopBar 
+                title="Scope 2 Setup Form" 
+                showDropdown={false}
+            />
+
 
                 <Container>
                     <h2>Fuel Type</h2>
