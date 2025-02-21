@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  AppBar,
-  Toolbar,
   Box,
   Container,
   TextField,
@@ -13,8 +11,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
-  Avatar,
   Dialog,
   DialogActions,
   DialogContent,
@@ -28,11 +24,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Notifications as NotificationsIcon, HelpOutline as HelpIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import useScope1Store from '../store/scope1Store'; // Import the Zustand store
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
 
 const Scope1SC = () => {
   const navigate = useNavigate();
@@ -112,23 +108,10 @@ const Scope1SC = () => {
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         {/* Top Bar */}
-        <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-            <IconButton color="inherit">
-              <NotificationsIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <HelpIcon />
-            </IconButton>
-            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-          </Toolbar>
-        </AppBar>
-
-        {/* Rest of the content */}
-        <Typography variant="h2" gutterBottom sx={{ mt: 8 }}>
-          Scope 1
-        </Typography>
+        <TopBar 
+                title="Scope 1" 
+                showDropdown={false}
+            />
 
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom>

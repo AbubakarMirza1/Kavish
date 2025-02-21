@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  AppBar, 
-  Toolbar, 
   Typography, 
   Box, 
   Container, 
@@ -14,8 +12,6 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  IconButton, 
-  Avatar, 
   InputLabel, 
   FormControl, 
   Select, 
@@ -28,13 +24,11 @@ import {
   Snackbar, 
   Alert 
 } from '@mui/material';
-import {
-  Notifications as NotificationsIcon,
-  HelpOutline as HelpIcon,
-  AccountCircle as ProfileIcon,
-} from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import useScope3Store from '../store/Scope3Store'; // Import the Zustand store
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 
 const initialData = [
   { 
@@ -105,6 +99,10 @@ const BusinessTravelPage = () => {
   };
 
   const vehicleTypeOptions = ['Car', 'Truck', 'Bus', 'Motorcycle'];
+  // Get data from the store
+  const Vehicle = useScope3Store((state) => state.vehicleTypes);
+  // Filter active items
+  const activeVehicles = Vehicle.filter((row) => row.active); // For vehicle types
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -113,26 +111,11 @@ const BusinessTravelPage = () => {
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         {/* Top Bar */}
-        <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-            <IconButton color="inherit">
-              <NotificationsIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <HelpIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <ProfileIcon />
-            </IconButton>
-            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>AB</Avatar>
-          </Toolbar>
-        </AppBar>
+        <TopBar 
+                title="Scope 3" 
+                showDropdown={false}
+            />
 
-        {/* Rest of the content */}
-        <Typography variant="h2" gutterBottom sx={{ mt: 8, color: '#000000' }}>
-          Scope 3
-        </Typography>
 
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom sx={{ color: '#000000' }}>
@@ -168,9 +151,9 @@ const BusinessTravelPage = () => {
                   onChange={handleInputChange}
                   sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                 >
-                  {vehicleTypeOptions.map((type) => (
-                    <MenuItem key={type} value={type} sx={{ color: '#000000' }}>
-                      {type}
+                  {activeVehicles.map((type) => (
+                    <MenuItem key={type.id} value={type.name} sx={{ color: '#000000' }}>
+                      {type.name}
                     </MenuItem>
                   ))}
                 </Select>

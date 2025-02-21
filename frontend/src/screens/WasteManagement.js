@@ -2,22 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
-  IconButton,
-  Avatar,
   Container,
   Grid,
   Paper,
 } from '@mui/material';
-import {
-  Notifications as NotificationIcon,
-  HelpOutline as HelpIcon,
-} from '@mui/icons-material';
 import {
   LineChart,
   Line,
@@ -35,6 +24,7 @@ import {
   Area,
 } from 'recharts';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
 
 // Mock Data for Waste Management Graphs
 const wasteTrendData = [
@@ -89,7 +79,7 @@ const WasteManagement = () => {
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        <AppBar position="static" color="transparent" elevation={0}>
+        {/* <AppBar position="sticky" color="transparent" elevation={0}>
           <Toolbar>
             <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377' }}>
               Waste Management Dashboard
@@ -110,7 +100,11 @@ const WasteManagement = () => {
             </IconButton>
             <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
           </Toolbar>
-        </AppBar>
+        </AppBar> */}
+        <TopBar 
+                title="Waste Management" 
+                showDropdown={false}
+            />
 
         <Container maxWidth="xl" sx={{ mt: 4 }}>
           <Grid container spacing={3}>

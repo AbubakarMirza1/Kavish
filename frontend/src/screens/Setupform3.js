@@ -19,11 +19,20 @@ import {
     Avatar,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import Sidebar from '../Component/sidebar.js'; 
+import useScope3Store from "../store/Scope3Store";
 
 const Scope3EmissionsSetup = () => {
     const navigate = useNavigate();
-    
+
+    // Get store values and setter functions
+    const {
+        vehicleTypes, setVehicleTypes,
+        units, setUnits,
+        wasteMaterials, setWasteMaterials,
+        disposalMethods, setDisposalMethods
+    } = useScope3Store();
+
     const [formValues, setFormValues] = useState({
         vehicleType: "",
         units: "",
@@ -31,26 +40,7 @@ const Scope3EmissionsSetup = () => {
         disposalMethod: "",
     });
 
-    const [vehicleTypeRows, setVehicleTypeRows] = useState([
-        { id: 1, name: "Passenger Car - Petrol", active: true },
-        { id: 2, name: "Passenger Car - CNG", active: false },
-    ]);
-    const [unitRows, setUnitRows] = useState([
-        { id: 1, name: "KMS", active: true },
-        { id: 2, name: "M", active: false },
-        { id: 3, name: "Miles", active: false },
-    ]);
-    const [wasteMaterialRows, setWasteMaterialRows] = useState([
-        { id: 1, name: "Aluminium", active: true },
-        { id: 2, name: "Glass", active: false },
-        { id: 3, name: "Wood", active: false },
-    ]);
-    const [disposalMethodRows, setDisposalMethodRows] = useState([
-        { id: 1, name: "Landfill", active: true },
-        { id: 2, name: "Recycle", active: false },
-    ]);
-
-    // Add Row Function
+    // Function to update the store when adding a new row
     const handleAddRow = (section) => {
         const value = formValues[section];
         if (!value || value.trim() === "") return;
@@ -59,16 +49,16 @@ const Scope3EmissionsSetup = () => {
 
         switch (section) {
             case "vehicleType":
-                setVehicleTypeRows((prev) => [...prev, newRow]);
+                setVehicleTypes([...vehicleTypes, newRow]);
                 break;
             case "units":
-                setUnitRows((prev) => [...prev, newRow]);
+                setUnits([...units, newRow]);
                 break;
             case "wasteMaterial":
-                setWasteMaterialRows((prev) => [...prev, newRow]);
+                setWasteMaterials([...wasteMaterials, newRow]);
                 break;
             case "disposalMethod":
-                setDisposalMethodRows((prev) => [...prev, newRow]);
+                setDisposalMethods([...disposalMethods, newRow]);
                 break;
             default:
                 break;
@@ -77,63 +67,54 @@ const Scope3EmissionsSetup = () => {
         setFormValues((prev) => ({ ...prev, [section]: "" }));
     };
 
-    // Delete Row Function
+    // Function to update the store when deleting a row
     const handleDeleteRow = (section, id) => {
         switch (section) {
             case "vehicleType":
-                setVehicleTypeRows((prev) => prev.filter((row) => row.id !== id));
+                setVehicleTypes(vehicleTypes.filter(row => row.id !== id));
                 break;
             case "units":
-                setUnitRows((prev) => prev.filter((row) => row.id !== id));
+                setUnits(units.filter(row => row.id !== id));
                 break;
             case "wasteMaterial":
-                setWasteMaterialRows((prev) => prev.filter((row) => row.id !== id));
+                setWasteMaterials(wasteMaterials.filter(row => row.id !== id));
                 break;
             case "disposalMethod":
-                setDisposalMethodRows((prev) => prev.filter((row) => row.id !== id));
+                setDisposalMethods(disposalMethods.filter(row => row.id !== id));
                 break;
             default:
                 break;
         }
     };
 
-    // Toggle Active Function
+    // Function to toggle active status
     const handleToggleActive = (section, id) => {
         switch (section) {
             case "vehicleType":
-                setVehicleTypeRows((prev) =>
-                    prev.map((row) =>
-                        row.id === id ? { ...row, active: !row.active } : row
-                    )
-                );
+                setVehicleTypes(vehicleTypes.map(row => 
+                    row.id === id ? { ...row, active: !row.active } : row
+                ));
                 break;
             case "units":
-                setUnitRows((prev) =>
-                    prev.map((row) =>
-                        row.id === id ? { ...row, active: !row.active } : row
-                    )
-                );
+                setUnits(units.map(row => 
+                    row.id === id ? { ...row, active: !row.active } : row
+                ));
                 break;
             case "wasteMaterial":
-                setWasteMaterialRows((prev) =>
-                    prev.map((row) =>
-                        row.id === id ? { ...row, active: !row.active } : row
-                    )
-                );
+                setWasteMaterials(wasteMaterials.map(row => 
+                    row.id === id ? { ...row, active: !row.active } : row
+                ));
                 break;
             case "disposalMethod":
-                setDisposalMethodRows((prev) =>
-                    prev.map((row) =>
-                        row.id === id ? { ...row, active: !row.active } : row
-                    )
-                );
+                setDisposalMethods(disposalMethods.map(row => 
+                    row.id === id ? { ...row, active: !row.active } : row
+                ));
                 break;
             default:
                 break;
         }
     };
 
-   
     // Table Rendering Function
     const renderTable = (section, rows, title) => (
         <TableContainer component={Paper} style={{ marginTop: "16px" }}>
@@ -205,7 +186,7 @@ const Scope3EmissionsSetup = () => {
                     <Button onClick={() => handleAddRow("vehicleType")} variant="contained">
                         Add
                     </Button>
-                    {renderTable("vehicleType", vehicleTypeRows, "Vehicle Type")}
+                    {renderTable("vehicleType", vehicleTypes, "Vehicle Type")}
 
                     <h2>Units</h2>
                     <TextField
@@ -218,7 +199,7 @@ const Scope3EmissionsSetup = () => {
                     <Button onClick={() => handleAddRow("units")} variant="contained">
                         Add
                     </Button>
-                    {renderTable("units", unitRows, "Unit")}
+                    {renderTable("units", units, "Unit")}
 
                     <h2>Waste Material</h2>
                     <TextField
@@ -234,7 +215,7 @@ const Scope3EmissionsSetup = () => {
                     >
                         Add
                     </Button>
-                    {renderTable("wasteMaterial", wasteMaterialRows, "Waste Material")}
+                    {renderTable("wasteMaterial", wasteMaterials, "Waste Material")}
 
                     <h2>Disposal Method</h2>
                     <TextField
@@ -250,7 +231,7 @@ const Scope3EmissionsSetup = () => {
                     >
                         Add
                     </Button>
-                    {renderTable("disposalMethod", disposalMethodRows, "Disposal Method")}
+                    {renderTable("disposalMethod", disposalMethods, "Disposal Method")}
                 </Container>
 
                 {/* Navigation Buttons */}

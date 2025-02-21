@@ -2,23 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  AppBar,
-  Toolbar,
   Typography,
-  FormControl,
-  Select,
-  MenuItem,
-  IconButton,
-  Avatar,
   Container,
   Grid,
   Paper,
 } from '@mui/material';
-import {
-  Notifications as NotificationIcon,
-  HelpOutline as HelpIcon,
-  AccountCircle as ProfileIcon,
-} from '@mui/icons-material'; 
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import {
   LineChart,
@@ -34,6 +22,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
 
 // Mock Data for Graphs
 const emissionScopeData = [
@@ -70,6 +59,11 @@ const SustainabilityDashboard = () => {
     else if (selectedValue === 'Scope 2 Setup Form') navigate('/Setupform2');
     else if (selectedValue === 'Scope 3 Setup Form') navigate('/Setupform3');
   };
+  const setupOptions = [
+    { label: "Scope 1 Setup Form", route: "/Setupform1" },
+    { label: "Scope 2 Setup Form", route: "/Setupform2" },
+    { label: "Scope 3 Setup Form", route: "/Setupform3" }
+];
 
   
   return (
@@ -77,7 +71,7 @@ const SustainabilityDashboard = () => {
       <Sidebar />
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        <AppBar position="static" color="transparent" elevation={0}>
+        {/* <AppBar position="static" color="transparent" elevation={0}>
           <Toolbar>
             <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377' }}>
               Sustainability Dashboard
@@ -100,7 +94,15 @@ const SustainabilityDashboard = () => {
             </IconButton>
             <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
           </Toolbar>
-        </AppBar>
+        </AppBar> */}
+        <TopBar 
+                title="Sustainability Dashboard" 
+                showDropdown={true} 
+                setupForm={setupForm} 
+                setSetupForm={setSetupForm} 
+                setupOptions={setupOptions}
+            />
+
 
         {/* Dashboard Grid */}
         <Container maxWidth="xl" sx={{ mt: 4 }}>

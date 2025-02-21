@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  AppBar, 
-  Toolbar, 
   Typography, 
   Box, 
   Container, 
@@ -14,8 +12,6 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  IconButton, 
-  Avatar, 
   InputLabel, 
   FormControl, 
   Select, 
@@ -28,13 +24,11 @@ import {
   Snackbar, 
   Alert 
 } from '@mui/material';
-import {
-  Notifications as NotificationsIcon,
-  HelpOutline as HelpIcon,
-  AccountCircle as ProfileIcon,
-} from '@mui/icons-material'; 
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import useScope3Store from '../store/Scope3Store'; // Import the Zustand store
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 
 const initialData = [
   { 
@@ -48,6 +42,8 @@ const initialData = [
     co2eEmissions: 250 
   }
 ];
+
+
 
 const WastePage = () => {
   const navigate = useNavigate();
@@ -103,6 +99,18 @@ const WastePage = () => {
     setRows(prev => prev.filter(row => row.id !== deleteId));
     setOpenDialog(false);
   };
+  const waste = useScope3Store((state) => state.wasteMaterials);
+  // Filter active items
+  const activeWaste = waste.filter((row) => row.active); // For vehicle types
+  const units = useScope3Store((state) => state.units);
+  // Filter active items
+  const activeUnits = units.filter((row) => row.active); // For vehicle types
+
+const disposalMethod = useScope3Store((state) => state.disposalMethods);
+  // Filter active items
+const activeDM = disposalMethod.filter((row) => row.active); // For vehicle types
+
+
 
   const unitOptions = ['Kg', 'Ton', 'Lb'];
   const wasteMaterialOptions = ['Plastic', 'Paper', 'Metal', 'Organic'];
@@ -114,26 +122,10 @@ const WastePage = () => {
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         {/* Top Bar */}
-        <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}></Typography>
-            <IconButton color="inherit">
-              <NotificationsIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <HelpIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <ProfileIcon />
-            </IconButton>
-            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>AB</Avatar>
-          </Toolbar>
-        </AppBar>
-
-        {/* Rest of the content */}
-        <Typography variant="h2" gutterBottom sx={{ mt: 8, color: '#000000' }}>
-          Scope 3
-        </Typography>
+        <TopBar 
+                title="Scope 3" 
+                showDropdown={false}
+            />
 
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom sx={{ color: '#000000' }}>
@@ -170,21 +162,37 @@ const WastePage = () => {
                   onChange={handleInputChange}
                   sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                 >
-                  {wasteMaterialOptions.map((material) => (
-                    <MenuItem key={material} value={material} sx={{ color: '#000000' }}>
-                      {material}
+                  {activeWaste.map((material) => (
+                    <MenuItem key={material.key} value={material.name} sx={{ color: '#000000' }}>
+                      {material.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              <TextField
+              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
+                <InputLabel sx={{ color: '#000000' }}>Disposal Methods</InputLabel>
+                <Select
+                  label="Disposal Methods"
+                  name="DisposalMethods"
+                  value={formValues.disposalMethod}
+                  onChange={handleInputChange}
+                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
+                >
+                  {activeDM.map((material) => (
+                    <MenuItem key={material.key} value={material.name} sx={{ color: '#000000' }}>
+                      {material.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {/* <TextField
                 label="Disposal Method"
                 name="disposalMethod"
                 value={formValues.disposalMethod}
                 onChange={handleInputChange}
                 variant="outlined"
                 sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
-              />
+              /> */}
               <TextField
                 label="Weight"
                 name="weight"
@@ -203,9 +211,9 @@ const WastePage = () => {
                   onChange={handleInputChange}
                   sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                 >
-                  {unitOptions.map((unit) => (
-                    <MenuItem key={unit} value={unit} sx={{ color: '#000000' }}>
-                      {unit}
+                  {activeUnits.map((unit) => (
+                    <MenuItem key={unit.key} value={unit.name} sx={{ color: '#000000' }}>
+                      {unit.name}
                     </MenuItem>
                   ))}
                 </Select>

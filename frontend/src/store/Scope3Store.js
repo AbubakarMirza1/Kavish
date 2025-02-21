@@ -1,33 +1,31 @@
-import { createContext, useContext, useState } from 'react';
+import { create } from "zustand";
 
-const Scope3Context = createContext(null);
+const useScope3Store = create((set) => ({
+    // Hardcoded initial values
+    vehicleTypes: [
+        { id: 1, name: "Passenger Car - Petrol", active: true },
+        { id: 2, name: "Passenger Car - CNG", active: false },
+    ],
+    units: [
+        { id: 1, name: "KMS", active: true },
+        { id: 2, name: "M", active: false },
+        { id: 3, name: "Miles", active: false },
+    ],
+    wasteMaterials: [
+        { id: 1, name: "Aluminium", active: true },
+        { id: 2, name: "Glass", active: false },
+        { id: 3, name: "Wood", active: false },
+    ],
+    disposalMethods: [
+        { id: 1, name: "Landfill", active: true },
+        { id: 2, name: "Recycle", active: false },
+    ],
 
-export const Scope3Provider = ({ children }) => {
-  const [wasteMaterials, setWasteMaterials] = useState([]);
-  const [disposalMethods, setDisposalMethods] = useState([]);
-  const [changes, setChanges] = useState(0); // Change tracker
+    // Update functions for each category
+    setVehicleTypes: (data) => set({ vehicleTypes: data }),
+    setUnits: (data) => set({ units: data }),
+    setWasteMaterials: (data) => set({ wasteMaterials: data }),
+    setDisposalMethods: (data) => set({ disposalMethods: data }),
+}));
 
-  const updateWasteMaterials = (materials) => {
-    setWasteMaterials(materials);
-    setChanges(prev => prev + 1); // Increment to notify dependent components
-  };
-
-  const updateDisposalMethods = (methods) => {
-    setDisposalMethods(methods);
-    setChanges(prev => prev + 1);
-  };
-
-  return (
-    <Scope3Context.Provider value={{ wasteMaterials, disposalMethods, updateWasteMaterials, updateDisposalMethods, changes }}>
-      {children}
-    </Scope3Context.Provider>
-  );
-};
-
-export const useScope3Store = () => {
-  const context = useContext(Scope3Context);
-  if (!context) {
-    throw new Error("useScope3Store must be used within a Scope3Provider");
-  }
-  return context;
-};
+export default useScope3Store;
