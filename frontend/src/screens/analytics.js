@@ -1,7 +1,7 @@
 import React from 'react';
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 import { 
-  AppBar, 
-  Toolbar, 
   Typography, 
   Box, 
   Table, 
@@ -11,15 +11,8 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  IconButton, 
-  Avatar, 
   Container 
 } from '@mui/material';
-import { 
-  HelpOutline as HelpIcon, 
-  Notifications as NotificationsIcon, 
-  AccountCircle as ProfileIcon 
-} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
@@ -43,23 +36,10 @@ const AnalyticsPage = () => {
   
           {/* Main Content */}
           <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-            <AppBar position="fixed" color="transparent" elevation={0} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-              <Toolbar>
-                <Typography variant="h6" sx={{ flexGrow: 1, color: '#0D7377' }}>
-                  {/* Analytics */}
-                </Typography>
-                <IconButton color="inherit">
-                  <NotificationsIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                  <HelpIcon />
-                </IconButton>
-                <IconButton color="inherit">
-                  <ProfileIcon />
-                </IconButton>
-                <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-              </Toolbar>
-            </AppBar>
+          <TopBar 
+                title="Analytics" 
+                showDropdown={false}
+            />
   
             <Container sx={{ mt: 10 }}>
               <Typography variant="h4" gutterBottom>

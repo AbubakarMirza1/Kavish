@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+
 import {
   Box,
-  AppBar,
-  Toolbar,
   Typography,
-  IconButton,
-  Avatar,
   Container,
   Grid,
   Paper,
   Button,
   TextField,
 } from '@mui/material';
-import {
-  Notifications as NotificationIcon,
-  HelpOutline as HelpIcon,
-} from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -70,25 +64,10 @@ const Reports = () => {
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        <AppBar position="static" color="transparent" elevation={0}>
-          <Toolbar>
-            <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377' }}>
-              Reports
-            </Typography>
-            <IconButton onClick={handleDownloadReport} disabled={!reportData}>
-              <Typography variant="button" sx={{ color: '#0D7377', mr: 1 }}>
-                Download Report
-              </Typography>
-            </IconButton>
-            <IconButton>
-              <NotificationIcon />
-            </IconButton>
-            <IconButton>
-              <HelpIcon />
-            </IconButton>
-            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-          </Toolbar>
-        </AppBar>
+      <TopBar 
+                title="Reports" 
+                showDropdown={false}
+            />
 
         <Container maxWidth="xl" sx={{ mt: 4 }}>
           {/* Date Pickers */}
@@ -144,6 +123,13 @@ const Reports = () => {
               </Box>
             </Paper>
           )}
+          <Button
+            variant="contained"
+            sx={{ bgcolor: '#0D7377', px: 4, mb: 4 }}
+            onClick={handleDownloadReport}
+          >
+            Download Report
+          </Button>
         </Container>
       </Box>
     </Box>

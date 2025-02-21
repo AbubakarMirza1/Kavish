@@ -79,28 +79,7 @@ const WasteManagement = () => {
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        {/* <AppBar position="sticky" color="transparent" elevation={0}>
-          <Toolbar>
-            <Typography variant="h5" sx={{ flexGrow: 1, color: '#0D7377' }}>
-              Waste Management Dashboard
-            </Typography>
-            <FormControl sx={{ minWidth: 150, mr: 2 }}>
-              <Select value={setupForm} onChange={handleFormChange} displayEmpty sx={{ fontSize: 16, color: '#0D7377' }}>
-                <MenuItem value="Select Setup Form" disabled>
-                  Select Setup Form
-                </MenuItem>
-                <MenuItem value="Waste Setup Form">Waste Setup Form</MenuItem>
-              </Select>
-            </FormControl>
-            <IconButton>
-              <NotificationIcon />
-            </IconButton>
-            <IconButton>
-              <HelpIcon />
-            </IconButton>
-            <Avatar sx={{ ml: 2, bgcolor: '#0D7377' }}>JD</Avatar>
-          </Toolbar>
-        </AppBar> */}
+       
         <TopBar 
                 title="Waste Management" 
                 showDropdown={false}

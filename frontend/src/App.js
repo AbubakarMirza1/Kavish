@@ -26,7 +26,7 @@ import Scope3W from './screens/Scope3W';
 import Scope1 from './screens/Emissions/Scope1Emissions';
 import Scope2 from './screens/Emissions/Scope2Emissions';
 import Scope3 from './screens/Emissions/Scope3Emissions';
-
+import Settings from './screens/settings';
 
 function App() {
   return (
@@ -57,6 +57,7 @@ function App() {
         <Route path="/Scope1Emissions" element={<Scope1 />} />
         <Route path="/Scope2Emissions" element={<Scope2 />} />
         <Route path="/Scope3Emissions" element={<Scope3 />} />
+        <Route path="/settings" element={<Settings />} />
 
       </Routes>
     </Router>
