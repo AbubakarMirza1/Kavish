@@ -31,7 +31,7 @@ import {
 const menuStructure = [
   { label: 'Dashboard', Icon: Dashboard, path: '/dashboard' },
   {
-    label: 'Data Entry',
+    label: 'Enter Data',
     Icon: Storage,
     children: [
       {
