@@ -10,51 +10,96 @@ import {
     Divider,
     Paper,
     Avatar,
+    IconButton,
 } from "@mui/material";
+import { PhotoCamera } from "@mui/icons-material";
 import Sidebar from "../Component/sidebar.js";
 import TopBar from "../Component/topbar.js";
 
 const SettingsPage = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [notifications, setNotifications] = useState(true);
-    
-    const handleDarkModeToggle = () => {
-        setDarkMode(!darkMode);
+    const [twoFactorAuth, setTwoFactorAuth] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [profilePic, setProfilePic] = useState(null);
+
+    // Toggle Handlers
+    const handleDarkModeToggle = () => setDarkMode(!darkMode);
+    const handleNotificationsToggle = () => setNotifications(!notifications);
+    const handleTwoFactorToggle = () => setTwoFactorAuth(!twoFactorAuth);
+
+    // Profile Picture Upload
+    const handleProfilePicChange = (event) => {
+        const file = event.target.files[0];
+        if (file) setProfilePic(URL.createObjectURL(file));
     };
-    
-    const handleNotificationsToggle = () => {
-        setNotifications(!notifications);
-    };
-    
+
     return (
         <Box sx={{ display: "flex" }}>
             <Sidebar />
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <TopBar title="Settings" showDropdown={false} />
                 <Container maxWidth="md">
+
+                    {/* Profile Section */}
                     <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
                         <Typography variant="h5" gutterBottom>
                             Profile Settings
                         </Typography>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Avatar sx={{ width: 80, height: 80, bgcolor: "#0D7377" }}>JD</Avatar>
-                            <TextField label="Full Name" fullWidth defaultValue="John Doe" />
+                            <Avatar sx={{ width: 80, height: 80, bgcolor: "#0D7377" }} src={profilePic}>
+                                {!profilePic && "JD"}
+                            </Avatar>
+                            <input
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                id="profile-pic-upload"
+                                type="file"
+                                onChange={handleProfilePicChange}
+                            />
+                            <label htmlFor="profile-pic-upload">
+                                <IconButton color="primary" component="span">
+                                    <PhotoCamera />
+                                </IconButton>
+                            </label>
                         </Box>
+                    </Paper>
+
+                    {/* Change Password Section */}
+                    <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
+                        <Typography variant="h5" gutterBottom>
+                            Change Password
+                        </Typography>
                         <TextField
-                            label="Email Address"
-                            fullWidth
-                            sx={{ mt: 2 }}
-                            defaultValue="johndoe@example.com"
-                        />
-                        <TextField
-                            label="Change Password"
+                            label="Current Password"
                             type="password"
                             fullWidth
                             sx={{ mt: 2 }}
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
                         />
-                        <Button variant="contained" sx={{ mt: 2 }}>Save Changes</Button>
+                        <TextField
+                            label="New Password"
+                            type="password"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <TextField
+                            label="Confirm New Password"
+                            type="password"
+                            fullWidth
+                            sx={{ mt: 2 }}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        <Button variant="contained" sx={{ mt: 2 }}>Update Password</Button>
                     </Paper>
-                    
+
+                    {/* Theme Settings */}
                     <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
                         <Typography variant="h5" gutterBottom>
                             Theme Settings
@@ -64,7 +109,8 @@ const SettingsPage = () => {
                             label={darkMode ? "Dark Mode Enabled" : "Dark Mode Disabled"}
                         />
                     </Paper>
-                    
+
+                    {/* Notifications Settings */}
                     <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
                         <Typography variant="h5" gutterBottom>
                             Notification Settings
@@ -74,13 +120,37 @@ const SettingsPage = () => {
                             label={notifications ? "Notifications Enabled" : "Notifications Disabled"}
                         />
                     </Paper>
-                    
+
+                    {/* Security Settings */}
+                    <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
+                        <Typography variant="h5" gutterBottom>
+                            Account Security
+                        </Typography>
+                        <FormControlLabel
+                            control={<Switch checked={twoFactorAuth} onChange={handleTwoFactorToggle} />}
+                            label={twoFactorAuth ? "2FA Enabled" : "2FA Disabled"}
+                        />
+                    </Paper>
+
+                    {/* API Key Management */}
+                    <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
+                        <Typography variant="h5" gutterBottom>
+                            API Key Management
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                            Manage your API keys for integrating with external services.
+                        </Typography>
+                        <Button variant="outlined" sx={{ mt: 2 }}>Generate New API Key</Button>
+                    </Paper>
+
+                    {/* Privacy Settings */}
                     <Paper sx={{ p: 4, mt: 3, borderRadius: 2 }}>
                         <Typography variant="h5" gutterBottom>
                             Data & Privacy
                         </Typography>
                         <Button variant="outlined" color="error">Clear Stored Data</Button>
                     </Paper>
+
                 </Container>
             </Box>
         </Box>

@@ -101,7 +101,7 @@ const Reports = () => {
           {/* Generate Report Button */}
           <Button
             variant="contained"
-            sx={{ bgcolor: '#0D7377', px: 4, mb: 4 }}
+            sx={{ bgcolor: '#0D7377', px: 4, mb: 4 , mx:4}}
             onClick={handleGenerateReport}
           >
             Generate Report
