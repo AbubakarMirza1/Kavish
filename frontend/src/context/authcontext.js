@@ -40,7 +40,12 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email, password,
       });
+
+     // if (response.data.success) {
       return response.data; // Expecting OTP sent message
+    // } else {
+    //   throw new Error(response.data.message || "Invalid credentials");
+    // }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       throw error;

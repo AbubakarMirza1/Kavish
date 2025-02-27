@@ -27,11 +27,14 @@ import Scope1 from './screens/Emissions/Scope1Emissions';
 import Scope2 from './screens/Emissions/Scope2Emissions';
 import Scope3 from './screens/Emissions/Scope3Emissions';
 import Settings from './screens/settings';
+import { AuthProvider } from './context/authcontext';
+
+
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-
+ <AuthProvider>
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -61,6 +64,7 @@ function App() {
 
       </Routes>
     </Router>
+    </AuthProvider>
     </ThemeProvider>
 
   );
