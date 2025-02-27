@@ -10,13 +10,26 @@ export const AuthProvider = ({ children }) => {
   // Signup function
   const signup = async (firstName, lastName, email, password, companyName, roleId) => {
     try {
-        const response = await axios.post("http://localhost:5000/api/auth/signup", {
-            firstName, lastName, email, password, companyName, roleId,
-          });
-          
+      const response = await axios.post("http://localhost:5000/api/auth/signup", {
+        firstName, lastName, email, password, companyName, roleId,
+      });
       return response.data; // Expecting OTP sent message
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  // Verify Signup OTP
+  const verifySignupOTP = async (email, otp, password, firstName, lastName, companyName, roleId) => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/verify-signup-otp", {
+        email, otp, password, firstName, lastName, companyName, roleId
+      });
+      setUser(response.data.userId); // Store user ID after signup
+      return response.data;
+    } catch (error) {
+      console.error("OTP verification error:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -25,8 +38,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
+        email, password,
       });
       return response.data; // Expecting OTP sent message
     } catch (error) {
@@ -35,14 +47,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // OTP Verification
-  const verifyOTP = async (email, otp) => {
+  // Verify Login OTP
+  const verifyLoginOTP = async (email, otp) => {
     try {
-        const response = await axios.post("http://localhost:5000/api/auth/verify-signup-otp", {
-        email,
-        otp,
+      const response = await axios.post("http://localhost:5000/api/auth/verify-login-otp", {
+        email, otp,
       });
-      setUser(response.data.userId); // Set user after successful verification
+      setUser(response.data.token); // Store JWT token
       return response.data;
     } catch (error) {
       console.error("OTP verification error:", error.response?.data || error.message);
@@ -51,7 +62,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signup, login, verifyOTP }}>
+    <AuthContext.Provider value={{ user, signup, verifySignupOTP, login, verifyLoginOTP }}>
       {children}
     </AuthContext.Provider>
   );
