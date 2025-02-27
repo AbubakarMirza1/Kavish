@@ -1,6 +1,6 @@
-import React from 'react';
-import TopBar from '../Component/topbar.js'; // Import the Sidebar component
-
+import React, { useEffect, useState } from 'react';
+import TopBar from '../Component/topbar.js';
+import Sidebar from '../Component/sidebar.js';
 import { 
   Typography, 
   Box, 
@@ -13,48 +13,69 @@ import {
   Paper, 
   Container 
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 
 const AnalyticsPage = () => {
-  
-    const recyclingData = [
-      { material: 'Plastics', organization: 'EcoPlastics Ltd.', contact: 'info@ecoplastics.com' },
-      { material: 'Metals', organization: 'GreenMetals Inc.', contact: 'contact@greenmetals.com' },
-      { material: 'Paper', organization: 'RecyclePaper Co.', contact: 'support@recyclepaper.com' },
-    ];
-  
-    const scopeSuggestions = [
-      { scope: 'Scope 1', suggestion: 'Switch to electric vehicles and energy-efficient equipment.' },
-      { scope: 'Scope 2', suggestion: 'Source energy from renewable sources such as solar or wind.' },
-      { scope: 'Scope 3', suggestion: 'Collaborate with suppliers to reduce emissions in the supply chain.' },
-    ];
-  
-    return (
-        <Box sx={{ display: 'flex' }}>
-          < Sidebar />
-  
-          {/* Main Content */}
-          <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <TopBar 
-                title="Analytics" 
-                showDropdown={false}
-            />
-  
-            <Container sx={{ mt: 10 }}>
-              <Typography variant="h4" gutterBottom>
-                Circular Economy Analytics
-              </Typography>
-              
-              {/* Circular Economy */}
+  const [analyticsData, setAnalyticsData] = useState({ recyclingData: [], scopeSuggestions: [], circularEconomyStatus: { status: '' } });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/analytics/recycling-recommendations');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Fetched data:', data); // Debug log
+        // Filter out extra fields and ensure arrays/objects
+        const formattedData = {
+          recyclingData: Array.isArray(data.recyclingData)
+            ? data.recyclingData.map(({ material, organization, website }) => ({ material, organization, website }))
+            : [],
+          scopeSuggestions: Array.isArray(data.scopeSuggestions) ? data.scopeSuggestions : [],
+          circularEconomyStatus: data.circularEconomyStatus || { status: 'No status available' },
+        };
+        console.log('Formatted data:', formattedData); // Debug log
+        setAnalyticsData(formattedData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <Sidebar />
+
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+        <TopBar title="Analytics" showDropdown={false} />
+
+        <Container sx={{ mt: 10 }}>
+          <Typography variant="h4" gutterBottom>
+            Circular Economy Analytics
+          </Typography>
+
+          {/* Loading and Error Handling */}
+          {loading && <Typography>Loading data...</Typography>}
+          {error && <Typography color="error">{error}</Typography>}
+
+          {!loading && !error && (
+            <>
+              {/* Circular Economy Status */}
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Company Circular Economy Status
               </Typography>
-              <Typography variant="body1" sx={{ mb: 4 }}>
-                75% of materials used by the company are recycled or reused. This indicates a strong commitment to a circular economy. Further efforts can be made by collaborating with additional recycling partners and reducing single-use materials.
+              <Typography variant="body1" sx={{ mb: 4, backgroundColor: '#fff', p: 2, borderRadius: 4 }}>
+                {analyticsData.circularEconomyStatus.status || 'No status available'}
               </Typography>
-  
-              {/* Recycling Partnerships */}
+
+              {/* Recycling Partnerships Table */}
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Recycling Partnerships
               </Typography>
@@ -64,22 +85,35 @@ const AnalyticsPage = () => {
                     <TableRow>
                       <TableCell>Material</TableCell>
                       <TableCell>Organization</TableCell>
-                      <TableCell>Contact</TableCell>
+                      <TableCell>Website</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {recyclingData.map((row, index) => (
+                    {analyticsData.recyclingData.map((row, index) => (
                       <TableRow key={index}>
-                        <TableCell>{row.material}</TableCell>
-                        <TableCell>{row.organization}</TableCell>
-                        <TableCell>{row.contact}</TableCell>
+                        <TableCell>{row.material || 'N/A'}</TableCell>
+                        <TableCell>{row.organization || 'Not available'}</TableCell>
+                        <TableCell>
+                          {row.website ? (
+                            <a 
+                              href={row.website.startsWith('http') ? row.website : `https://${row.website}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+                            >
+                              {row.website}
+                            </a>
+                          ) : (
+                            'Not available'
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-  
-              {/* Scope Suggestions */}
+
+              {/* Suggestions for Emission Reduction */}
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Suggestions for Emission Reduction
               </Typography>
@@ -92,20 +126,21 @@ const AnalyticsPage = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {scopeSuggestions.map((row, index) => (
+                    {analyticsData.scopeSuggestions.map((row, index) => (
                       <TableRow key={index}>
-                        <TableCell>{row.scope}</TableCell>
-                        <TableCell>{row.suggestion}</TableCell>
+                        <TableCell>{row.scope || 'N/A'}</TableCell>
+                        <TableCell>{row.suggestion || 'Not available'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-            </Container>
-          </Box>
-        </Box>
-    );
-  };
-  
-  export default AnalyticsPage;
-  
+            </>
+          )}
+        </Container>
+      </Box>
+    </Box>
+  );
+};
+
+export default AnalyticsPage;
