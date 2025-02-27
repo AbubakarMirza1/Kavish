@@ -21,6 +21,7 @@ const scope2Routes = require('./routes/scope2Routes');
 const scope3Routes = require('./routes/scope3Routes');
 const emissionsRoutes = require('./routes/emissionsRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const authRoutes = require('./routes/authRoutes');  // ✅ Import authentication routes
 
 // --------------------------------------------
 // REGISTER ROUTES WITH BASE PATHS
@@ -33,6 +34,8 @@ app.use('/api/scope2', scope2Routes);        // e.g., /api/scope2/electricity
 app.use('/api/scope3', scope3Routes);        // e.g., /api/scope3/travel
 app.use('/emissions', emissionsRoutes);      // e.g., /emissions/total
 app.use('/dashboard', dashboardRoutes);      // e.g., /dashboard/kpis
+app.use('/api/auth', authRoutes);            // ✅ Register authentication routes (e.g., /api/auth/login)
+
 
 // Optional: a simple health check endpoint
 app.get('/', (req, res) => {
