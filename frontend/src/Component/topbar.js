@@ -28,7 +28,7 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
     };
 
     return (
-        <AppBar position="sticky" color="transparent" elevation={0}>
+        <AppBar position="sticky" color="default" elevation={0} sx={{ backgroundColor: '#ffffff' }}>
             <Toolbar>
                 {/* Page Title */}
                 <Typography variant="h3" sx={{ flexGrow: 1, color: "#0D7377" }}>
@@ -66,10 +66,17 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
 
                 {/* User Avatar */}
                 <IconButton>
-                <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar></IconButton>
+                    <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar>
+                </IconButton>
             </Toolbar>
         </AppBar>
     );
 };
 
 export default TopBar;
+
+
+
+
+
+
