@@ -20,12 +20,20 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
         const selectedValue = event.target.value;
         setSetupForm(selectedValue);
 
+
         // Navigate to the selected setup form's route
         const selectedOption = setupOptions.find(option => option.label === selectedValue);
         if (selectedOption) {
             navigate(selectedOption.route);
         }
     };
+      // Fetch user details (assuming they're stored in localStorage after login)
+      const user = JSON.parse(localStorage.getItem("user")) || {};
+      const userName = user.name || "Guest"; // Default to "Guest" if no user data
+      const userInitials = userName
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase()) // Get first letter of each word
+          .join(""); // Join them together
 
     return (
         <AppBar position="sticky" color="default" elevation={0} sx={{ backgroundColor: '#ffffff' }}>
@@ -65,9 +73,10 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
                 </IconButton>
 
                 {/* User Avatar */}
-                <IconButton>
-                    <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar>
-                </IconButton>
+                <IconButton onClick={() => navigate("/settings")}>
+    <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar>
+</IconButton>
+
             </Toolbar>
         </AppBar>
     );

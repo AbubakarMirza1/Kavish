@@ -15,6 +15,7 @@ import {
 import { PhotoCamera } from "@mui/icons-material";
 import Sidebar from "../Component/sidebar.js";
 import TopBar from "../Component/topbar.js";
+import { useNavigate } from "react-router-dom";
 
 const SettingsPage = () => {
     const [darkMode, setDarkMode] = useState(false);
@@ -24,6 +25,7 @@ const SettingsPage = () => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [profilePic, setProfilePic] = useState(null);
+    const navigate = useNavigate();
 
     // Toggle Handlers
     const handleDarkModeToggle = () => setDarkMode(!darkMode);
@@ -35,6 +37,13 @@ const SettingsPage = () => {
         const file = event.target.files[0];
         if (file) setProfilePic(URL.createObjectURL(file));
     };
+      // Logout Handler
+      const handleLogout = () => {
+        // Clear user session (if using localStorage or context)
+        localStorage.removeItem("token"); // Remove authentication token
+        navigate("/login"); // Redirect to login page
+    };
+
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -149,6 +158,21 @@ const SettingsPage = () => {
                             Data & Privacy
                         </Typography>
                         <Button variant="outlined" color="error">Clear Stored Data</Button>
+                    </Paper>
+
+                    {/* Logout Button */}
+                    <Paper sx={{ p: 4, mt: 3, borderRadius: 2, textAlign: "center" }}>
+                        <Typography variant="h5" gutterBottom>
+                            Logout
+                        </Typography>
+                        <Button 
+                            variant="contained" 
+                            color="error" 
+                            onClick={handleLogout}
+                            sx={{ mt: 2 }}
+                        >
+                            Logout
+                        </Button>
                     </Paper>
 
                 </Container>

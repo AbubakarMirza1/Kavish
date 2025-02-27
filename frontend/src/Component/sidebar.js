@@ -11,6 +11,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
+import { styled } from '@mui/system'; // Import styled from MUI
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Dashboard,
@@ -77,7 +78,28 @@ const menuStructure = [
   { label: 'Analytics', Icon: Analytics, path: '/analytics' },
   { label: 'Settings', Icon: Settings, path: '/settings' }
 ];
+// Styled components for the logo
+const LogoContainer = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginBottom: '16px', // Reduced margin for sidebar
+  paddingLeft: '16px' // Align with sidebar padding
+});
 
+const LogoImage = styled('img')({
+  height: '30px', // Smaller size for sidebar
+  width: 'auto',
+});
+
+const LogoText = styled(Typography)({
+  fontSize: '20px', // Smaller font size for sidebar
+  fontWeight: 600,
+  background: 'linear-gradient(45deg, #0D7377 30%, #14FFEC 90%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  letterSpacing: '0.5px',
+});
 const Sidebar = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -202,9 +224,14 @@ const Sidebar = () => {
       }}
     >
       <Toolbar>
-        <Typography variant="h6" sx={{ color: '#0D7377' }}>
+        {/* <Typography variant="h6" sx={{ color: '#0D7377' }}>
           EcoDash
-        </Typography>
+        </Typography> */}
+         <LogoContainer>
+          <LogoImage src="/planet-earth.png" alt="EcoDash Logo" />
+          <LogoText variant="h6">EcoDash</LogoText>
+        </LogoContainer>
+      
       </Toolbar>
       
       <List sx={{ p: 1 }}>
