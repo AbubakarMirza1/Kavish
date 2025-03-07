@@ -50,10 +50,38 @@ function getModelClient(modelName) {
  * @param {string} modelName - Name of the model (key of modelMap).
  * @param {object} data - Data for the new record.
  */
+// async function createRecord(modelName, data) {
+//   const model = getModelClient(modelName);
+//   return model.create({ data });
+// }
 async function createRecord(modelName, data) {
   const model = getModelClient(modelName);
+
+  // Check if modelName is 'stationaryCombustion' and handle scopeType relationship
+  if (modelName === 'stationaryCombustion') {
+    return model.create({
+      data: {
+        //...data
+        sourceDescription: data.sourceDescription,
+        quantity: data.quantity,
+        date: data.date,
+        scopeType: {
+          connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+        },
+        fuelType: {
+          connect: { fuelTypeId: data.fuelTypeId }, // Connect to an existing FuelType
+        },
+        unit: {
+          connect: { unitId: data.unitId }, // Connect to an existing Unit
+        },
+      },
+    });
+  }
+
+  // Default behavior for other models
   return model.create({ data });
 }
+
 
 /**
  * Get all records from a given model.
@@ -115,6 +143,7 @@ async function deleteRecord(modelName, id, keyName = 'id') {
 }
 
 module.exports = {
+  prisma,
   createRecord,
   getAllRecords,
   getRecordById,

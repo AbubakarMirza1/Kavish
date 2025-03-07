@@ -53,8 +53,19 @@ const Scope1SC = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/emissions/stationary');
-      setRows(res.data);
+      const res = await axios.get('http://localhost:5000/api/scope1/stationary');
+      const formattedData = res.data.map((item) => ({
+        id: item.id,
+        sourceId: item.scopeTypeId,
+        description: item.sourceDescription || 'N/A',
+        date: item.date || new Date().toISOString(),
+        fuelCombusted: item.fuelType?.typeName || 'Unknown',
+        quantity: item.quantity,
+        units: item.unit?.unitName || 'Unknown',
+      }));
+      setRows(formattedData);
+
+      //setRows(res.data);
     } catch (error) {
       console.error('Error fetching stationary data:', error);
     }
@@ -65,24 +76,44 @@ const Scope1SC = () => {
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddRow = () => {
+  const handleAddRow = async () => {
     if (Object.values(formValues).some((value) => value === '')) {
       setOpenSnackbar(true);
       return;
     }
-
+    try {
+      const res = await axios.post('http://localhost:5000/api/scope1/stationary', {
+        //scopeTypeId: parseInt(formValues.sourceId, 10),
+        sourceDescription: formValues.description,
+        fuelType: formValues.fuelCombusted,
+        quantity: parseInt(formValues.quantity, 10),
+        unitId: formValues.units,
+        date: formValues.date, // Ensure the date is in ISO format
+      });
+    // const newRow = {
+    //   id: rows.length + 1, // Generate a new ID
+    //   sourceId: formValues.sourceId,
+    //   description: formValues.description,
+    //   date: formValues.date,
+    //   fuelCombusted: formValues.fuelCombusted,
+    //   quantity: formValues.quantity,
+    //   units: formValues.units,
+    // };
     const newRow = {
-      id: rows.length + 1, // Generate a new ID
-      sourceId: formValues.sourceId,
-      description: formValues.description,
-      date: formValues.date,
-      fuelCombusted: formValues.fuelCombusted,
-      quantity: formValues.quantity,
-      units: formValues.units,
+      id: res.data.id, // Use the ID returned by the backend
+      //sourceId: res.data.scopeTypeId,
+      description: res.data.sourceDescription || 'N/A',
+      date: res.data.date || new Date().toISOString(),
+      fuelCombusted: res.data.fuelType?.typeName || 'Unknown',
+      quantity: res.data.quantity,
+      units: res.data.unit?.unitName || 'Unknown',
     };
 
     setRows((prev) => [...prev, newRow]); // Add the new row to the table
     setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' }); // Reset form
+  } catch (error) {
+    console.error('Error adding stationary combustion record:', error);
+  }
   };
 
   const handleClickOpen = (id) => {

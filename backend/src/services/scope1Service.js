@@ -10,6 +10,8 @@
 
 const generalCrudService = require('./generalCrudService');
 
+const { prisma } = require('./generalCrudService'); // Import prisma
+
 // You might have different primary keys:
 //  - StationaryCombustion => "id"
 //  - MobileSource => "id"
@@ -20,12 +22,57 @@ const generalCrudService = require('./generalCrudService');
 // STATIONARY COMBUSTION CRUD
 //
 
+async function createScopeType(scopeCategory, userId) {
+  const lastScopeType = await prisma.scopeType.findFirst({
+    where: { scopeCategory },
+    orderBy: { scopeTypeId: 'desc' },
+  });
+
+  let nextId;
+  if (lastScopeType) {
+    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]); // Extract the first digit
+    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1)); // Extract the rest
+    nextId = prefix * 100 + (suffix + 1); // Increment the suffix
+  } else {
+    // If no records exist for this category, start with 101, 201, or 301
+    nextId = scopeCategory === 'Scope1' ? 101 : scopeCategory === 'Scope2' ? 201 : 301;
+  }
+
+  return prisma.scopeType.create({
+    data: {
+      scopeTypeId: nextId,
+      scopeCategory,
+      userId,
+      
+    },
+  });}
+
+
+async function getFuelTypeByName(typeName) {
+  return prisma.fuelType.findFirst({
+    where: { typeName },
+  });
+}
+
+async function getUnitByName(unitName) {
+  return prisma.unit.findFirst({
+    where: { unitName },
+  });
+}
+
+
 async function createStationaryCombustion(data) {
   return generalCrudService.createRecord('stationaryCombustion', data);
 }
 
 async function getAllStationaryCombustion() {
-  return generalCrudService.getAllRecords('stationaryCombustion');
+  return generalCrudService.getAllRecords('stationaryCombustion', {
+    include: {
+      scopeType: true,
+      fuelType: true,
+      unit: true,
+    },
+  });
 }
 
 async function getStationaryCombustionById(id) {
@@ -171,4 +218,10 @@ module.exports = {
   getPurchasedGasById,
   updatePurchasedGas,
   deletePurchasedGas,
+
+
+
+  getFuelTypeByName,
+  getUnitByName,
+  createScopeType,
 };

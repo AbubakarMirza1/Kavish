@@ -7,16 +7,98 @@ const scope1Service = require('../services/scope1Service');
 
 // ----------------- STATIONARY COMBUSTION -----------------
 
+// async function createStationaryCombustion(req, res) {
+//   try {
+//     const data = req.body;
+//     const record = await scope1Service.createStationaryCombustion(data);
+//     return res.status(201).json(record);
+//   } catch (err) {
+//     return res.status(400).json({ error: err.message });
+//   }
+// }
+// async function createStationaryCombustion(req, res) {
+//   try {
+//     const { scopeTypeId, sourceDescription, fuelType, quantity, unit, date } = req.body;
+
+//     // Find the fuelTypeId from the FuelType table
+//     const fuelTypeRecord = await prisma.fuelType.findFirst({
+//       where: { typeName: fuelType },
+//     });
+//     if (!fuelTypeRecord) {
+//       return res.status(400).json({ error: `Fuel type "${fuelType}" not found.` });
+//     }
+
+//     // Find the unitId from the Unit table
+//     const unitRecord = await prisma.unit.findFirst({
+//       where: { unitName: unit },
+//     });
+//     if (!unitRecord) {
+//       return res.status(400).json({ error: `Unit "${unit}" not found.` });
+//     }
+
+//     // Ensure the scopeType exists
+//     const scopeTypeRecord = await prisma.scopeType.findUnique({
+//       where: { scopeTypeId: parseInt(scopeTypeId, 10) },
+//     });
+//     if (!scopeTypeRecord) {
+//       return res.status(400).json({ error: `ScopeType with ID "${scopeTypeId}" not found.` });
+//     }
+
+//     // Create the record in the StationaryCombustion table
+//     // Call the generic CRUD service
+//     const record = await generalCrudService.createRecord('stationaryCombustion', {
+//       scopeTypeId: parseInt(scopeTypeId, 10),
+//       sourceDescription,
+//       fuelType,
+//       quantity,
+//       unit,
+//       date,
+//     });
+
+
+//     return res.status(201).json(record);
+//   } catch (err) {
+//     return res.status(400).json({ error: err.message });
+//   }
+// }
+
+
 async function createStationaryCombustion(req, res) {
   try {
-    const data = req.body;
-    const record = await scope1Service.createStationaryCombustion(data);
+    const { sourceDescription, fuelType, quantity, unit, date } = req.body;
+
+    // Find the fuelTypeId from the FuelType table
+    const fuelTypeRecord = await scope1Service.getFuelTypeByName(fuelType);
+    if (!fuelTypeRecord) {
+      return res.status(400).json({ error: `Fuel type "${fuelType}" not found.` });
+    }
+
+    // Find the unitId from the Unit table
+    const unitRecord = await scope1Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    //console.log(scopeTypeRecord);
+
+    // Create the StationaryCombustion record
+    const record = await scope1Service.createStationaryCombustion({
+      
+        scopeTypeId: scopeTypeRecord.scopeTypeId,
+        sourceDescription,
+        fuelTypeId: fuelTypeRecord.fuelTypeId,
+        quantity,
+        unitId: unitRecord.unitId,
+        date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
   }
 }
-
 async function getAllStationaryCombustion(req, res) {
   try {
     const records = await scope1Service.getAllStationaryCombustion();

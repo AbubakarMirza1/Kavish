@@ -33,8 +33,9 @@ model Role {
 
 model ScopeType {
   scopeTypeId     Int                    @id @default(autoincrement())
+  scopeCategory String   @default("Scope1")// "Scope1", "Scope2", or "Scope3"
   userId          Int
-  date            DateTime
+  //date            DateTime
   user            User                   @relation(fields: [userId], references: [userId])
   stationary      StationaryCombustion[]
   mobile          MobileSource[]
@@ -98,8 +99,9 @@ model StationaryCombustion {
   scopeTypeId       Int
   sourceDescription String
   fuelTypeId        Int
-  quantity          Int
+  quantity          Int  // Ensure quantity is positive
   unitId            Int
+  date              DateTime  @default(now())
   scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
   fuelType          FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
   unit              Unit      @relation(fields: [unitId], references: [unitId])
@@ -115,6 +117,7 @@ model MobileSource {
   fuelUsage         Int
   unitId            Int
   milesTravled      Int
+  date              DateTime    @default(now())
   scopeType         ScopeType   @relation(fields: [scopeTypeId], references: [scopeTypeId])
   vehicleType       VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
   unit              Unit        @relation(fields: [unitId], references: [unitId])
@@ -130,6 +133,7 @@ model RefrigerationAndAC {
   gwp             Int
   unitId          Int
   co2eKg          Int
+  date            DateTime      @default(now())
   scopeType       ScopeType     @relation(fields: [scopeTypeId], references: [scopeTypeId])
   equipmentType   EquipmentType @relation(fields: [equipmentTypeId], references: [equipmentTypeId])
   unit            Unit          @relation(fields: [unitId], references: [unitId])
@@ -143,20 +147,22 @@ model FireSuppression {
   fuelTypeId  Int
   unitId      Int
   co2eKg      Int
-  scopeType   ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  fuelType    FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
-  unit        Unit      @relation(fields: [unitId], references: [unitId])
+  date        DateTime   @default(now())
+  scopeType   ScopeType  @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  fuelType    FuelType   @relation(fields: [fuelTypeId], references: [fuelTypeId])
+  unit        Unit       @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "fireSuppression_scopeTypeId_index")
 }
 
 model PurchasedGas {
-  gasId           Int       @id @default(autoincrement())
-  scopeTypeId     Int
+  gasId       Int       @id @default(autoincrement())
+  scopeTypeId Int
   purchasedAmount Int
-  unitId          Int
-  scopeType       ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  unit            Unit      @relation(fields: [unitId], references: [unitId])
+  unitId      Int
+  date        DateTime  @default(now())
+  scopeType   ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  unit        Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "purchasedGas_scopeTypeId_index")
 }
@@ -170,8 +176,9 @@ model Electricity {
   co2eKg      Int
   ch4Kg       Float
   n20Kg       Float
-  scopeType   ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  unit        Unit      @relation(fields: [unitId], references: [unitId])
+  date        DateTime   @default(now())
+  scopeType   ScopeType  @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  unit        Unit       @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "electricity_scopeTypeId_index")
 }
@@ -187,10 +194,11 @@ model Steam {
   co2Kg             Int
   ch4g              Int
   n20g              Int
-  unitId            Int // Add this line to define unitId as a foreign key
+  unitId            Int
+  date              DateTime  @default(now())
   scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
   fuelType          FuelType  @relation(fields: [fuelTypeId], references: [fuelTypeId])
-  unit              Unit      @relation(fields: [unitId], references: [unitId]) // Use unitId as the reference field
+  unit              Unit      @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "steam_scopeTypeId_index")
 }
@@ -204,6 +212,7 @@ model BusinessTravel {
   co2Kg             Int
   n20g              Int
   ch4g              Int
+  date              DateTime    @default(now())
   scopeType         ScopeType   @relation(fields: [scopeTypeId], references: [scopeTypeId])
   vehicleType       VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])
 
@@ -219,9 +228,10 @@ model Waste {
   weight            Int
   unitId            Int
   co2eKg            Int
-  scopeType         ScopeType @relation(fields: [scopeTypeId], references: [scopeTypeId])
-  wasteType         WasteType @relation(fields: [wasteTypeId], references: [wasteTypeId])
-  unit              Unit      @relation(fields: [unitId], references: [unitId])
+  date              DateTime   @default(now())
+  scopeType         ScopeType  @relation(fields: [scopeTypeId], references: [scopeTypeId])
+  wasteType         WasteType  @relation(fields: [wasteTypeId], references: [wasteTypeId])
+  unit              Unit       @relation(fields: [unitId], references: [unitId])
 
   @@index([scopeTypeId], name: "waste_scopeTypeId_index")
 }
