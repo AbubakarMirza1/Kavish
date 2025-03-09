@@ -38,6 +38,7 @@ const Scope1SC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState(''); // New state for Snackbar message
 
   // Get data from the store
   const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
@@ -64,8 +65,6 @@ const Scope1SC = () => {
         units: item.unit?.unitName || 'Unknown',
       }));
       setRows(formattedData);
-
-      //setRows(res.data);
     } catch (error) {
       console.error('Error fetching stationary data:', error);
     }
@@ -78,42 +77,33 @@ const Scope1SC = () => {
 
   const handleAddRow = async () => {
     if (Object.values(formValues).some((value) => value === '')) {
+      setSnackbarMessage('Please fill in all fields before adding a record.');
       setOpenSnackbar(true);
       return;
     }
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/stationary', {
-        //scopeTypeId: parseInt(formValues.sourceId, 10),
         sourceDescription: formValues.description,
         fuelType: formValues.fuelCombusted,
         quantity: parseInt(formValues.quantity, 10),
         unitId: formValues.units,
-        date: formValues.date, // Ensure the date is in ISO format
+        date: formValues.date,
       });
-    // const newRow = {
-    //   id: rows.length + 1, // Generate a new ID
-    //   sourceId: formValues.sourceId,
-    //   description: formValues.description,
-    //   date: formValues.date,
-    //   fuelCombusted: formValues.fuelCombusted,
-    //   quantity: formValues.quantity,
-    //   units: formValues.units,
-    // };
-    const newRow = {
-      id: res.data.id, // Use the ID returned by the backend
-      //sourceId: res.data.scopeTypeId,
-      description: res.data.sourceDescription || 'N/A',
-      date: res.data.date || new Date().toISOString(),
-      fuelCombusted: res.data.fuelType?.typeName || 'Unknown',
-      quantity: res.data.quantity,
-      units: res.data.unit?.unitName || 'Unknown',
-    };
 
-    setRows((prev) => [...prev, newRow]); // Add the new row to the table
-    setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' }); // Reset form
-  } catch (error) {
-    console.error('Error adding stationary combustion record:', error);
-  }
+      const newRow = {
+        id: res.data.id,
+        description: res.data.sourceDescription || 'N/A',
+        date: res.data.date || new Date().toISOString(),
+        fuelCombusted: res.data.fuelType?.typeName || 'Unknown',
+        quantity: res.data.quantity,
+        units: res.data.unit?.unitName || 'Unknown',
+      };
+
+      setRows((prev) => [...prev, newRow]);
+      setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
+    } catch (error) {
+      console.error('Error adding stationary combustion record:', error);
+    }
   };
 
   const handleClickOpen = (id) => {
@@ -126,29 +116,30 @@ const Scope1SC = () => {
     setOpenSnackbar(false);
   };
 
-  const handleDeleteRow = () => {
-    setRows((prev) => prev.filter((row) => row.id !== deleteId)); // Remove the deleted entry
-    setOpenDialog(false);
+  const handleDeleteRow = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/scope1/stationary/${deleteId}`);
+      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      setSnackbarMessage('Failed to delete the record. Please try again.');
+      setOpenSnackbar(true);
+    }
   };
 
   return (
     <Box sx={{ display: 'flex' }}>
       {/* Sidebar */}
       <Sidebar selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
-
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         {/* Top Bar */}
-        <TopBar 
-                title="Scope 1" 
-                showDropdown={false}
-            />
-
+        <TopBar title="Scope 1" showDropdown={false} />
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom>
             Stationary Combustion
           </Typography>
-
           {/* Form */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
@@ -219,7 +210,6 @@ const Scope1SC = () => {
               </Button>
             </Box>
           </Box>
-
           {/* Table */}
           <Typography variant="h6">Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
@@ -256,26 +246,16 @@ const Scope1SC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate('/dashboard')}
-            >
+            <Button variant="contained" color="primary" onClick={() => navigate('/dashboard')}>
               Back to Dashboard
             </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => navigate('/Scope1MS')}
-            >
+            <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1MS')}>
               Proceed to Mobile Sources
             </Button>
           </Box>
         </Container>
-
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Confirm Deletion</DialogTitle>
@@ -291,11 +271,10 @@ const Scope1SC = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
         {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error">
-            Please fill in all fields before adding a record.
+            {snackbarMessage}
           </Alert>
         </Snackbar>
       </Box>
@@ -304,4 +283,3 @@ const Scope1SC = () => {
 };
 
 export default Scope1SC;
-
