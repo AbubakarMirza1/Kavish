@@ -23,6 +23,8 @@ const emissionsRoutes = require('./routes/emissionsRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const authRoutes = require('./routes/authRoutes');  // ✅ Import authentication routes
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const scope1EmissionsRoutes = require('./routes/scope1EmissionsRoutes'); // ✅ Import the new scope1EmissionsRoutes
+
 
 // --------------------------------------------
 // REGISTER ROUTES WITH BASE PATHS
@@ -37,6 +39,8 @@ app.use('/emissions', emissionsRoutes);      // e.g., /emissions/total
 app.use('/dashboard', dashboardRoutes);      // e.g., /dashboard/kpis
 app.use('/api/auth', authRoutes);            // ✅ Register authentication routes (e.g., /api/auth/login)
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
+
 
 
 // Optional: a simple health check endpoint

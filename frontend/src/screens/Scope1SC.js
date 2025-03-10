@@ -86,7 +86,7 @@ const Scope1SC = () => {
         sourceDescription: formValues.description,
         fuelType: formValues.fuelCombusted,
         quantity: parseInt(formValues.quantity, 10),
-        unitId: formValues.units,
+        unit: formValues.units,
         date: formValues.date,
       });
 

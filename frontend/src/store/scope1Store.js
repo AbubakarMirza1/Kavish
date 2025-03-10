@@ -1,51 +1,47 @@
+// src/store/scope1Store.js
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useScope1Store = create((set) => ({
-  // Initial state for each section
-  stationaryCombustionRows: [
-    { id: 1, name: "Petrol", active: true },
-    { id: 2, name: "Diesel", active: true },
-  ],
-  mobileRows: [
-    { id: 1, name: "Light-Duty Trucks - Gasoline", active: true },
-    { id: 2, name: "Heavy-Duty Vehicles - Gasoline", active: true },
-  ],
-  refrigerationRows: [
-    { id: 1, name: "Stand-Alone Commercial", active: true },
-    { id: 2, name: "Medium/Large Commercial", active: true },
-    { id: 3, name: "Chiller", active: true },
-  ],
-  fireSuppressionRows: [
-    { id: 1, name: "Clean Agent", active: true },
-    { id: 2, name: "Carbon Dioxide (CO2)", active: true },
-    { id: 3, name: "Novec 1230", active: true },
-  ],
-  purchasedGasesRows: [
-    { id: 1, name: "Natural Gas", active: true },
-    { id: 2, name: "Propane", active: true },
-  ],
-  unitRows: [
-    { id: 1, name: "KG", active: true },
-    { id: 2, name: "Tonnes", active: true },
-  ],
+const useScope1Store = create(
+  persist(
+    (set) => ({
+      // Initial state for each section
+      stationaryCombustionRows: [],
+      mobileRows: [],
+      refrigerationRows: [],
+      fireSuppressionRows: [],
+      purchasedGasesRows: [],
+      unitRows: [],
 
-  // Actions
-  addRow: (section, newRow) => set((state) => {
-    const updatedSection = [...state[section], newRow];
-    return { [section]: updatedSection };
-  }),
+      // Actions
+      setStationaryCombustionRows: (rows) => set({ stationaryCombustionRows: rows }),
+      setMobileRows: (rows) => set({ mobileRows: rows }),
+      setRefrigerationRows: (rows) => set({ refrigerationRows: rows }),
+      setFireSuppressionRows: (rows) => set({ fireSuppressionRows: rows }),
+      setPurchasedGasesRows: (rows) => set({ purchasedGasesRows: rows }),
+      setUnitRows: (rows) => set({ unitRows: rows }),
 
-  deleteRow: (section, id) => set((state) => {
-    const updatedSection = state[section].filter((row) => row.id !== id);
-    return { [section]: updatedSection };
-  }),
+      addRow: (section, newRow) => set((state) => {
+        const updatedSection = [...state[section], newRow];
+        return { [section]: updatedSection };
+      }),
 
-  toggleActive: (section, id) => set((state) => {
-    const updatedSection = state[section].map((row) =>
-      row.id === id ? { ...row, active: !row.active } : row
-    );
-    return { [section]: updatedSection };
-  }),
-}));
+      deleteRow: (section, id) => set((state) => {
+        const updatedSection = state[section].filter((row) => row.id !== id);
+        return { [section]: updatedSection };
+      }),
+
+      toggleActive: (section, id) => set((state) => {
+        const updatedSection = state[section].map((row) =>
+          row.id === id ? { ...row, active: !row.active } : row
+        );
+        return { [section]: updatedSection };
+      }),
+    }),
+    {
+      name: 'scope1-store',
+    }
+  )
+);
 
 export default useScope1Store;

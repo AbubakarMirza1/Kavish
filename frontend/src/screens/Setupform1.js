@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// Scope1EmissionsSetup.js
+import React, { useEffect, useState } from "react";
 import {
   Button,
   TextField,
@@ -12,12 +13,11 @@ import {
   Paper,
   Box,
   Container,
- } from "@mui/material";
+} from "@mui/material";
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import { useNavigate } from "react-router-dom";
 import useScope1Store from "../store/scope1Store";
-import TopBar from '../Component/topbar.js'; // Import the Sidebar component
-
+import TopBar from '../Component/topbar.js'; // Import the TopBar component
 
 const Scope1EmissionsSetup = () => {
   const navigate = useNavigate();
@@ -47,9 +47,51 @@ const Scope1EmissionsSetup = () => {
   const unitRows = useScope1Store((state) => state.unitRows);
 
   // Select actions individually
+  const setStationaryCombustionRows = useScope1Store(
+    (state) => state.setStationaryCombustionRows
+  );
+  const setMobileRows = useScope1Store((state) => state.setMobileRows);
+  const setRefrigerationRows = useScope1Store(
+    (state) => state.setRefrigerationRows
+  );
+  const setFireSuppressionRows = useScope1Store(
+    (state) => state.setFireSuppressionRows
+  );
+  const setPurchasedGasesRows = useScope1Store(
+    (state) => state.setPurchasedGasesRows
+  );
+  const setUnitRows = useScope1Store((state) => state.setUnitRows);
+
   const addRow = useScope1Store((state) => state.addRow);
   const deleteRow = useScope1Store((state) => state.deleteRow);
   const toggleActive = useScope1Store((state) => state.toggleActive);
+
+  useEffect(() => {
+    // Fetch initial data from the backend
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/scope1-emissions/data');
+        const data = await response.json();
+        setStationaryCombustionRows(data.stationaryCombustionRows);
+        setMobileRows(data.mobileRows);
+        setRefrigerationRows(data.refrigerationRows);
+        setFireSuppressionRows(data.fireSuppressionRows);
+        setPurchasedGasesRows(data.purchasedGasesRows);
+        setUnitRows(data.unitRows);
+      } catch (error) {
+        console.error('Error fetching scope 1 data:', error);
+      }
+    };
+
+    fetchData();
+  }, [
+    setStationaryCombustionRows,
+    setMobileRows,
+    setRefrigerationRows,
+    setFireSuppressionRows,
+    setPurchasedGasesRows,
+    setUnitRows,
+  ]);
 
   const handleAddRow = (section) => {
     const value = formValues[section];
@@ -87,6 +129,21 @@ const Scope1EmissionsSetup = () => {
 
     if (storeSectionKey) {
       addRow(storeSectionKey, newRow);
+      // Send the new row to the backend
+      fetch(`/api/scope1-emissions/add-row/${section}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: value }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('New row added:', data);
+        })
+        .catch((error) => {
+          console.error('Error adding row:', error);
+        });
     }
 
     setFormValues((prev) => ({ ...prev, [section]: "" }));
@@ -119,6 +176,17 @@ const Scope1EmissionsSetup = () => {
 
     if (storeSectionKey) {
       deleteRow(storeSectionKey, id);
+      // Send the delete request to the backend
+      fetch(`http://localhost:5000/api/scope1-emissions/delete-row/${section}/${id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Row deleted:', data);
+        })
+        .catch((error) => {
+          console.error('Error deleting row:', error);
+        });
     }
   };
 
@@ -149,6 +217,21 @@ const Scope1EmissionsSetup = () => {
 
     if (storeSectionKey) {
       toggleActive(storeSectionKey, id);
+      // Send the toggle request to the backend
+      fetch(`http://localhost:5000/api/scope1-emissions/toggle-active/${section}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ active: !stationaryCombustionRows.find(row => row.id === id)?.active }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Active status toggled:', data);
+        })
+        .catch((error) => {
+          console.error('Error toggling active status:', error);
+        });
     }
   };
 
@@ -190,7 +273,7 @@ const Scope1EmissionsSetup = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      < Sidebar />
+      <Sidebar />
       
 
       {/* Main Content */}
