@@ -88,16 +88,17 @@ async function deleteStationaryCombustion(id) {
 // ----------------- MOBILE SOURCE CRUD -----------------
 
 async function createMobileSource(data) {
-  return generalCrudService.createRecord('mobileSource', {
-    data: {
-      scopeTypeId: data.scopeTypeId,
-      sourceDescription: data.sourceDescription,
-      vehicleTypeId: data.vehicleTypeId,
-      fuelUsage: data.fuelUsage,
-      unitId: data.unitId,
-      milesTravelled: data.milesTravelled,
-    },
-  });
+   return generalCrudService.createRecord('mobileSource',data);
+  //   data: {
+  //     scopeTypeId: data.scopeTypeId,
+  //     sourceDescription: data.sourceDescription,
+  //     vehicleTypeId: data.vehicleTypeId,
+  //     fuelUsage: data.fuelUsage,
+  //     unitId: data.unitId,
+  //     milesTravelled: data.milesTravelled,
+  //   },
+  // }
+  
 }
 
 async function getAllMobileSources() {

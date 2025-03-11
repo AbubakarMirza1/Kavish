@@ -79,13 +79,19 @@ async function createRecord(modelName, data) {
       return model.create({
         data: {
           sourceDescription: data.sourceDescription,
-          vehicleTypeId: data.vehicleTypeId,
+         // vehicleTypeId: data.vehicleTypeId,
           fuelUsage: data.fuelUsage,
-          unitId: data.unitId,
-          milesTravled: data.milesTravled,
+          // unitId: data.unitId,
+          milesTravelled: data.milesTravelled,
           date: data.date,
           scopeType: {
             connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+          vehicleType: {
+            connect: { vehicleTypeId: data.vehicleTypeId }, // Connect to an existing Unit
+          },
+          unit: {
+            connect: { unitId: data.unitId }, // Connect to an existing Unit
           },
         },
       });

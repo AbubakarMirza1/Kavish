@@ -35,6 +35,7 @@ const MobileSourcePage = () => {
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
+    date:'',
     vehicleType: '',
     fuelUsage: '',
     unit: '',
@@ -66,6 +67,7 @@ const MobileSourcePage = () => {
         id: item.id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
+        date: item.date || new Date().toISOString(),
         vehicleType: item.vehicleType?.typeName || 'Unknown',
         fuelUsage: item.fuelUsage,
         unit: item.unit?.unitName || 'Unknown',
@@ -96,12 +98,14 @@ const MobileSourcePage = () => {
         fuelUsage: parseInt(formValues.fuelUsage, 10),
         unit: formValues.unit,
         milesTravelled: parseInt(formValues.milesTravelled, 10),
+        date: formValues.date,
       });
 
       const newRow = {
         id: res.data.id,
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
+        date: res.data.date || new Date().toISOString(),
         vehicleType: res.data.vehicleType?.typeName || 'Unknown',
         fuelUsage: res.data.fuelUsage,
         unit: res.data.unit?.unitName || 'Unknown',
@@ -109,7 +113,7 @@ const MobileSourcePage = () => {
       };
 
       setRows((prev) => [...prev, newRow]);
-      setFormValues({ sourceId: '', description: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
+      setFormValues({ sourceId: '', description: '',date: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
     } catch (error) {
       console.error('Error adding mobile source record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -167,6 +171,14 @@ const MobileSourcePage = () => {
                 onChange={handleInputChange}
                 variant="outlined"
               />
+              <TextField                     label="Date"
+                              name="date"
+                              type="date"
+                              value={formValues.date}
+                              onChange={handleInputChange}
+                              variant="outlined"
+                              InputLabelProps={{ shrink: true }}
+                            />
               <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                 <InputLabel>Vehicle Type</InputLabel>
                 <Select
@@ -228,6 +240,7 @@ const MobileSourcePage = () => {
                   <TableCell>ID</TableCell>
                   <TableCell>Source ID</TableCell>
                   <TableCell>Description</TableCell>
+                  <TableCell>Date</TableCell>
                   <TableCell>Vehicle Type</TableCell>
                   <TableCell>Fuel Usage</TableCell>
                   <TableCell>Miles Travelled</TableCell>
@@ -241,6 +254,7 @@ const MobileSourcePage = () => {
                     <TableCell>{row.id}</TableCell>
                     <TableCell>{row.sourceId}</TableCell>
                     <TableCell>{row.description}</TableCell>
+                    <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
                     <TableCell>{row.vehicleType}</TableCell>
                     <TableCell>{row.fuelUsage}</TableCell>
                     <TableCell>{row.milesTravelled}</TableCell>

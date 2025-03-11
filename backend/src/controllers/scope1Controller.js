@@ -88,7 +88,7 @@ async function deleteStationaryCombustion(req, res) {
 
 async function createMobileSource(req, res) {
   try {
-    const { sourceDescription, vehicleType, fuelUsage, unit, milesTravelled } = req.body;
+    const { sourceDescription, vehicleType, fuelUsage, unit, milesTravelled,date } = req.body;
 
     // Find the vehicleTypeId from the VehicleType table
     const vehicleTypeRecord = await scope1Service.getVehicleTypeByName(vehicleType);
@@ -113,6 +113,7 @@ async function createMobileSource(req, res) {
       fuelUsage,
       unitId: unitRecord.unitId,
       milesTravelled,
+      date: new Date(date),
     });
 
     return res.status(201).json(record);
