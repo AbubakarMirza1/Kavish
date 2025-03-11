@@ -174,8 +174,20 @@ async function deleteMobileSource(req, res) {
 
 async function createRefrigerationAndAC(req, res) {
   try {
-    const data = req.body;
-    const record = await scope1Service.createRefrigerationAndAC(data);
+    const { sourceDescription, equipmentTypeId, gas, gwp, unitId, co2eKg, date } = req.body;
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    // Create the RefrigerationAndAC record
+    const record = await scope1Service.createRefrigerationAndAC({
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      equipmentTypeId,
+      gas,
+      gwp,
+      unitId,
+      co2eKg,
+      date: new Date(date),
+    });
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -229,8 +241,18 @@ async function deleteRefrigerationAndAC(req, res) {
 
 async function createFireSuppression(req, res) {
   try {
-    const data = req.body;
-    const record = await scope1Service.createFireSuppression(data);
+    const { sourceDescription, fuelTypeId, unitId, co2eKg, date } = req.body;
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    // Create the FireSuppression record
+    const record = await scope1Service.createFireSuppression({
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      fuelTypeId,
+      unitId,
+      co2eKg,
+      date: new Date(date),
+    });
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -284,8 +306,17 @@ async function deleteFireSuppression(req, res) {
 
 async function createPurchasedGas(req, res) {
   try {
-    const data = req.body;
-    const record = await scope1Service.createPurchasedGas(data);
+    const { purchasedAmount, unitId, date } = req.body;
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    // Create the PurchasedGas record
+    const record = await scope1Service.createPurchasedGas({
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      purchasedAmount,
+      unitId,
+      date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });

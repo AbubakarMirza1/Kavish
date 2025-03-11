@@ -34,8 +34,9 @@ const modelMap = {
 /**
  * Retrieve the Prisma model client for a given model name.
  * Throws an error if the model name is invalid.
- * @param {string} modelName
- * @returns {object} Prisma model client
+ * @param {string} modelName - The name of the model.
+ * @returns {object} - The Prisma model client.
+ * @throws {Error} - If the model name is not found in the modelMap.
  */
 function getModelClient(modelName) {
   const client = modelMap[modelName];
@@ -47,65 +48,101 @@ function getModelClient(modelName) {
 
 /**
  * Create a new record in a given model.
- * @param {string} modelName - Name of the model (key of modelMap).
- * @param {object} data - Data for the new record.
+ * @param {string} modelName - The name of the model (key of modelMap).
+ * @param {object} data - The data for the new record.
+ * @returns {Promise<object>} - The created record.
  */
-// async function createRecord(modelName, data) {
-//   const model = getModelClient(modelName);
-//   return model.create({ data });
-// }
 async function createRecord(modelName, data) {
   const model = getModelClient(modelName);
 
-  // Check if modelName is 'stationaryCombustion' and handle scopeType relationship
-  if (modelName === 'stationaryCombustion') {
-    return model.create({
-      data: {
-        //...data
-        sourceDescription: data.sourceDescription,
-        quantity: data.quantity,
-        date: data.date,
-        scopeType: {
-          connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+  // Handle specific models with relationships
+  switch (modelName) {
+    case 'stationaryCombustion':
+      return model.create({
+        data: {
+          sourceDescription: data.sourceDescription,
+          quantity: data.quantity,
+          date: data.date,
+          scopeType: {
+            connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+          fuelType: {
+            connect: { fuelTypeId: data.fuelTypeId }, // Connect to an existing FuelType
+          },
+          unit: {
+            connect: { unitId: data.unitId }, // Connect to an existing Unit
+          },
         },
-        fuelType: {
-          connect: { fuelTypeId: data.fuelTypeId }, // Connect to an existing FuelType
-        },
-        unit: {
-          connect: { unitId: data.unitId }, // Connect to an existing Unit
-        },
-      },
-    });
-  }
+      });
 
-  if (modelName === 'mobileSource') {
-    return model.create({
-      data: {
-        sourceDescription: data.sourceDescription,
-        vehicleType: {
-          connect: { vehicleTypeId: data.vehicleTypeId }, // Connect to an existing VehicleType
+    case 'mobileSource':
+      return model.create({
+        data: {
+          sourceDescription: data.sourceDescription,
+          vehicleTypeId: data.vehicleTypeId,
+          fuelUsage: data.fuelUsage,
+          unitId: data.unitId,
+          milesTravled: data.milesTravled,
+          date: data.date,
+          scopeType: {
+            connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
         },
-        fuelUsage: data.fuelUsage,
-        unit: {
-          connect: { unitId: data.unitId }, // Connect to an existing Unit
-        },
-        milesTravelled: data.milesTravelled,
-        scopeType: {
-          connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
-        },
-      },
-    });
-  }
+      });
 
-  // Default behavior for other models
-  return model.create({ data });
+    case 'refrigerationAndAC':
+      return model.create({
+        data: {
+          sourceDescription: data.sourceDescription,
+          equipmentTypeId: data.equipmentTypeId,
+          gas: data.gas,
+          gwp: data.gwp,
+          unitId: data.unitId,
+          co2eKg: data.co2eKg,
+          date: data.date,
+          scopeType: {
+            connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+        },
+      });
+
+    case 'fireSuppression':
+      return model.create({
+        data: {
+          sourceDescription: data.sourceDescription,
+          fuelTypeId: data.fuelTypeId,
+          unitId: data.unitId,
+          co2eKg: data.co2eKg,
+          date: data.date,
+          scopeType: {
+            connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+        },
+      });
+
+    case 'purchasedGas':
+      return model.create({
+        data: {
+          purchasedAmount: data.purchasedAmount,
+          unitId: data.unitId,
+          date: data.date,
+          scopeType: {
+            connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+        },
+      });
+
+    // Default behavior for other models
+    default:
+      return model.create({ data });
+  }
 }
-
 
 /**
  * Get all records from a given model.
- * @param {string} modelName
- * @param {object} queryOptions - Additional options (e.g., include, where, etc.)
+ * @param {string} modelName - The name of the model.
+ * @param {object} queryOptions - Additional options (e.g., include, where, etc.).
+ * @returns {Promise<Array>} - An array of records.
  */
 async function getAllRecords(modelName, queryOptions = {}) {
   const model = getModelClient(modelName);
@@ -116,9 +153,10 @@ async function getAllRecords(modelName, queryOptions = {}) {
  * Get a single record by ID (defaults to `id` field).
  * If your primary key is different (e.g., userId),
  * pass keyName as well.
- * @param {string} modelName
- * @param {number} id
- * @param {string} [keyName="id"]
+ * @param {string} modelName - The name of the model.
+ * @param {number} id - The ID of the record.
+ * @param {string} [keyName="id"] - The name of the primary key field.
+ * @returns {Promise<object>} - The record.
  */
 async function getRecordById(modelName, id, keyName = 'id') {
   const model = getModelClient(modelName);
@@ -131,10 +169,11 @@ async function getRecordById(modelName, id, keyName = 'id') {
 
 /**
  * Update a record by ID (defaults to `id` field).
- * @param {string} modelName
- * @param {number} id
- * @param {object} data - Updated data
- * @param {string} [keyName="id"]
+ * @param {string} modelName - The name of the model.
+ * @param {number} id - The ID of the record.
+ * @param {object} data - The updated data.
+ * @param {string} [keyName="id"] - The name of the primary key field.
+ * @returns {Promise<object>} - The updated record.
  */
 async function updateRecord(modelName, id, data, keyName = 'id') {
   const model = getModelClient(modelName);
@@ -148,9 +187,10 @@ async function updateRecord(modelName, id, data, keyName = 'id') {
 
 /**
  * Delete a record by ID (defaults to `id` field).
- * @param {string} modelName
- * @param {number} id
- * @param {string} [keyName="id"]
+ * @param {string} modelName - The name of the model.
+ * @param {number} id - The ID of the record.
+ * @param {string} [keyName="id"] - The name of the primary key field.
+ * @returns {Promise<object>} - The deleted record.
  */
 async function deleteRecord(modelName, id, keyName = 'id') {
   const model = getModelClient(modelName);

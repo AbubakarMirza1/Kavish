@@ -129,7 +129,13 @@ async function createRefrigerationAndAC(data) {
 }
 
 async function getAllRefrigerationAndAC() {
-  return generalCrudService.getAllRecords('refrigerationAndAC');
+  return generalCrudService.getAllRecords('refrigerationAndAC',{
+    include: {
+    scopeType: true,
+    equipmentType: true,
+    unit: true,
+  },
+});
 }
 
 async function getRefrigerationAndACById(id) {
@@ -151,7 +157,14 @@ async function createFireSuppression(data) {
 }
 
 async function getAllFireSuppression() {
-  return generalCrudService.getAllRecords('fireSuppression');
+  return generalCrudService.getAllRecords('fireSuppression', {
+    
+      include: {
+        scopeType: true,
+        fuelType: true,
+        unit: true,
+      },
+    });
 }
 
 async function getFireSuppressionById(id) {
@@ -173,7 +186,12 @@ async function createPurchasedGas(data) {
 }
 
 async function getAllPurchasedGas() {
-  return generalCrudService.getAllRecords('purchasedGas');
+  return generalCrudService.getAllRecords('purchasedGas', {
+       include: {
+        scopeType: true,
+        unit: true,
+      },
+    });
 }
 
 async function getPurchasedGasById(gasId) {
