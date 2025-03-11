@@ -116,7 +116,7 @@ model MobileSource {
   vehicleTypeId     Int
   fuelUsage         Int
   unitId            Int
-  milesTravled      Int
+  milesTravelled    Int
   date              DateTime    @default(now())
   scopeType         ScopeType   @relation(fields: [scopeTypeId], references: [scopeTypeId])
   vehicleType       VehicleType @relation(fields: [vehicleTypeId], references: [vehicleTypeId])

@@ -24,17 +24,15 @@ async function createStationaryCombustion(req, res) {
 
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
-    //console.log(scopeTypeRecord);
 
     // Create the StationaryCombustion record
     const record = await scope1Service.createStationaryCombustion({
-      
-        scopeTypeId: scopeTypeRecord.scopeTypeId,
-        sourceDescription,
-        fuelTypeId: fuelTypeRecord.fuelTypeId,
-        quantity,
-        unitId: unitRecord.unitId,
-        date: new Date(date),
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      fuelTypeId: fuelTypeRecord.fuelTypeId,
+      quantity,
+      unitId: unitRecord.unitId,
+      date: new Date(date),
     });
 
     return res.status(201).json(record);
@@ -42,6 +40,7 @@ async function createStationaryCombustion(req, res) {
     return res.status(400).json({ error: err.message });
   }
 }
+
 async function getAllStationaryCombustion(req, res) {
   try {
     const records = await scope1Service.getAllStationaryCombustion();
@@ -89,8 +88,33 @@ async function deleteStationaryCombustion(req, res) {
 
 async function createMobileSource(req, res) {
   try {
-    const data = req.body;
-    const record = await scope1Service.createMobileSource(data);
+    const { sourceDescription, vehicleType, fuelUsage, unit, milesTravelled } = req.body;
+
+    // Find the vehicleTypeId from the VehicleType table
+    const vehicleTypeRecord = await scope1Service.getVehicleTypeByName(vehicleType);
+    if (!vehicleTypeRecord) {
+      return res.status(400).json({ error: `Vehicle type "${vehicleType}" not found.` });
+    }
+
+    // Find the unitId from the Unit table
+    const unitRecord = await scope1Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+
+    // Create the MobileSource record
+    const record = await scope1Service.createMobileSource({
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      vehicleTypeId: vehicleTypeRecord.vehicleTypeId,
+      fuelUsage,
+      unitId: unitRecord.unitId,
+      milesTravelled,
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -99,7 +123,13 @@ async function createMobileSource(req, res) {
 
 async function getAllMobileSources(req, res) {
   try {
-    const records = await scope1Service.getAllMobileSources();
+    const records = await scope1Service.getAllMobileSources({
+      include: {
+        scopeType: true,
+        vehicleType: true,
+        unit: true,
+      },
+    });
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });

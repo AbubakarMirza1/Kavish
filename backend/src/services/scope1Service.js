@@ -12,15 +12,7 @@ const generalCrudService = require('./generalCrudService');
 
 const { prisma } = require('./generalCrudService'); // Import prisma
 
-// You might have different primary keys:
-//  - StationaryCombustion => "id"
-//  - MobileSource => "id"
-//  etc.
-// We'll assume "id" or "gasId" for purchasedGas.
-
-//
-// STATIONARY COMBUSTION CRUD
-//
+// ----------------- UTILITY FUNCTIONS -----------------
 
 async function createScopeType(scopeCategory, userId) {
   const lastScopeType = await prisma.scopeType.findFirst({
@@ -43,10 +35,9 @@ async function createScopeType(scopeCategory, userId) {
       scopeTypeId: nextId,
       scopeCategory,
       userId,
-      
     },
-  });}
-
+  });
+}
 
 async function getFuelTypeByName(typeName) {
   return prisma.fuelType.findFirst({
@@ -60,6 +51,13 @@ async function getUnitByName(unitName) {
   });
 }
 
+async function getVehicleTypeByName(typeName) {
+  return prisma.vehicleType.findFirst({
+    where: { typeName },
+  });
+}
+
+// ----------------- STATIONARY COMBUSTION CRUD -----------------
 
 async function createStationaryCombustion(data) {
   return generalCrudService.createRecord('stationaryCombustion', data);
@@ -87,16 +85,29 @@ async function deleteStationaryCombustion(id) {
   return generalCrudService.deleteRecord('stationaryCombustion', id, 'id');
 }
 
-//
-// MOBILE SOURCE CRUD
-//
+// ----------------- MOBILE SOURCE CRUD -----------------
 
 async function createMobileSource(data) {
-  return generalCrudService.createRecord('mobileSource', data);
+  return generalCrudService.createRecord('mobileSource', {
+    data: {
+      scopeTypeId: data.scopeTypeId,
+      sourceDescription: data.sourceDescription,
+      vehicleTypeId: data.vehicleTypeId,
+      fuelUsage: data.fuelUsage,
+      unitId: data.unitId,
+      milesTravelled: data.milesTravelled,
+    },
+  });
 }
 
 async function getAllMobileSources() {
-  return generalCrudService.getAllRecords('mobileSource');
+  return generalCrudService.getAllRecords('mobileSource', {
+    include: {
+      scopeType: true,
+      vehicleType: true,
+      unit: true,
+    },
+  });
 }
 
 async function getMobileSourceById(id) {
@@ -111,9 +122,7 @@ async function deleteMobileSource(id) {
   return generalCrudService.deleteRecord('mobileSource', id, 'id');
 }
 
-//
-// REFRIGERATION AND AC CRUD
-//
+// ----------------- REFRIGERATION AND AC CRUD -----------------
 
 async function createRefrigerationAndAC(data) {
   return generalCrudService.createRecord('refrigerationAndAC', data);
@@ -135,9 +144,7 @@ async function deleteRefrigerationAndAC(id) {
   return generalCrudService.deleteRecord('refrigerationAndAC', id, 'id');
 }
 
-//
-// FIRE SUPPRESSION CRUD
-//
+// ----------------- FIRE SUPPRESSION CRUD -----------------
 
 async function createFireSuppression(data) {
   return generalCrudService.createRecord('fireSuppression', data);
@@ -159,9 +166,7 @@ async function deleteFireSuppression(id) {
   return generalCrudService.deleteRecord('fireSuppression', id, 'id');
 }
 
-//
-// PURCHASED GAS CRUD
-//
+// ----------------- PURCHASED GAS CRUD -----------------
 
 async function createPurchasedGas(data) {
   return generalCrudService.createRecord('purchasedGas', data);
@@ -219,9 +224,9 @@ module.exports = {
   updatePurchasedGas,
   deletePurchasedGas,
 
-
-
+  // Utility Functions
   getFuelTypeByName,
   getUnitByName,
+  getVehicleTypeByName,
   createScopeType,
 };

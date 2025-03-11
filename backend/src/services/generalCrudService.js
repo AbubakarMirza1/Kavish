@@ -78,6 +78,25 @@ async function createRecord(modelName, data) {
     });
   }
 
+  if (modelName === 'mobileSource') {
+    return model.create({
+      data: {
+        sourceDescription: data.sourceDescription,
+        vehicleType: {
+          connect: { vehicleTypeId: data.vehicleTypeId }, // Connect to an existing VehicleType
+        },
+        fuelUsage: data.fuelUsage,
+        unit: {
+          connect: { unitId: data.unitId }, // Connect to an existing Unit
+        },
+        milesTravelled: data.milesTravelled,
+        scopeType: {
+          connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+        },
+      },
+    });
+  }
+
   // Default behavior for other models
   return model.create({ data });
 }
