@@ -34,7 +34,6 @@ const RefrigerationAndACPage = () => {
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
-    sourceId: '',
     description: '',
     gas: '',
     equipmentTypeId: '',
@@ -52,11 +51,9 @@ const RefrigerationAndACPage = () => {
 
   // Get data from the store
   const refrigerationRows = useScope1Store((state) => state.refrigerationRows);
-  // const equipmentTypeRows = useScope1Store((state) => state.equipmentTypeRows);
   const unitRows = useScope1Store((state) => state.unitRows);
 
   // Filter active items
-  // const activeEquipmentTypes = equipmentTypeRows.filter((row) => row.active);
   const activeUnits = unitRows.filter((row) => row.active);
   const activeRefrigerationOptions = refrigerationRows.filter((row) => row.active);
 
@@ -71,7 +68,7 @@ const RefrigerationAndACPage = () => {
       const formattedData = res.data.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
-        // description: item.sourceDescription || 'N/A',
+        description: item.sourceDescription || 'N/A',
         date: item.date || new Date().toISOString(),
         gas: item.gas,
         equipmentType: item.equipmentType?.typeName || 'Unknown',
@@ -99,11 +96,11 @@ const RefrigerationAndACPage = () => {
 
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/refrigeration', {
-        // sourceDescription: formValues.description,
-        equipmentTypeId: formValues.equipmentTypeId,
+        sourceDescription: formValues.description,
+        equipmentType: formValues.equipmentTypeId,
         gas: formValues.gas,
         gwp: parseInt(formValues.gwp, 10),
-        unitId: formValues.unitId,
+        unit: formValues.unitId,
         co2eKg: parseInt(formValues.co2eKg, 10),
         date: formValues.date,
       });
@@ -111,7 +108,7 @@ const RefrigerationAndACPage = () => {
       const newRow = {
         id: res.data.id,
         sourceId: res.data.scopeTypeId,
-        // description: res.data.sourceDescription || 'N/A',
+        sourceDescription: formValues.description,
         date: res.data.date || new Date().toISOString(),
         gas: res.data.gas,
         equipmentType: res.data.equipmentType?.typeName || 'Unknown',
@@ -122,7 +119,6 @@ const RefrigerationAndACPage = () => {
 
       setRows((prev) => [...prev, newRow]);
       setFormValues({
-        sourceId: '',
         description: '',
         gas: '',
         equipmentTypeId: '',
@@ -160,8 +156,6 @@ const RefrigerationAndACPage = () => {
     }
   };
 
-  const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
-
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar />
@@ -179,13 +173,6 @@ const RefrigerationAndACPage = () => {
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
                 label="Source Description"
                 name="description"
                 value={formValues.description}
@@ -201,16 +188,13 @@ const RefrigerationAndACPage = () => {
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
               />
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                <InputLabel>Gas</InputLabel>
-                <Select name="gas" value={formValues.gas} onChange={handleInputChange} label="Gas">
-                  {gasOptions.map((gas) => (
-                    <MenuItem key={gas} value={gas}>
-                      {gas}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <TextField
+                label="Gas"
+                name="gas"
+                value={formValues.gas}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
               <FormControl variant="outlined" sx={{ minWidth: 200 }}>
                 <InputLabel>Type of Equipment</InputLabel>
                 <Select
