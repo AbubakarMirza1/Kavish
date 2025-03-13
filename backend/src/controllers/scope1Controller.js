@@ -175,17 +175,29 @@ async function deleteMobileSource(req, res) {
 
 async function createRefrigerationAndAC(req, res) {
   try {
-    const { sourceDescription, equipmentTypeId, gas, gwp, unitId, co2eKg, date } = req.body;
+    const { sourceDescription, equipmentType, gas, gwp, unit, co2eKg, date } = req.body;
+
+    // Find the equipmentTypeId from the EquipmentType table
+    const equipmentTypeRecord = await scope1Service.getEquipmentTypeByName(equipmentType);
+    if (!equipmentTypeRecord) {
+      return res.status(400).json({ error: `Equipment type "${equipmentType}" not found.` });
+    }
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    
+    const unitRecord = await scope1Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+    
     // Create the RefrigerationAndAC record
     const record = await scope1Service.createRefrigerationAndAC({
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription,
-      equipmentTypeId,
+      equipmentTypeId: equipmentTypeRecord.equipmentTypeId,
       gas,
       gwp,
-      unitId,
+      unitId: unitRecord.unitId,
       co2eKg,
       date: new Date(date),
     });
@@ -242,7 +254,12 @@ async function deleteRefrigerationAndAC(req, res) {
 
 async function createFireSuppression(req, res) {
   try {
-    const { sourceDescription, fuelTypeId, unitId, co2eKg, date } = req.body;
+    const { sourceDescription, fuelTypeId, unit, co2eKg, date } = req.body;
+    
+    const unitRecord = await scope1Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
     // Create the FireSuppression record
@@ -250,7 +267,7 @@ async function createFireSuppression(req, res) {
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription,
       fuelTypeId,
-      unitId,
+      unitId: unitRecord.unitId,
       co2eKg,
       date: new Date(date),
     });
@@ -307,14 +324,21 @@ async function deleteFireSuppression(req, res) {
 
 async function createPurchasedGas(req, res) {
   try {
-    const { purchasedAmount, unitId, date } = req.body;
+    const { sourceDescription,purchasedAmount,Gas, unit, date } = req.body;
+    const unitRecord = await scope1Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
     // Create the PurchasedGas record
     const record = await scope1Service.createPurchasedGas({
+      
       scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      Gas,
       purchasedAmount,
-      unitId,
+      unitId: unitRecord.unitId,
       date: new Date(date),
     });
 
@@ -335,8 +359,8 @@ async function getAllPurchasedGas(req, res) {
 
 async function getPurchasedGasById(req, res) {
   try {
-    const gasId = parseInt(req.params.gasId, 10);
-    const record = await scope1Service.getPurchasedGasById(gasId);
+    const Id = parseInt(req.params.Id, 10);
+    const record = await scope1Service.getPurchasedGasById(Id);
     if (!record) {
       return res.status(404).json({ error: 'Record not found' });
     }
@@ -359,8 +383,8 @@ async function updatePurchasedGas(req, res) {
 
 async function deletePurchasedGas(req, res) {
   try {
-    const gasId = parseInt(req.params.gasId, 10);
-    const deleted = await scope1Service.deletePurchasedGas(gasId);
+    const Id = parseInt(req.params.Id, 10);
+    const deleted = await scope1Service.deletePurchasedGas(Id);
     return res.json(deleted);
   } catch (err) {
     return res.status(400).json({ error: err.message });

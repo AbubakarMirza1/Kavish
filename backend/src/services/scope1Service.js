@@ -56,7 +56,11 @@ async function getVehicleTypeByName(typeName) {
     where: { typeName },
   });
 }
-
+async function getEquipmentTypeByName(typeName) {
+  return prisma.equipmentType.findFirst({
+    where: { typeName },
+  });
+}
 // ----------------- STATIONARY COMBUSTION CRUD -----------------
 
 async function createStationaryCombustion(data) {
@@ -195,16 +199,16 @@ async function getAllPurchasedGas() {
     });
 }
 
-async function getPurchasedGasById(gasId) {
-  return generalCrudService.getRecordById('purchasedGas', gasId, 'gasId');
+async function getPurchasedGasById(Id) {
+  return generalCrudService.getRecordById('purchasedGas', Id, 'Id');
 }
 
-async function updatePurchasedGas(gasId, data) {
-  return generalCrudService.updateRecord('purchasedGas', gasId, data, 'gasId');
+async function updatePurchasedGas(Id, data) {
+  return generalCrudService.updateRecord('purchasedGas', Id, data, 'Id');
 }
 
-async function deletePurchasedGas(gasId) {
-  return generalCrudService.deleteRecord('purchasedGas', gasId, 'gasId');
+async function deletePurchasedGas(Id) {
+  return generalCrudService.deleteRecord('purchasedGas', Id, 'Id');
 }
 
 module.exports = {
@@ -248,4 +252,5 @@ module.exports = {
   getUnitByName,
   getVehicleTypeByName,
   createScopeType,
+  getEquipmentTypeByName,
 };

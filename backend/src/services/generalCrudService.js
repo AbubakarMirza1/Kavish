@@ -79,16 +79,14 @@ async function createRecord(modelName, data) {
       return model.create({
         data: {
           sourceDescription: data.sourceDescription,
-         // vehicleTypeId: data.vehicleTypeId,
           fuelUsage: data.fuelUsage,
-          // unitId: data.unitId,
           milesTravelled: data.milesTravelled,
           date: data.date,
           scopeType: {
             connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
           },
           vehicleType: {
-            connect: { vehicleTypeId: data.vehicleTypeId }, // Connect to an existing Unit
+            connect: { vehicleTypeId: data.vehicleTypeId }, // Connect to an existing VehicleType
           },
           unit: {
             connect: { unitId: data.unitId }, // Connect to an existing Unit
@@ -100,14 +98,20 @@ async function createRecord(modelName, data) {
       return model.create({
         data: {
           sourceDescription: data.sourceDescription,
-          equipmentTypeId: data.equipmentTypeId,
+          // equipmentTypeId: data.equipmentTypeId,
           gas: data.gas,
           gwp: data.gwp,
-          unitId: data.unitId,
+          // unitId: data.unitId,
           co2eKg: data.co2eKg,
           date: data.date,
           scopeType: {
             connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+          equipmentType: {
+            connect: { equipmentTypeId: data.equipmentTypeId }, // Connect to an existing EquipmentType
+          },
+          unit: {
+            connect: { unitId: data.unitId }, // Connect to an existing Unit
           },
         },
       });
@@ -116,12 +120,18 @@ async function createRecord(modelName, data) {
       return model.create({
         data: {
           sourceDescription: data.sourceDescription,
-          fuelTypeId: data.fuelTypeId,
-          unitId: data.unitId,
+          // fuelTypeId: data.fuelTypeId,
+          // unitId: data.unitId,
           co2eKg: data.co2eKg,
           date: data.date,
           scopeType: {
             connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+          fuelType: {
+            connect: { fuelTypeId: data.fuelTypeId }, // Connect to an existing FuelType
+          },
+          unit: {
+            connect: { unitId: data.unitId }, // Connect to an existing Unit
           },
         },
       });
@@ -129,11 +139,16 @@ async function createRecord(modelName, data) {
     case 'purchasedGas':
       return model.create({
         data: {
+          sourceDescription: data.sourceDescription,
+          Gas: data.Gas,
           purchasedAmount: data.purchasedAmount,
-          unitId: data.unitId,
+          // unitId: data.unitId,
           date: data.date,
           scopeType: {
             connect: { scopeTypeId: data.scopeTypeId }, // Connect to an existing ScopeType
+          },
+          unit: {
+            connect: { unitId: data.unitId }, // Connect to an existing Unit
           },
         },
       });
