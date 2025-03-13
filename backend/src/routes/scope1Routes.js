@@ -33,8 +33,8 @@ router.delete('/fire/:id', scope1Controller.deleteFireSuppression);
 // PURCHASED GAS
 router.post('/purchased-gas', scope1Controller.createPurchasedGas);
 router.get('/purchased-gas', scope1Controller.getAllPurchasedGas);
-router.get('/purchased-gas/:gasId', scope1Controller.getPurchasedGasById);
-router.put('/purchased-gas/:gasId', scope1Controller.updatePurchasedGas);
-router.delete('/purchased-gas/:gasId', scope1Controller.deletePurchasedGas);
+router.get('/purchased-gas/:Id', scope1Controller.getPurchasedGasById);
+router.put('/purchased-gas/:Id', scope1Controller.updatePurchasedGas);
+router.delete('/purchased-gas/:Id', scope1Controller.deletePurchasedGas);
 
 module.exports = router;

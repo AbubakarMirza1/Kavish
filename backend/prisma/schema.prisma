@@ -128,6 +128,7 @@ model MobileSource {
 model RefrigerationAndAC {
   id              Int           @id @default(autoincrement())
   scopeTypeId     Int
+  sourceDescription String
   equipmentTypeId Int
   gas             String
   gwp             Int
@@ -144,6 +145,7 @@ model RefrigerationAndAC {
 model FireSuppression {
   id          Int       @id @default(autoincrement())
   scopeTypeId Int
+  sourceDescription String
   fuelTypeId  Int
   unitId      Int
   co2eKg      Int
@@ -156,8 +158,10 @@ model FireSuppression {
 }
 
 model PurchasedGas {
-  gasId       Int       @id @default(autoincrement())
+  Id       Int       @id @default(autoincrement())
   scopeTypeId Int
+  sourceDescription String
+  Gas      String
   purchasedAmount Int
   unitId      Int
   date        DateTime  @default(now())

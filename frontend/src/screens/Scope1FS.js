@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -21,37 +21,14 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import TopBar from '../Component/topbar.js'; // Import the Sidebar component
-
-
-
-const initialData = [
-  {
-    id: 1,
-    sourceId: '101',
-    description: 'System A',
-    gas: 'R410A',
-    equipmentType: 'AC Unit',
-    gasGWP: 2088,
-    unitCharge: 5,
-    co2Emissions: 10440,
-    date: '2024-01-01',
-  },
-  {
-    id: 2,
-    sourceId: '102',
-    description: 'System B',
-    gas: 'R134a',
-    equipmentType: 'Refrigerator',
-    gasGWP: 1430,
-    unitCharge: 3,
-    co2Emissions: 4290,
-    date: '2024-01-02',
-  },
-];
+import TopBar from '../Component/topbar.js'; // Import the TopBar component
+import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 
 const FireSuppressionPage = () => {
   const navigate = useNavigate();
@@ -59,44 +36,88 @@ const FireSuppressionPage = () => {
   const [formValues, setFormValues] = useState({
     sourceId: '',
     description: '',
-    gas: '',
-    equipmentType: '',
-    gasGWP: '',
-    unitCharge: '',
-    co2Emissions: '',
-    date: '', // Initialize date
+    date: '',
+    fuelType: '',
+    unit: '',
+    co2eKg: '',
   });
 
-  const [rows, setRows] = useState(initialData);
+  const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Get data from the store
+  const fuelTypeRows = useScope1Store((state) => state.stationaryCombustionRows);
+  const unitRows = useScope1Store((state) => state.unitRows);
+
+  // Filter active items
+  const activeFuels = fuelTypeRows.filter((row) => row.active); // For fuel types
+  const activeUnits = unitRows.filter((row) => row.active); // For units
+
+  // Fetch data from the backend
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/scope1/fire');
+      const formattedData = res.data.map((item) => ({
+        id: item.id,
+        sourceId: item.scopeTypeId,
+        // description: item.sourceDescription || 'N/A',
+        date: item.date || new Date().toISOString(),
+        fuelType: item.fuelType?.typeName || 'Unknown',
+        unit: item.unit?.unitName || 'Unknown',
+        co2eKg: item.co2eKg,
+      }));
+      setRows(formattedData);
+    } catch (error) {
+      console.error('Error fetching fire suppression data:', error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddRow = () => {
-    setRows((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        ...formValues,
-      },
-    ]);
-    setFormValues({
-      sourceId: '',
-      description: '',
-      gas: '',
-      equipmentType: '',
-      gasGWP: '',
-      unitCharge: '',
-      co2Emissions: '',
-      date: '', // Reset date field
-    });
-  };
+  const handleAddRow = async () => {
+    if (Object.values(formValues).some((value) => value === '')) {
+      setSnackbarMessage('Please fill in all fields before adding a record.');
+      setOpenSnackbar(true);
+      return;
+    }
 
-  
+    try {
+      const res = await axios.post('http://localhost:5000/api/scope1/fire', {
+        // sourceDescription: formValues.description,
+        fuelType: formValues.fuelType,
+        unit: formValues.unit,
+        co2eKg: parseInt(formValues.co2eKg, 10),
+        date: formValues.date,
+      });
+
+      const newRow = {
+        id: res.data.id,
+        sourceId: res.data.scopeTypeId,
+        // description: res.data.sourceDescription || 'N/A',
+        date: res.data.date || new Date().toISOString(),
+        fuelType: res.data.fuelType?.typeName || 'Unknown',
+        unit: res.data.unit?.unitName || 'Unknown',
+        co2eKg: res.data.co2eKg,
+      };
+
+      setRows((prev) => [...prev, newRow]);
+      setFormValues({ sourceId: '', description: '', date: '', fuelType: '', unit: '', co2eKg: '' });
+    } catch (error) {
+      console.error('Error adding fire suppression record:', error);
+      setSnackbarMessage('Failed to add the record. Please try again.');
+      setOpenSnackbar(true);
+    }
+  };
 
   const handleClickOpen = (id) => {
     setOpenDialog(true);
@@ -105,103 +126,175 @@ const FireSuppressionPage = () => {
 
   const handleClose = () => {
     setOpenDialog(false);
+    setOpenSnackbar(false);
   };
 
-  const handleDeleteRow = () => {
-    setRows((prev) => prev.filter((row) => row.id !== deleteId));
-    setOpenDialog(false);
+  const handleDeleteRow = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/scope1/fire/${deleteId}`);
+      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      setSnackbarMessage('Failed to delete the record. Please try again.');
+      setOpenSnackbar(true);
+    }
   };
-
-
-  const gasOptions = ['R134a', 'R410A', 'R22', 'R744'];
 
   return (
-    
     <Box sx={{ display: 'flex' }}>
-    <Sidebar/>
-    
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          
-           <TopBar 
-                title="Scope 1" 
-                showDropdown={false}
-            />
+      <Sidebar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+        <TopBar title="Scope 1" showDropdown={false} />
+        <Container sx={{ mt: 10 }}>
+          <Typography variant="h4" gutterBottom>
+            Fire Suppression
+          </Typography>
 
-          <Container sx={{ mt: 10 }}>
-            <Typography variant="h4" gutterBottom>Fire Suppression</Typography>
-            <Box sx={{ mb: 4 }}>
-              <Typography variant="h6">Add New Record</Typography>
-              <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <TextField label="Source ID" name="sourceId" value={formValues.sourceId} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Date" name="date" type="date" value={formValues.date} onChange={handleInputChange} variant="outlined" InputLabelProps={{ shrink: true }} />
-                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                  <InputLabel>Gas</InputLabel>
-                  <Select name="gas" value={formValues.gas} onChange={handleInputChange} label="Gas">
-                    {gasOptions.map((gas) => (
-                      <MenuItem key={gas} value={gas}>{gas}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField label="Gas GWP" name="gasGWP" type="number" value={formValues.gasGWP} onChange={handleInputChange} variant="outlined" />
-                <TextField label="Unit Charge (kg)" name="unitCharge" type="number" value={formValues.unitCharge} onChange={handleInputChange} variant="outlined" />
-                <TextField label="CO2 Equivalent Emissions (kg)" name="co2Emissions" type="number" value={formValues.co2Emissions} onChange={handleInputChange} variant="outlined" />
-                <Button variant="contained" color="primary" onClick={handleAddRow}>Add</Button>
-              </Box>
-            </Box>
-            <Typography variant="h6">Records</Typography>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Source ID</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Gas</TableCell>
-                    <TableCell>Gas GWP</TableCell>
-                    <TableCell>Unit Charge (kg)</TableCell>
-                    <TableCell>CO2 Equivalent Emissions (kg)</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.id}</TableCell>
-                      <TableCell>{row.sourceId}</TableCell>
-                      <TableCell>{row.date || 'N/A'}</TableCell>
-                      <TableCell>{row.gas}</TableCell>
-                      <TableCell>{row.gasGWP}</TableCell>
-                      <TableCell>{row.unitCharge}</TableCell>
-                      <TableCell>{row.co2Emissions}</TableCell>
-                      <TableCell>
-                        <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+          {/* Form */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6">Add New Record</Typography>
+            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+              <TextField
+                label="Source ID"
+                name="sourceId"
+                value={formValues.sourceId}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={formValues.description}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+              <TextField
+                label="Date"
+                name="date"
+                type="date"
+                value={formValues.date}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Fuel Type</InputLabel>
+                <Select
+                  label="Fuel Type"
+                  name="fuelType"
+                  value={formValues.fuelType}
+                  onChange={handleInputChange}
+                >
+                  {activeFuels.map((fuel) => (
+                    <MenuItem key={fuel.id} value={fuel.name}>
+                      {fuel.name}
+                    </MenuItem>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-              <Button variant="contained" color="primary" onClick={() => navigate('/Scope1RA')}>Back to Refrigeration & AC</Button>
-              <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1PG')}>Proceed to Purchased Gases</Button>
+                </Select>
+              </FormControl>
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Unit</InputLabel>
+                <Select
+                  label="Unit"
+                  name="unit"
+                  value={formValues.unit}
+                  onChange={handleInputChange}
+                >
+                  {activeUnits.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.name}>
+                      {unit.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                label="CO2e (kg)"
+                name="co2eKg"
+                type="number"
+                value={formValues.co2eKg}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+              <Button variant="contained" color="primary" onClick={handleAddRow}>
+                Add
+              </Button>
             </Box>
-          </Container>
-          <Dialog open={openDialog} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-            <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">Are you sure you want to delete this record?</DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose} color="primary">Cancel</Button>
-              <Button onClick={handleDeleteRow} color="secondary" autoFocus>Confirm</Button>
-            </DialogActions>
-          </Dialog>
-        </Box>
+          </Box>
+
+          {/* Table */}
+          <Typography variant="h6">Records</Typography>
+          <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Source ID</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Fuel Type</TableCell>
+                  <TableCell>Unit</TableCell>
+                  <TableCell>CO2e (kg)</TableCell>
+                  <TableCell>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>{row.sourceId}</TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{row.fuelType}</TableCell>
+                    <TableCell>{row.unit}</TableCell>
+                    <TableCell>{row.co2eKg}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Navigation Buttons */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+            <Button variant="contained" color="primary" onClick={() => navigate('/Scope1RA')}>
+              Back to Refrigeration & AC
+            </Button>
+            <Button variant="contained" color="secondary" onClick={() => navigate('/Scope1PG')}>
+              Proceed to Purchased Gases
+            </Button>
+          </Box>
+        </Container>
+
+        {/* Confirmation Dialog */}
+        <Dialog open={openDialog} onClose={handleClose}>
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteRow} color="secondary" autoFocus>
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar */}
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
+          <Alert onClose={handleClose} severity="error">
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
-    
+    </Box>
   );
 };
 
-export default FireSuppressionPage; 
+export default FireSuppressionPage;
