@@ -33,9 +33,8 @@ import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 const MobileSourcePage = () => {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
-    sourceId: '',
     description: '',
-    date:'',
+    date: '',
     vehicleType: '',
     fuelUsage: '',
     unit: '',
@@ -113,7 +112,7 @@ const MobileSourcePage = () => {
       };
 
       setRows((prev) => [...prev, newRow]);
-      setFormValues({ sourceId: '', description: '',date: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
+      setFormValues({ sourceId: '', description: '', date: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
     } catch (error) {
       console.error('Error adding mobile source record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -158,28 +157,22 @@ const MobileSourcePage = () => {
             <Typography variant="h6">Add New Vehicle Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                label="Source Description"
+                label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}
                 variant="outlined"
               />
-              <TextField                     label="Date"
-                              name="date"
-                              type="date"
-                              value={formValues.date}
-                              onChange={handleInputChange}
-                              variant="outlined"
-                              InputLabelProps={{ shrink: true }}
-                            />
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+              <TextField
+                label="Date"
+                name="date"
+                type="date"
+                value={formValues.date}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
+              <FormControl variant="outlined" sx={{ minWidth: 140 }}>
                 <InputLabel>Vehicle Type</InputLabel>
                 <Select
                   label="Vehicle Type"

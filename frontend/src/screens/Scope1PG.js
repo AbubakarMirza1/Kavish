@@ -34,9 +34,9 @@ const PurchasedGasesPage = () => {
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
-    sourceId: '',
     description: '',
     date: '',
+    gasType: '', // New field for gas type
     purchasedAmount: '',
     unit: '',
   });
@@ -62,10 +62,11 @@ const PurchasedGasesPage = () => {
     try {
       const res = await axios.get('http://localhost:5000/api/scope1/purchased-gas');
       const formattedData = res.data.map((item) => ({
-        id: item.gasId,
+        id: item.Id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
         date: item.date || new Date().toISOString(),
+        gasType: item.Gas || 'Unknown', // New field for gas type
         purchasedAmount: item.purchasedAmount,
         unit: item.unit?.unitName || 'Unknown',
       }));
@@ -90,25 +91,28 @@ const PurchasedGasesPage = () => {
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/purchased-gas', {
         sourceDescription: formValues.description,
+        Gas: formValues.gasType, // New field for gas type
         purchasedAmount: parseInt(formValues.purchasedAmount, 10),
         unit: formValues.unit,
         date: formValues.date,
       });
 
       const newRow = {
-        id: res.data.gasId,
+        id: res.data.Id,
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
+        gasType: res.data.Gas || 'Unknown', // New field for gas type
         purchasedAmount: res.data.purchasedAmount,
         unit: res.data.unit?.unitName || 'Unknown',
       };
 
       setRows((prev) => [...prev, newRow]);
       setFormValues({
-        sourceId: '',
+        
         description: '',
         date: '',
+        gasType: '', // Reset gas type
         purchasedAmount: '',
         unit: '',
       });
@@ -158,13 +162,7 @@ const PurchasedGasesPage = () => {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
+              
               <TextField
                 label="Description"
                 name="description"
@@ -181,6 +179,14 @@ const PurchasedGasesPage = () => {
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
               />
+              <TextField
+                label="Gas Type"
+                name="gasType"
+                value={formValues.gasType}
+                onChange={handleInputChange}
+                variant="outlined"
+              />
+              
               <TextField
                 label="Purchased Amount"
                 name="purchasedAmount"
@@ -220,6 +226,7 @@ const PurchasedGasesPage = () => {
                   <TableCell>Source ID</TableCell>
                   <TableCell>Description</TableCell>
                   <TableCell>Date</TableCell>
+                  <TableCell>Gas Type</TableCell>
                   <TableCell>Purchased Amount</TableCell>
                   <TableCell>Unit</TableCell>
                   <TableCell>Action</TableCell>
@@ -232,6 +239,7 @@ const PurchasedGasesPage = () => {
                     <TableCell>{row.sourceId}</TableCell>
                     <TableCell>{row.description}</TableCell>
                     <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{row.gasType}</TableCell>
                     <TableCell>{row.purchasedAmount}</TableCell>
                     <TableCell>{row.unit}</TableCell>
                     <TableCell>

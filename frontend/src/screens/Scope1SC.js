@@ -32,7 +32,7 @@ import TopBar from '../Component/topbar.js'; // Import the Sidebar component
 
 const Scope1SC = () => {
   const navigate = useNavigate();
-  const [formValues, setFormValues] = useState({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
+  const [formValues, setFormValues] = useState({ description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
   const [rows, setRows] = useState([]);
   const [selectedSection, setSelectedSection] = useState('dashboard');
   const [openDialog, setOpenDialog] = useState(false);
@@ -92,6 +92,7 @@ const Scope1SC = () => {
 
       const newRow = {
         id: res.data.id,
+        sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
         fuelCombusted: res.data.fuelType?.typeName || 'Unknown',
@@ -144,13 +145,6 @@ const Scope1SC = () => {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
               <TextField
                 label="Description"
                 name="description"

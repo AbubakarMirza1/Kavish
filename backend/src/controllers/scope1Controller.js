@@ -254,8 +254,13 @@ async function deleteRefrigerationAndAC(req, res) {
 
 async function createFireSuppression(req, res) {
   try {
-    const { sourceDescription, fuelTypeId, unit, co2eKg, date } = req.body;
+    const { sourceDescription, fuelType, unit, co2eKg, date } = req.body;
     
+
+    const fuelTypeRecord = await scope1Service.getFuelTypeByName(fuelType);
+    if (!fuelTypeRecord) {
+      return res.status(400).json({ error: `Fuel type "${fuelType}" not found.` });
+    }
     const unitRecord = await scope1Service.getUnitByName(unit);
     if (!unitRecord) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
@@ -266,7 +271,7 @@ async function createFireSuppression(req, res) {
     const record = await scope1Service.createFireSuppression({
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription,
-      fuelTypeId,
+      fuelTypeId: fuelTypeRecord.fuelTypeId,
       unitId: unitRecord.unitId,
       co2eKg,
       date: new Date(date),

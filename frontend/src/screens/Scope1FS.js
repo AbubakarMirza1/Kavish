@@ -34,7 +34,6 @@ const FireSuppressionPage = () => {
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
-    sourceId: '',
     description: '',
     date: '',
     fuelType: '',
@@ -67,7 +66,7 @@ const FireSuppressionPage = () => {
       const formattedData = res.data.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
-        // description: item.sourceDescription || 'N/A',
+        description: item.sourceDescription || 'N/A',
         date: item.date || new Date().toISOString(),
         fuelType: item.fuelType?.typeName || 'Unknown',
         unit: item.unit?.unitName || 'Unknown',
@@ -93,7 +92,7 @@ const FireSuppressionPage = () => {
 
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/fire', {
-        // sourceDescription: formValues.description,
+        sourceDescription: formValues.description,
         fuelType: formValues.fuelType,
         unit: formValues.unit,
         co2eKg: parseInt(formValues.co2eKg, 10),
@@ -103,7 +102,7 @@ const FireSuppressionPage = () => {
       const newRow = {
         id: res.data.id,
         sourceId: res.data.scopeTypeId,
-        // description: res.data.sourceDescription || 'N/A',
+        description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
         fuelType: res.data.fuelType?.typeName || 'Unknown',
         unit: res.data.unit?.unitName || 'Unknown',
@@ -155,13 +154,6 @@ const FireSuppressionPage = () => {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
               <TextField
                 label="Description"
                 name="description"
