@@ -10,8 +10,29 @@ const scope2Service = require('../services/scope2Service');
 // ----------------- ELECTRICITY -----------------
 async function createElectricity(req, res) {
   try {
-    const data = req.body;
-    const record = await scope2Service.createElectricity(data);
+    const { description, areaSqFt, unit, co2eKg, ch4Kg, n20Kg, date } = req.body;
+
+    // Find the unitId from the Unit table
+    const unitRecord = await scope2Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 2
+    //const scopeTypeRecord = await scope2Service.createScopeType('Scope2', 1); // Assuming userId = 1
+
+    // Create the Electricity record
+    const record = await scope2Service.createElectricity({
+      //scopeTypeId: scopeTypeRecord.scopeTypeId,
+      description,
+      areaSqFt,
+      unitId: unitRecord.unitId,
+      co2eKg,
+      ch4Kg,
+      n20Kg,
+      date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -64,8 +85,38 @@ async function deleteElectricity(req, res) {
 // ----------------- STEAM -----------------
 async function createSteam(req, res) {
   try {
-    const data = req.body;
-    const record = await scope2Service.createSteam(data);
+    const { sourceDescription, sourceArea, fuelType, boilerEfficiency, steamPurchasedKwh, co2Kg, ch4g, n20g, unit, date } = req.body;
+
+    // Find the fuelTypeId from the FuelType table
+    const fuelTypeRecord = await scope2Service.getFuelTypeByName(fuelType);
+    if (!fuelTypeRecord) {
+      return res.status(400).json({ error: `Fuel type "${fuelType}" not found.` });
+    }
+
+    // Find the unitId from the Unit table
+    const unitRecord = await scope2Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 2
+    // const scopeTypeRecord = await scope2Service.createScopeType('Scope2', 1); // Assuming userId = 1
+
+    // Create the Steam record
+    const record = await scope2Service.createSteam({
+      // scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      sourceArea,
+      fuelTypeId: fuelTypeRecord.fuelTypeId,
+      boilerEfficiency,
+      steamPurchasedKwh,
+      co2Kg,
+      ch4g,
+      n20g,
+      unitId: unitRecord.unitId,
+      date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
