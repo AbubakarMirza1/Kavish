@@ -24,6 +24,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const authRoutes = require('./routes/authRoutes');  // ✅ Import authentication routes
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const scope1EmissionsRoutes = require('./routes/scope1EmissionsRoutes'); // ✅ Import the new scope1EmissionsRoutes
+const scope2EmissionsRoutes = require('./routes/scope2EmissionsRoute'); // ✅ Import the new scope1EmissionsRoutes
+const scope3EmissionsRoutes = require('./routes/Scope3EmissionsRoute'); // ✅ Import the new scope1EmissionsRoutes
 
 
 // --------------------------------------------
@@ -40,6 +42,8 @@ app.use('/dashboard', dashboardRoutes);      // e.g., /dashboard/kpis
 app.use('/api/auth', authRoutes);            // ✅ Register authentication routes (e.g., /api/auth/login)
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
+app.use('/api/scope2-emissions', scope2EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
+app.use('/api/scope3-emissions', scope3EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 
 
 

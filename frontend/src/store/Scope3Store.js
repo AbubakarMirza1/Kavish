@@ -1,31 +1,35 @@
 import { create } from "zustand";
 
 const useScope3Store = create((set) => ({
-    // Hardcoded initial values
-    vehicleTypes: [
-        { id: 1, name: "Passenger Car - Petrol", active: true },
-        { id: 2, name: "Passenger Car - CNG", active: false },
-    ],
-    units: [
-        { id: 1, name: "KMS", active: true },
-        { id: 2, name: "M", active: false },
-        { id: 3, name: "Miles", active: false },
-    ],
-    wasteMaterials: [
-        { id: 1, name: "Aluminium", active: true },
-        { id: 2, name: "Glass", active: false },
-        { id: 3, name: "Wood", active: false },
-    ],
-    disposalMethods: [
-        { id: 1, name: "Landfill", active: true },
-        { id: 2, name: "Recycle", active: false },
-    ],
+  // Initial state for each section
+  vehicleTypes: [],
+  units: [],
+  wasteMaterials: [],
+  
+  // Actions
+  setVehicleTypes: (rows) => set({ vehicleTypes: rows }),
+  setUnits: (rows) => set({ units: rows }),
+  setWasteMaterials: (rows) => set({ wasteMaterials: rows }),
+  
+  addRow: (section, newRow) =>
+    set((state) => {
+      const updatedSection = [...state[section], newRow];
+      return { [section]: updatedSection };
+    }),
 
-    // Update functions for each category
-    setVehicleTypes: (data) => set({ vehicleTypes: data }),
-    setUnits: (data) => set({ units: data }),
-    setWasteMaterials: (data) => set({ wasteMaterials: data }),
-    setDisposalMethods: (data) => set({ disposalMethods: data }),
+  deleteRow: (section, id) =>
+    set((state) => {
+      const updatedSection = state[section].filter((row) => row.id !== id);
+      return { [section]: updatedSection };
+    }),
+
+  toggleActive: (section, id) =>
+    set((state) => {
+      const updatedSection = state[section].map((row) =>
+        row.id === id ? { ...row, active: !row.active } : row
+      );
+      return { [section]: updatedSection };
+    }),
 }));
 
 export default useScope3Store;

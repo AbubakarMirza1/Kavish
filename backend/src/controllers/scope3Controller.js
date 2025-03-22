@@ -10,8 +10,29 @@ const scope3Service = require('../services/scope3Service');
 // ----------------- BUSINESS TRAVEL -----------------
 async function createBusinessTravel(req, res) {
   try {
-    const data = req.body;
-    const record = await scope3Service.createBusinessTravel(data);
+    const { sourceDescription, vehicleType, vehicleMiles, co2Kg, ch4g, n20g, date } = req.body;
+
+    // Find the vehicleTypeId from the VehicleType table
+    const vehicleTypeRecord = await scope3Service.getVehicleTypeByName(vehicleType);
+    if (!vehicleTypeRecord) {
+      return res.status(400).json({ error: `Vehicle type "${vehicleType}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 3
+   // const scopeTypeRecord = await scope3Service.createScopeType('Scope3', 1); // Assuming userId = 1
+
+    // Create the BusinessTravel record
+    const record = await scope3Service.createBusinessTravel({
+      // scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      vehicleTypeId: vehicleTypeRecord.vehicleTypeId,
+      vehicleMiles,
+      co2Kg,
+      ch4g,
+      n20g,
+      date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -64,8 +85,35 @@ async function deleteBusinessTravel(req, res) {
 // ----------------- WASTE -----------------
 async function createWaste(req, res) {
   try {
-    const data = req.body;
-    const record = await scope3Service.createWaste(data);
+    const { sourceDescription, wasteType, disposalMethod, weight, unit, co2eKg, date } = req.body;
+
+    // Find the wasteTypeId from the WasteType table
+    const wasteTypeRecord = await scope3Service.getWasteTypeByName(wasteType);
+    if (!wasteTypeRecord) {
+      return res.status(400).json({ error: `Waste type "${wasteType}" not found.` });
+    }
+
+    // Find the unitId from the Unit table
+    const unitRecord = await scope3Service.getUnitByName(unit);
+    if (!unitRecord) {
+      return res.status(400).json({ error: `Unit "${unit}" not found.` });
+    }
+
+    // Create a new ScopeType entry for Scope 3
+    // const scopeTypeRecord = await scope3Service.createScopeType('Scope3', 1); // Assuming userId = 1
+
+    // Create the Waste record
+    const record = await scope3Service.createWaste({
+      // scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription,
+      wasteTypeId: wasteTypeRecord.wasteTypeId,
+      disposalMethod,
+      weight,
+      unitId: unitRecord.unitId,
+      co2eKg,
+      date: new Date(date),
+    });
+
     return res.status(201).json(record);
   } catch (err) {
     return res.status(400).json({ error: err.message });

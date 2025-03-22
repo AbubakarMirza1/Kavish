@@ -1,88 +1,135 @@
-import React, { useState } from 'react';
-import { 
-  Typography, 
-  Box, 
-  Container, 
-  TextField, 
-  Button, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper, 
-  InputLabel, 
-  FormControl, 
-  Select, 
-  MenuItem, 
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogContentText, 
-  DialogTitle, 
-  Snackbar, 
-  Alert 
+import React, { useState, useEffect } from 'react';
+import {
+  Typography,
+  Box,
+  Container,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  Alert,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
+import TopBar from '../Component/topbar.js'; // Import the TopBar component
 import useScope3Store from '../store/Scope3Store'; // Import the Zustand store
-import TopBar from '../Component/topbar.js'; // Import the Sidebar component
-
-
-const initialData = [
-  { 
-    id: 1, 
-    sourceId: '200', 
-    description: 'Example Waste Material', 
-    wasteMaterial: 'Plastic', 
-    disposalMethod: 'Landfill', 
-    weight: 100, 
-    unit: 'Kg', 
-    co2eEmissions: 250 
-  }
-];
-
-
 
 const WastePage = () => {
   const navigate = useNavigate();
-
   const [formValues, setFormValues] = useState({
-    sourceId: '',
     description: '',
-    wasteMaterial: '',
+    date: '',
+    wasteType: '',
     disposalMethod: '',
     weight: '',
     unit: '',
-    co2eEmissions: ''
+    co2eKg: '',
   });
-
-  const [rows, setRows] = useState(initialData);
+  const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Get data from the store
+  const wasteTypeRows = useScope3Store((state) => state.wasteMaterials);
+  const unitRows = useScope3Store((state) => state.units);
+
+  // Filter active items
+  const activeWasteTypes = wasteTypeRows.filter((row) => row.active); // For waste types
+  
+  const activeUnits = unitRows.filter((row) => row.active); // For units
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/scope3/waste');
+      const formattedData = res.data.map((item) => ({
+        id: item.id,
+        sourceId: item.scopeTypeId,
+        description: item.sourceDescription || 'N/A',
+        date: item.date || new Date().toISOString(),
+        wasteType: item.wasteType?.typeName || 'Unknown',
+        disposalMethod: item.disposalMethod,
+        weight: item.weight,
+        unit: item.unit?.unitName || 'Unknown',
+        co2eKg: item.co2eKg,
+      }));
+      setRows(formattedData);
+    } catch (error) {
+      console.error('Error fetching waste data:', error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
+    setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddRow = () => {
-    if (Object.values(formValues).some(value => value === '')) {
+  const handleAddRow = async () => {
+    if (Object.values(formValues).some((value) => value === '')) {
+      setSnackbarMessage('Please fill in all fields before adding a record.');
       setOpenSnackbar(true);
       return;
     }
-    setRows(prev => [...prev, { id: prev.length + 1, ...formValues }]);
-    setFormValues({
-      sourceId: '',
-      description: '',
-      wasteMaterial: '',
-      disposalMethod: '',
-      weight: '',
-      unit: '',
-      co2eEmissions: ''
-    });
+
+    try {
+      const res = await axios.post('http://localhost:5000/api/scope3/waste', {
+        sourceDescription: formValues.description,
+        wasteType: formValues.wasteType,
+        disposalMethod: formValues.disposalMethod,
+        weight: parseInt(formValues.weight, 10),
+        unit: formValues.unit,
+        co2eKg: parseFloat(formValues.co2eKg),
+        date: formValues.date,
+      });
+
+      const newRow = {
+        id: res.data.id,
+        sourceId: res.data.scopeTypeId,
+        description: res.data.sourceDescription || 'N/A',
+        date: res.data.date || new Date().toISOString(),
+        wasteType: res.data.wasteType?.typeName || 'Unknown',
+        disposalMethod: res.data.disposalMethod,
+        weight: res.data.weight,
+        unit: res.data.unit?.unitName || 'Unknown',
+        co2eKg: res.data.co2eKg,
+      };
+
+      setRows((prev) => [...prev, newRow]);
+      setFormValues({
+        description: '',
+        date: '',
+        wasteType: '',
+        disposalMethod: '',
+        weight: '',
+        unit: '',
+        co2eKg: '',
+      });
+    } catch (error) {
+      console.error('Error adding waste record:', error);
+      setSnackbarMessage('Failed to add the record. Please try again.');
+      setOpenSnackbar(true);
+    }
   };
 
   const handleClickOpen = (id) => {
@@ -95,104 +142,77 @@ const WastePage = () => {
     setOpenSnackbar(false);
   };
 
-  const handleDeleteRow = () => {
-    setRows(prev => prev.filter(row => row.id !== deleteId));
-    setOpenDialog(false);
+  const handleDeleteRow = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/scope3/waste/${deleteId}`);
+      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error deleting record:', error);
+      setSnackbarMessage('Failed to delete the record. Please try again.');
+      setOpenSnackbar(true);
+    }
   };
-  const waste = useScope3Store((state) => state.wasteMaterials);
-  // Filter active items
-  const activeWaste = waste.filter((row) => row.active); // For vehicle types
-  const units = useScope3Store((state) => state.units);
-  // Filter active items
-  const activeUnits = units.filter((row) => row.active); // For vehicle types
-
-const disposalMethod = useScope3Store((state) => state.disposalMethods);
-  // Filter active items
-const activeDM = disposalMethod.filter((row) => row.active); // For vehicle types
-
-
-
-  const unitOptions = ['Kg', 'Ton', 'Lb'];
-  const wasteMaterialOptions = ['Plastic', 'Paper', 'Metal', 'Organic'];
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         {/* Top Bar */}
-        <TopBar 
-                title="Scope 3" 
-                showDropdown={false}
-            />
+        <TopBar title="Scope 3" showDropdown={false} />
 
         <Container sx={{ mt: 10 }}>
-          <Typography variant="h4" gutterBottom sx={{ color: '#000000' }}>
+          <Typography variant="h4" gutterBottom>
             Waste Management
           </Typography>
 
           {/* Form */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ color: '#000000' }}>Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-              {/* Form fields */}
-              <TextField
-                label="Source ID"
-                name="sourceId"
-                value={formValues.sourceId}
-                onChange={handleInputChange}
-                variant="outlined"
-                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
-              />
+            <Typography variant="h6">Add New Record</Typography>
+            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <TextField
                 label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
               />
-              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
-                <InputLabel sx={{ color: '#000000' }}>Waste Material</InputLabel>
+              <TextField
+                label="Date"
+                name="date"
+                type="date"
+                value={formValues.date}
+                onChange={handleInputChange}
+                variant="outlined"
+                InputLabelProps={{ shrink: true }}
+              />
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Waste Type</InputLabel>
                 <Select
-                  label="Waste Material"
-                  name="wasteMaterial"
-                  value={formValues.wasteMaterial}
+                  label="Waste Type"
+                  name="wasteType"
+                  value={formValues.wasteType}
                   onChange={handleInputChange}
-                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                 >
-                  {activeWaste.map((material) => (
-                    <MenuItem key={material.key} value={material.name} sx={{ color: '#000000' }}>
-                      {material.name}
+                  {activeWasteTypes.map((wasteType) => (
+                    <MenuItem key={wasteType.id} value={wasteType.name}>
+                      {wasteType.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
-                <InputLabel sx={{ color: '#000000' }}>Disposal Methods</InputLabel>
-                <Select
-                  label="Disposal Methods"
-                  name="DisposalMethods"
-                  value={formValues.disposalMethod}
-                  onChange={handleInputChange}
-                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
-                >
-                  {activeDM.map((material) => (
-                    <MenuItem key={material.key} value={material.name} sx={{ color: '#000000' }}>
-                      {material.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              {/* <TextField
+              
+              <TextField
                 label="Disposal Method"
                 name="disposalMethod"
                 value={formValues.disposalMethod}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
-              /> */}
+              />
+               
               <TextField
                 label="Weight"
                 name="weight"
@@ -200,32 +220,29 @@ const activeDM = disposalMethod.filter((row) => row.active); // For vehicle type
                 value={formValues.weight}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
               />
-              <FormControl variant="outlined" sx={{ minWidth: 150 }}>
-                <InputLabel sx={{ color: '#000000' }}>Unit</InputLabel>
+              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <InputLabel>Unit</InputLabel>
                 <Select
                   label="Unit"
                   name="unit"
                   value={formValues.unit}
                   onChange={handleInputChange}
-                  sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                 >
                   {activeUnits.map((unit) => (
-                    <MenuItem key={unit.key} value={unit.name} sx={{ color: '#000000' }}>
+                    <MenuItem key={unit.id} value={unit.name}>
                       {unit.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
               <TextField
-                label="CO2e Emissions (Kg)"
-                name="co2eEmissions"
+                label="CO2e Emissions (kg)"
+                name="co2eKg"
                 type="number"
-                value={formValues.co2eEmissions}
+                value={formValues.co2eKg}
                 onChange={handleInputChange}
                 variant="outlined"
-                sx={{ backgroundColor: '#FFFFFF', color: '#000000' }}
               />
               <Button variant="contained" color="primary" onClick={handleAddRow}>
                 Add
@@ -234,33 +251,35 @@ const activeDM = disposalMethod.filter((row) => row.active); // For vehicle type
           </Box>
 
           {/* Table */}
-          <Typography variant="h6" sx={{ color: '#000000' }}>Records</Typography>
-          <TableContainer component={Paper}>
-            <Table>
+          <Typography variant="h6">Records</Typography>
+          <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
+            <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: '#000000' }}>ID</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Source ID</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Description</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Waste Material</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Disposal Method</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Weight</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Unit</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>CO2e Emissions (Kg)</TableCell>
-                  <TableCell sx={{ color: '#000000' }}>Action</TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Source ID</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Waste Type</TableCell>
+                  <TableCell>Disposal Method</TableCell>
+                  <TableCell>Weight</TableCell>
+                  <TableCell>Unit</TableCell>
+                  <TableCell>CO2e Emissions (kg)</TableCell>
+                  <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell sx={{ color: '#000000' }}>{row.id}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.sourceId}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.description}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.wasteMaterial}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.disposalMethod}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.weight}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.unit}</TableCell>
-                    <TableCell sx={{ color: '#000000' }}>{row.co2eEmissions}</TableCell>
+                    <TableCell>{row.id}</TableCell>
+                    <TableCell>{row.sourceId}</TableCell>
+                    <TableCell>{row.description}</TableCell>
+                    <TableCell>{new Date(row.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{row.wasteType}</TableCell>
+                    <TableCell>{row.disposalMethod}</TableCell>
+                    <TableCell>{row.weight}</TableCell>
+                    <TableCell>{row.unit}</TableCell>
+                    <TableCell>{row.co2eKg}</TableCell>
                     <TableCell>
                       <Button variant="outlined" color="secondary" onClick={() => handleClickOpen(row.id)}>
                         Delete
@@ -274,18 +293,10 @@ const activeDM = disposalMethod.filter((row) => row.active); // For vehicle type
 
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate('/Scope3BT')}
-            >
-              Back to Travel
+            <Button variant="contained" color="primary" onClick={() => navigate('/Scope3BT')}>
+              Back to Business Travel
             </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => navigate('/dashboard')}
-            >
+            <Button variant="contained" color="secondary" onClick={() => navigate('/dashboard')}>
               View Dashboard
             </Button>
           </Box>
@@ -293,11 +304,9 @@ const activeDM = disposalMethod.filter((row) => row.active); // For vehicle type
 
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
-          <DialogTitle sx={{ color: '#000000' }}>Confirm Deletion</DialogTitle>
+          <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogContent>
-            <DialogContentText sx={{ color: '#000000' }}>
-              Are you sure you want to delete this record?
-            </DialogContentText>
+            <DialogContentText>Are you sure you want to delete this record?</DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose} color="primary">
@@ -312,7 +321,7 @@ const activeDM = disposalMethod.filter((row) => row.active); // For vehicle type
         {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error">
-            Please fill in all fields before adding a record.
+            {snackbarMessage}
           </Alert>
         </Snackbar>
       </Box>
