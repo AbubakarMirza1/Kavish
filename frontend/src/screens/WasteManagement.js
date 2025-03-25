@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+/***********************************************
+ * src/screens/WasteManagement.js (Scope3W.js)
+ * Screen for displaying Waste Management KPIs
+ ***********************************************/
+
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   Container,
   Grid,
   Paper,
+  TextField,
 } from '@mui/material';
 import {
   LineChart,
@@ -18,83 +23,111 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
+  Cell,
   BarChart,
   Bar,
   AreaChart,
   Area,
 } from 'recharts';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import TopBar from '../Component/topbar.js'; // Import the Sidebar component
-
-// Mock Data for Waste Management Graphs
-const wasteTrendData = [
-  { month: 'Jan', wasteGenerated: 500 },
-  { month: 'Feb', wasteGenerated: 550 },
-  { month: 'Mar', wasteGenerated: 530 },
-  { month: 'Apr', wasteGenerated: 600 },
-  { month: 'May', wasteGenerated: 580 },
-  { month: 'Jun', wasteGenerated: 620 },
-];
-
-const wasteDiversionData = [
-  { name: 'Recycled', value: 45, color: '#0D7377' },
-  { name: 'Composted', value: 25, color: '#14FFEC' },
-  { name: 'Landfilled', value: 30, color: '#FF5252' },
-];
-
-const recyclingRateData = [
-  { type: 'Jan', rate: 40 },
-  { type: 'Feb', rate: 42 },
-  { type: 'Mar', rate: 45 },
-  { type: 'Apr', rate: 48 },
-  { type: 'May', rate: 50 },
-  { type: 'Jun', rate: 52 },
-];
-
-const carbonFootprintData = [
-  { month: 'Jan', emissions: 200 },
-  { month: 'Feb', emissions: 210 },
-  { month: 'Mar', emissions: 220 },
-  { month: 'Apr', emissions: 215 },
-  { month: 'May', emissions: 205 },
-  { month: 'Jun', emissions: 190 },
-];
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import Sidebar from '../Component/sidebar.js';
+import TopBar from '../Component/topbar.js';
 
 const WasteManagement = () => {
-  const [setupForm, setSetupForm] = useState('Select Setup Form');
-  const navigate = useNavigate();
+  const [kpiData, setKpiData] = useState({
+    totalWaste: 0,
+    totalCO2e: 0,
+    diversionRate: 0,
+    wasteByType: [],
+    wasteTrendData: [],
+    carbonFootprintData: [],
+  });
+  const [startDate, setStartDate] = useState(new Date('2024-01-01'));
+  const [endDate, setEndDate] = useState(new Date());
+  const [error, setError] = useState(null);
 
+  // Hardcode userId for now; replace with dynamic userId if needed
+  const userId = 1;
 
-  const handleFormChange = (event) => {
-    const selectedValue = event.target.value;
-    setSetupForm(selectedValue);
+  useEffect(() => {
+    const fetchKpiData = async () => {
+      try {
+        const url = `http://localhost:5000/api/waste/kpis?userId=${userId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+        console.log('Fetching KPI data from:', url);
 
-    if (selectedValue === 'Waste Setup Form') navigate('/WasteSetupForm');
-  };
+        const response = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Response error:', errorText);
+          throw new Error(`Failed to fetch KPI data: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched KPI data:', data);
+        setKpiData(data);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching KPI data:', error.message);
+        setError(`Unable to load KPI data: ${error.message}. Please try again later.`);
+      }
+    };
+    fetchKpiData();
+  }, [startDate, endDate]);
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <Sidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+          <TopBar title="Waste Management" showDropdown={false} />
+          <Container maxWidth="xl" sx={{ mt: 4 }}>
+            <Typography color="error">{error}</Typography>
+          </Container>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
-      < Sidebar />
-
-      {/* Main Content */}
+      <Sidebar />
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-       
-        <TopBar 
-                title="Waste Management" 
-                showDropdown={false}
-            />
-
+        <TopBar title="Waste Management" showDropdown={false} />
         <Container maxWidth="xl" sx={{ mt: 4 }}>
+          {/* Date Range Picker */}
+          <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Start Date"
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <DatePicker
+                label="End Date"
+                value={endDate}
+                onChange={(newValue) => setEndDate(newValue)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </Box>
+
           <Grid container spacing={3}>
             {/* Total Waste Generated - Line Chart */}
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Total Waste Generated
+                  Total Waste Generated: {kpiData.totalWaste} kg
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <LineChart data={wasteTrendData}>
+                  <LineChart data={kpiData.wasteTrendData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -110,20 +143,29 @@ const WasteManagement = () => {
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Waste Diversion Rate
+                  Waste Diversion Rate: {kpiData.diversionRate}%
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
                   <PieChart>
                     <Pie
-                      data={wasteDiversionData}
+                      data={[
+                        { name: 'Diverted', value: kpiData.diversionRate, color: '#0D7377' },
+                        { name: 'Landfilled', value: 100 - kpiData.diversionRate, color: '#FF5252' },
+                      ]}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
                       cy="50%"
                       outerRadius={120}
-                      fill="#8884d8"
                       label
-                    />
+                    >
+                      {[
+                        { name: 'Diverted', value: kpiData.diversionRate, color: '#0D7377' },
+                        { name: 'Landfilled', value: 100 - kpiData.diversionRate, color: '#FF5252' },
+                      ].map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
                     <Tooltip />
                     <Legend />
                   </PieChart>
@@ -131,19 +173,23 @@ const WasteManagement = () => {
               </Paper>
             </Grid>
 
-            {/* Recycling Rate - Bar Chart */}
+            {/* Waste by Type - Bar Chart */}
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Recycling Rate
+                  Waste by Type
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <BarChart data={recyclingRateData}>
+                  <BarChart data={kpiData.wasteByType}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="type" />
+                    <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="rate" fill="#0D7377" />
+                    <Bar dataKey="value" fill="#0D7377">
+                      {kpiData.wasteByType.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </Paper>
@@ -153,10 +199,10 @@ const WasteManagement = () => {
             <Grid item xs={12} md={6}>
               <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
                 <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Carbon Footprint
+                  Carbon Footprint: {kpiData.totalCO2e} kg CO2e
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <AreaChart data={carbonFootprintData}>
+                  <AreaChart data={kpiData.carbonFootprintData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
