@@ -180,7 +180,7 @@ const WasteManagement = () => {
                   Waste by Type
                 </Typography>
                 <ResponsiveContainer width="100%" height="80%">
-                  <BarChart data={kpiData.wasteByType}>
+                  <BarChart data={kpiData.wasteByType || []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
