@@ -26,6 +26,8 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const scope1EmissionsRoutes = require('./routes/scope1EmissionsRoutes'); // ✅ Import the new scope1EmissionsRoutes
 const scope2EmissionsRoutes = require('./routes/scope2EmissionsRoute'); // ✅ Import the new scope1EmissionsRoutes
 const scope3EmissionsRoutes = require('./routes/Scope3EmissionsRoute'); // ✅ Import the new scope1EmissionsRoutes
+const scope3KPIsRoutes = require('./routes/scope3KPIsRoutes');
+const wasteKPIsRoutes = require('./routes/wasteKPIsRoutes');
 
 
 // --------------------------------------------
@@ -44,6 +46,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope2-emissions', scope2EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope3-emissions', scope3EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
+app.use('/api/scope3/kpis', scope3KPIsRoutes); // Scope 3 KPIs (Business Travel)
+app.use('/api/waste/kpis', wasteKPIsRoutes);   // Waste KPIs
 
 
 
