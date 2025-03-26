@@ -1,8 +1,3 @@
-/***********************************************
- * routes/scope3Routes.js
- * Routes for Scope 3-related endpoints
- ***********************************************/
-
 const express = require('express');
 const router = express.Router();
 const scope3Controller = require('../controllers/scope3Controller');
@@ -20,8 +15,5 @@ router.get('/waste', scope3Controller.getAllWaste);
 router.get('/waste/:id', scope3Controller.getWasteById);
 router.put('/waste/:id', scope3Controller.updateWaste);
 router.delete('/waste/:id', scope3Controller.deleteWaste);
-
-// Scope 3 KPIs
-router.get('/kpis', scope3Controller.getScope3KPIs);
 
 module.exports = router;
