@@ -49,7 +49,7 @@ app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new
 app.use('/api/scope2-emissions', scope2EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope3-emissions', scope3EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope3/kpis', scope3KPIsRoutes); // Scope 3 KPIs (Business Travel)
-app.use('/api/waste/kpis', wasteKPIsRoutes);   // Waste KPIs
+app.use('/api/waste', wasteKPIsRoutes);        // Changed to /api/waste so /kpis maps to /api/waste/kpis
 app.use('/api/scope1-kpi', scope1KPIRoutes);
 app.use('/api/scope2/kpis', scope2KPIsRoutes); // Added for Scope 2 KPIs
 
