@@ -1,13 +1,19 @@
 /***********************************************
- * routes/scope3KPIsRoutes.js
- * Routes for Scope 3 KPIs (Business Travel)
+ * routes/wasteKPIsRoutes.js
+ * Routes for Waste Management KPIs
  ***********************************************/
 
 const express = require('express');
 const router = express.Router();
-const scope3KPIsController = require('../controllers/scope3KPIsController'); // Fixed case: "scope3KPIsController"
+const wasteKPIsController = require('../controllers/wasteKPIsController');
 
-// Scope 3 KPIs for Business Travel
-router.get('/', scope3KPIsController.getScope3KPIs);
+// Log to confirm this file is loaded
+console.log('Loading wasteKPIsRoutes.js');
+
+// Waste Management KPIs
+router.get('/kpis', (req, res, next) => {
+  console.log('Route handler for /kpis triggered');
+  wasteKPIsController.getWasteKPIs(req, res, next);
+});
 
 module.exports = router;
