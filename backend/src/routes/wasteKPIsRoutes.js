@@ -10,6 +10,12 @@ const wasteKPIsController = require('../controllers/wasteKPIsController');
 // Log to confirm this file is loaded
 console.log('Loading wasteKPIsRoutes.js');
 
+// Test route to confirm the router is mounted
+router.get('/test', (req, res) => {
+  console.log('Test route in wasteKPIsRoutes triggered');
+  res.json({ message: 'Waste KPIs test route working' });
+});
+
 // Waste Management KPIs
 router.get('/kpis', (req, res, next) => {
   console.log('Route handler for /kpis triggered');
