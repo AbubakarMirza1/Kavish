@@ -52,10 +52,12 @@ const WasteManagement = () => {
   const userId = 1;
 
   useEffect(() => {
-    const fetchKpiData = async () => {
+    const fetchKpiData = async (useProxy = true) => {
       try {
         setLoading(true);
-        const url = `/api/waste/kpis?userId=${userId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`; // Use relative URL
+        // Use proxy URL by default, fallback to direct URL if specified
+        const baseUrl = useProxy ? '' : 'http://localhost:5000';
+        const url = `${baseUrl}/api/waste/kpis?userId=${userId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
         console.log('Fetching KPI data from:', url);
 
         const response = await fetch(url, {
@@ -65,9 +67,11 @@ const WasteManagement = () => {
         });
 
         console.log('Response status:', response.status);
+        console.log('Response headers:', JSON.stringify([...response.headers.entries()]));
+
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Response error:', errorText);
+          console.error('Response error text:', errorText);
           throw new Error(`Failed to fetch KPI data: ${errorText}`);
         }
 
@@ -86,9 +90,15 @@ const WasteManagement = () => {
         setError(null);
       } catch (error) {
         console.error('Error fetching KPI data:', error.message);
-        setError(`Unable to load KPI data: ${error.message}. Please try again later.`);
+        // If the proxy fails, try a direct request to the backend
+        if (useProxy) {
+          console.log('Proxy request failed, attempting direct request to backend...');
+          fetchKpiData(false); // Retry without proxy
+        } else {
+          setError(`Unable to load KPI data: ${error.message}. Please try again later.`);
+        }
       } finally {
-        setLoading(false);
+        if (useProxy) setLoading(false);
       }
     };
     fetchKpiData();
