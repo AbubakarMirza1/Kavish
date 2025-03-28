@@ -1,91 +1,104 @@
-import React from "react";
+import React from 'react';
 import {
-    AppBar,
-    Toolbar,
-    Typography,
-    FormControl,
-    Select,
-    MenuItem,
-    IconButton,
-    Avatar
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import HelpIcon from "@mui/icons-material/Help";
+  AppBar,
+  Toolbar,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  IconButton,
+  Avatar,
+  Box,
+} from '@mui/material';
+import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import HelpIcon from '@mui/icons-material/Help';
+
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  backgroundColor: '#e1fcf6',
+  boxShadow: 'none',
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  padding: theme.spacing(0, 2),
+}));
+
+const TitleTypography = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: '1.75rem',
+  color: theme.palette.primary.main,
+}));
+
+const DropdownFormControl = styled(FormControl)(({ theme }) => ({
+  minWidth: 150,
+  marginRight: theme.spacing(2),
+}));
 
 const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [] }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleFormChange = (event) => {
-        const selectedValue = event.target.value;
-        setSetupForm(selectedValue);
+  const handleFormChange = (event) => {
+    const selectedValue = event.target.value;
+    setSetupForm(selectedValue);
+    const selectedOption = setupOptions.find((option) => option.label === selectedValue);
+    if (selectedOption) {
+      navigate(selectedOption.route);
+    }
+  };
 
+  // Retrieve user details (assuming they're stored in localStorage after login)
+  const user = JSON.parse(localStorage.getItem('user')) || {};
+  const userName = user.name || 'Guest';
+  const userInitials = userName
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase())
+    .join('');
 
-        // Navigate to the selected setup form's route
-        const selectedOption = setupOptions.find(option => option.label === selectedValue);
-        if (selectedOption) {
-            navigate(selectedOption.route);
-        }
-    };
-      // Fetch user details (assuming they're stored in localStorage after login)
-      const user = JSON.parse(localStorage.getItem("user")) || {};
-      const userName = user.name || "Guest"; // Default to "Guest" if no user data
-      const userInitials = userName
-          .split(" ")
-          .map((word) => word.charAt(0).toUpperCase()) // Get first letter of each word
-          .join(""); // Join them together
+  return (
+    <StyledAppBar position="sticky">
+      <Toolbar>
+        {/* Page Title */}
+        <TitleTypography variant="h3" sx={{ flexGrow: 1 }}>
+          {title}
+        </TitleTypography>
 
-    return (
-        <AppBar position="sticky" color="default" elevation={0} sx={{ backgroundColor: '#ffffff' }}>
-            <Toolbar>
-                {/* Page Title */}
-                <Typography variant="h3" sx={{ flexGrow: 1, color: "#0D7377" }}>
-                    {title}
-                </Typography>
+        {/* Dropdown for Setup Forms (if enabled) */}
+        {showDropdown && (
+          <DropdownFormControl>
+            <Select
+              value={setupForm}
+              onChange={handleFormChange}
+              displayEmpty
+              sx={{ fontSize: 16, color: '#0D7377' }}
+            >
+              <MenuItem value="Select Setup Form" disabled>
+                Select Setup Form
+              </MenuItem>
+              {setupOptions.map((option, index) => (
+                <MenuItem key={index} value={option.label}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </DropdownFormControl>
+        )}
 
-                {/* Dropdown for Setup Forms (Only when showDropdown is true) */}
-                {showDropdown && (
-                    <FormControl sx={{ minWidth: 150, mr: 2 }}>
-                        <Select
-                            value={setupForm}
-                            onChange={handleFormChange}
-                            displayEmpty
-                            sx={{ fontSize: 16, color: "#0D7377" }}
-                        >
-                            <MenuItem value="Select Setup Form" disabled>
-                                Select Setup Form
-                            </MenuItem>
-                            {setupOptions.map((option, index) => (
-                                <MenuItem key={index} value={option.label}>
-                                    {option.label}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                )}
+        {/* Notification and Help Icons */}
+        <IconButton>
+          <NotificationsIcon sx={{ color: '#0D7377' }} />
+        </IconButton>
+        <IconButton>
+          <HelpIcon sx={{ color: '#0D7377' }} />
+        </IconButton>
 
-                {/* Icons */}
-                <IconButton>
-                    <NotificationsIcon />
-                </IconButton>
-                <IconButton>
-                    <HelpIcon />
-                </IconButton>
-
-                {/* User Avatar */}
-                <IconButton onClick={() => navigate("/settings")}>
-    <Avatar sx={{ ml: 2, bgcolor: "#0D7377" }}>JD</Avatar>
-</IconButton>
-
-            </Toolbar>
-        </AppBar>
-    );
+        {/* User Avatar */}
+        <IconButton onClick={() => navigate('/settings')}>
+          <Avatar sx={{ ml: 2, bgcolor: '#0D7377', width: 40, height: 40 }}>
+            {userInitials}
+          </Avatar>
+        </IconButton>
+      </Toolbar>
+    </StyledAppBar>
+  );
 };
 
 export default TopBar;
-
-
-
-
-
-
