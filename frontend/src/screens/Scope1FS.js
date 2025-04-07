@@ -104,8 +104,8 @@ const FireSuppressionPage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        fuelType: res.data.fuelType?.typeName || 'Unknown',
-        unit: res.data.unit?.unitName || 'Unknown',
+        fuelType:formValues.fuelType || 'Unknown',
+        unit: formValues.unit || 'Unknown',
         co2eKg: res.data.co2eKg,
       };
 

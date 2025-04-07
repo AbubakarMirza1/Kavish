@@ -1,6 +1,7 @@
 import { create } from "zustand";
+import { persist } from 'zustand/middleware';
 
-const useScope3Store = create((set) => ({
+const useScope3Store = create(persist((set) => ({
   // Initial state for each section
   vehicleTypes: [],
   units: [],
@@ -30,6 +31,8 @@ const useScope3Store = create((set) => ({
       );
       return { [section]: updatedSection };
     }),
-}));
+})
+)
+);
 
 export default useScope3Store;

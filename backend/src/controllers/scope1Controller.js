@@ -43,7 +43,9 @@ async function createStationaryCombustion(req, res) {
 
 async function getAllStationaryCombustion(req, res) {
   try {
-    const records = await scope1Service.getAllStationaryCombustion();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const records = await scope1Service.getAllStationaryCombustion(page,limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });

@@ -15,19 +15,19 @@ router.get("/data", async (req, res) => {
     const vehicleTypeRows = vehicleTypes.map((vt) => ({
       id: vt.vehicleTypeId,
       name: vt.typeName,
-      active: vt.active || false,
+      active: vt.active || true,
     }));
 
     const unitRows = units.map((u) => ({
       id: u.unitId,
       name: u.unitName,
-      active: u.active || false,
+      active: u.active || true,
     }));
 
     const wasteMaterialRows = wasteMaterials.map((wm) => ({
       id: wm.wasteTypeId,
       name: wm.typeName,
-      active: wm.active || false,
+      active: wm.active || true,
     }));
 
 

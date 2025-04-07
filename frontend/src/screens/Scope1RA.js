@@ -111,9 +111,9 @@ const RefrigerationAndACPage = () => {
         sourceDescription: formValues.description,
         date: res.data.date || new Date().toISOString(),
         gas: res.data.gas,
-        equipmentType: res.data.equipmentType?.typeName || 'Unknown',
+        equipmentType: formValues.equipmentTypeId || 'Unknown',
         gwp: res.data.gwp,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unitId || 'Unknown',
         co2eKg: res.data.co2eKg,
       };
 

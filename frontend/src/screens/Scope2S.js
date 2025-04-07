@@ -117,13 +117,13 @@ const SteamPage = () => {
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
         sourceArea: res.data.sourceArea,
-        fuelType: res.data.fuelType?.typeName || 'Unknown',
+        fuelType: formValues.fuelType || 'Unknown',
         boilerEfficiency: res.data.boilerEfficiency,
         steamPurchasedKwh: res.data.steamPurchasedKwh,
         co2Kg: res.data.co2Kg,
         ch4g: res.data.ch4g,
         n20g: res.data.n20g,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unit || 'Unknown',
       };
 
       setRows((prev) => [...prev, newRow]);

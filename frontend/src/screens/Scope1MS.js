@@ -105,14 +105,14 @@ const MobileSourcePage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        vehicleType: res.data.vehicleType?.typeName || 'Unknown',
+        vehicleType:formValues.vehicleType || 'Unknown',
         fuelUsage: res.data.fuelUsage,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unit || 'Unknown',
         milesTravelled: res.data.milesTravelled,
       };
 
       setRows((prev) => [...prev, newRow]);
-      setFormValues({ sourceId: '', description: '', date: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
+      setFormValues({description: '', date: '', vehicleType: '', fuelUsage: '', unit: '', milesTravelled: '' });
     } catch (error) {
       console.error('Error adding mobile source record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');

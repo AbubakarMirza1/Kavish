@@ -104,7 +104,7 @@ const ElectricityPage = () => {
         description: res.data.description || 'N/A',
         date: res.data.date || new Date().toISOString(),
         areaSqFt: res.data.areaSqFt,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unit || 'Unknown',
         co2eKg: res.data.co2eKg,
         ch4Kg: res.data.ch4Kg,
         n20Kg: res.data.n20Kg,

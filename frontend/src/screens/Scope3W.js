@@ -108,10 +108,10 @@ const WastePage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        wasteType: res.data.wasteType?.typeName || 'Unknown',
+        wasteType: formValues.wasteType || 'Unknown',
         disposalMethod: res.data.disposalMethod,
         weight: res.data.weight,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unit || 'Unknown',
         co2eKg: res.data.co2eKg,
       };
 

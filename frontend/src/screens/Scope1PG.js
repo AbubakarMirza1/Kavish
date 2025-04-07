@@ -102,9 +102,9 @@ const PurchasedGasesPage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        gasType: res.data.Gas || 'Unknown', // New field for gas type
+        gasType: formValues.gasType || 'Unknown', // New field for gas type
         purchasedAmount: res.data.purchasedAmount,
-        unit: res.data.unit?.unitName || 'Unknown',
+        unit: formValues.unit || 'Unknown',
       };
 
       setRows((prev) => [...prev, newRow]);

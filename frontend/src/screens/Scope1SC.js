@@ -40,6 +40,11 @@ const Scope1SC = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState(''); // New state for Snackbar message
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
+
   // Get data from the store
   const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
   const unitRows = useScope1Store((state) => state.unitRows);
@@ -50,12 +55,12 @@ const Scope1SC = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/scope1/stationary');
-      const formattedData = res.data.map((item) => ({
+      const res = await axios.get(`http://localhost:5000/api/scope1/stationary?page=${page}&limit=${limit}`);
+      const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
@@ -65,6 +70,7 @@ const Scope1SC = () => {
         units: item.unit?.unitName || 'Unknown',
       }));
       setRows(formattedData);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching stationary data:', error);
     }
@@ -93,15 +99,15 @@ const Scope1SC = () => {
       const newRow = {
         id: res.data.id,
         sourceId: res.data.scopeTypeId,
-        description: res.data.sourceDescription || 'N/A',
+        description: formValues.description || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        fuelCombusted: res.data.fuelType?.typeName || 'Unknown',
+        fuelCombusted: formValues.fuelCombusted || 'Unknown',
         quantity: res.data.quantity,
-        units: res.data.unit?.unitName || 'Unknown',
+        units: formValues.units || 'Unknown',
       };
 
       setRows((prev) => [...prev, newRow]);
-      setFormValues({ sourceId: '', description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
+      setFormValues({description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
     } catch (error) {
       console.error('Error adding stationary combustion record:', error);
     }
@@ -239,7 +245,28 @@ const Scope1SC = () => {
                 ))}
               </TableBody>
             </Table>
+      
+
           </TableContainer>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+  <Button
+    variant="outlined"
+    disabled={page === 1}
+    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+  >
+    Previous
+  </Button>
+  <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+    Page {page} of {totalPages}
+  </Typography>
+  <Button
+    variant="outlined"
+    disabled={page === totalPages}
+    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+  >
+    Next
+  </Button>
+</Box>
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button variant="contained" color="primary" onClick={() => navigate('/dashboard')}>

@@ -14,7 +14,43 @@ const { prisma } = require('./generalCrudService'); // Import prisma
 
 // ----------------- UTILITY FUNCTIONS -----------------
 
+// async function createScopeType(scopeCategory, userId) {
+//   const lastScopeType = await prisma.scopeType.findFirst({
+//     where: { scopeCategory },
+//     orderBy: { scopeTypeId: 'desc' },
+//   });
+
+//   let nextId;
+//   if (lastScopeType) {
+//     const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]); // Extract the first digit
+//     const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1)); // Extract the rest
+//     if (suffix < 99) {
+//     nextId = prefix * 100 + (suffix + 1); // Increment the suffix
+//   } else {
+//       const base = prefix * 100; // 100 for Scope 1, 200 for Scope 2, etc.
+//       const newSuffix = Math.pow(10, lastScopeType.scopeTypeId.toString().length - 2); // Dynamically increase digits
+//       nextId = base + newSuffix; // Example: After 199 -> 1000
+//   }
+//   } else {
+//     // If no records exist for this category, start with 101, 201, or 301
+//     nextId = scopeCategory === 'Scope1' ? 101 : scopeCategory === 'Scope2' ? 201 : 301;
+//   }
+
+//   return prisma.scopeType.create({
+//     data: {
+//       scopeTypeId: nextId,
+//       scopeCategory,
+//       userId,
+//     },
+//   });
+// }
 async function createScopeType(scopeCategory, userId) {
+  const scopePrefixes = { Scope1: 1, Scope2: 2, Scope3: 3 };
+  const prefix = scopePrefixes[scopeCategory];
+
+  if (!prefix) throw new Error('Invalid scope category');
+
+  // Find the latest scopeTypeId for the given category
   const lastScopeType = await prisma.scopeType.findFirst({
     where: { scopeCategory },
     orderBy: { scopeTypeId: 'desc' },
@@ -22,12 +58,17 @@ async function createScopeType(scopeCategory, userId) {
 
   let nextId;
   if (lastScopeType) {
-    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]); // Extract the first digit
-    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1)); // Extract the rest
-    nextId = prefix * 100 + (suffix + 1); // Increment the suffix
+    let lastId = lastScopeType.scopeTypeId;
+
+    // If the last ID has reached its range max (e.g., 199 for Scope1)
+    if (lastId % 100 === 99) {
+      nextId = (prefix * 1000); // Move to the next thousand (e.g., 1000, 2000, 3000)
+    } else {
+      nextId = lastId + 1; // Otherwise, just increment normally
+    }
   } else {
-    // If no records exist for this category, start with 101, 201, or 301
-    nextId = scopeCategory === 'Scope1' ? 101 : scopeCategory === 'Scope2' ? 201 : 301;
+    // If no records exist, start at 101, 201, or 301
+    nextId = prefix * 100 + 1;
   }
 
   return prisma.scopeType.create({
@@ -38,6 +79,7 @@ async function createScopeType(scopeCategory, userId) {
     },
   });
 }
+
 
 async function getFuelTypeByName(typeName) {
   return prisma.fuelType.findFirst({
@@ -67,15 +109,43 @@ async function createStationaryCombustion(data) {
   return generalCrudService.createRecord('stationaryCombustion', data);
 }
 
-async function getAllStationaryCombustion() {
-  return generalCrudService.getAllRecords('stationaryCombustion', {
-    include: {
-      scopeType: true,
-      fuelType: true,
-      unit: true,
-    },
-  });
+// async function getAllStationaryCombustion() {
+//   return generalCrudService.getAllRecords('stationaryCombustion', {
+//     include: {
+//       scopeType: true,
+//       fuelType: true,
+//       unit: true,
+//     },
+//   });
+// }
+async function getAllStationaryCombustion(page = 1, limit = 10) {
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const take = parseInt(limit);
+
+  const [totalCount, records] = await Promise.all([
+    prisma.stationaryCombustion.count(),
+    generalCrudService.getAllRecords('stationaryCombustion', {
+      skip,
+      take,
+      include: {
+        scopeType: true,
+        fuelType: true,
+        unit: true,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    }),
+  ]);
+
+  return {
+    totalCount,
+    page: parseInt(page),
+    totalPages: Math.ceil(totalCount / take),
+    records,
+  };
 }
+
 
 async function getStationaryCombustionById(id) {
   return generalCrudService.getRecordById('stationaryCombustion', id, 'id');

@@ -103,7 +103,7 @@ const BusinessTravelPage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        vehicleType: res.data.vehicleType?.typeName || 'Unknown',
+        vehicleType: formValues.vehicleType || 'Unknown',
         vehicleMiles: res.data.vehicleMiles,
         co2Kg: res.data.co2Kg,
         ch4g: res.data.ch4g,
