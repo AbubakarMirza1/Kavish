@@ -3,29 +3,29 @@
  * CRUD operations specifically for Scope 3 tables:
  *  - BusinessTravel
  *  - Waste
+ * Updated with pagination support
  ***********************************************/
 
 const generalCrudService = require('./generalCrudService');
+const { prisma } = require('./generalCrudService');
 
 // ----------------- UTILITY FUNCTIONS -----------------
-
 async function createScopeType(scopeCategory, userId) {
-  const lastScopeType = await generalCrudService.prisma.scopeType.findFirst({
+  const lastScopeType = await prisma.scopeType.findFirst({
     where: { scopeCategory },
     orderBy: { scopeTypeId: 'desc' },
   });
 
   let nextId;
   if (lastScopeType) {
-    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]); // Extract the first digit
-    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1)); // Extract the rest
-    nextId = prefix * 100 + (suffix + 1); // Increment the suffix
+    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]);
+    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1));
+    nextId = prefix * 100 + (suffix + 1);
   } else {
-    // If no records exist for this category, start with 101, 201, or 301
     nextId = scopeCategory === 'Scope1' ? 101 : scopeCategory === 'Scope2' ? 201 : 301;
   }
 
-  return generalCrudService.prisma.scopeType.create({
+  return prisma.scopeType.create({
     data: {
       scopeTypeId: nextId,
       scopeCategory,
@@ -35,52 +35,55 @@ async function createScopeType(scopeCategory, userId) {
 }
 
 async function getVehicleTypeByName(typeName) {
-  return generalCrudService.prisma.vehicleType.findFirst({
+  return prisma.vehicleType.findFirst({
     where: { typeName },
   });
 }
 
 async function getWasteTypeByName(typeName) {
-  return generalCrudService.prisma.wasteType.findFirst({
+  return prisma.wasteType.findFirst({
     where: { typeName },
   });
 }
 
 async function getUnitByName(unitName) {
-  return generalCrudService.prisma.unit.findFirst({
+  return prisma.unit.findFirst({
     where: { unitName },
   });
 }
 
 // ----------------- BUSINESS TRAVEL CRUD -----------------
-
 async function createBusinessTravel(data) {
-  return generalCrudService.prisma.$transaction(async (prisma) => {
-      // Create a new ScopeType entry for Scope 2
-      const scopeTypeRecord = await createScopeType('Scope3',1);
-       // Change this to dynamic userId if needed
-        
-    
-  return generalCrudService.createRecord('businessTravel', {
-    scopeTypeId: scopeTypeRecord.scopeTypeId,
-    sourceDescription: data.sourceDescription,
-    vehicleTypeId: data.vehicleTypeId,
-    vehicleMiles: data.vehicleMiles,
-    co2Kg: data.co2Kg,
-    ch4g: data.ch4g,
-    n20g: data.n20g,
-    date: data.date,
+  return prisma.$transaction(async (prisma) => {
+    const scopeTypeRecord = await createScopeType('Scope3', 1);
+    return generalCrudService.createRecord('businessTravel', {
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription: data.sourceDescription,
+      vehicleTypeId: data.vehicleTypeId,
+      vehicleMiles: data.vehicleMiles,
+      co2Kg: data.co2Kg,
+      ch4g: data.ch4g,
+      n20g: data.n20g,
+      date: data.date,
+    });
   });
-});
 }
 
-async function getAllBusinessTravel() {
-  return generalCrudService.getAllRecords('businessTravel', {
-    include: {
-      scopeType: true,
-      vehicleType: true,
-    },
-  });
+async function getAllBusinessTravel(page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  const [totalCount, records] = await Promise.all([
+    prisma.businessTravel.count(),
+    prisma.businessTravel.findMany({
+      skip,
+      take: limit,
+      include: {
+        scopeType: true,
+        vehicleType: true,
+      },
+      orderBy: { date: 'desc' }
+    })
+  ]);
+  return { totalCount, page, totalPages: Math.ceil(totalCount / limit), records };
 }
 
 async function getBusinessTravelById(id) {
@@ -96,35 +99,38 @@ async function deleteBusinessTravel(id) {
 }
 
 // ----------------- WASTE CRUD -----------------
-
 async function createWaste(data) {
-  return generalCrudService.prisma.$transaction(async (prisma) => {
-      // Create a new ScopeType entry for Scope 2
-      const scopeTypeRecord = await createScopeType('Scope3',1);
-       // Change this to dynamic userId if needed
-        
-    
-  return generalCrudService.createRecord('waste', {
-    scopeTypeId: scopeTypeRecord.scopeTypeId,
-    sourceDescription: data.sourceDescription,
-    wasteTypeId: data.wasteTypeId,
-    disposalMethod: data.disposalMethod,
-    weight: data.weight,
-    unitId: data.unitId,
-    co2eKg: data.co2eKg,
-    date: data.date,
+  return prisma.$transaction(async (prisma) => {
+    const scopeTypeRecord = await createScopeType('Scope3', 1);
+    return generalCrudService.createRecord('waste', {
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription: data.sourceDescription,
+      wasteTypeId: data.wasteTypeId,
+      disposalMethod: data.disposalMethod,
+      weight: data.weight,
+      unitId: data.unitId,
+      co2eKg: data.co2eKg,
+      date: data.date,
+    });
   });
-});
 }
 
-async function getAllWaste() {
-  return generalCrudService.getAllRecords('waste', {
-    include: {
-      scopeType: true,
-      wasteType: true,
-      unit: true,
-    },
-  });
+async function getAllWaste(page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  const [totalCount, records] = await Promise.all([
+    prisma.waste.count(),
+    prisma.waste.findMany({
+      skip,
+      take: limit,
+      include: {
+        scopeType: true,
+        wasteType: true,
+        unit: true,
+      },
+      orderBy: { date: 'desc' }
+    })
+  ]);
+  return { totalCount, page, totalPages: Math.ceil(totalCount / limit), records };
 }
 
 async function getWasteById(id) {

@@ -26,9 +26,9 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import TopBar from '../Component/topbar.js'; // Import the TopBar component
-import useScope3Store from '../store/Scope3Store'; // Import the Zustand store
+import Sidebar from '../Component/sidebar.js';
+import TopBar from '../Component/topbar.js';
+import useScope3Store from '../store/Scope3Store';
 
 const BusinessTravelPage = () => {
   const navigate = useNavigate();
@@ -47,18 +47,23 @@ const BusinessTravelPage = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Get data from the store
   const vehicleTypeRows = useScope3Store((state) => state.vehicleTypes);
-  const activeVehicles = vehicleTypeRows.filter((row) => row.active); // For vehicle types
+  const activeVehicles = vehicleTypeRows.filter((row) => row.active);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/scope3/travel');
-      const formattedData = res.data.map((item) => ({
+      const res = await axios.get(`http://localhost:5000/api/scope3/travel?page=${page}&limit=${limit}`);
+      const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
@@ -70,6 +75,7 @@ const BusinessTravelPage = () => {
         n20g: item.n20g,
       }));
       setRows(formattedData);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching business travel data:', error);
     }
@@ -98,19 +104,7 @@ const BusinessTravelPage = () => {
         date: formValues.date,
       });
 
-      const newRow = {
-        id: res.data.id,
-        sourceId: res.data.scopeTypeId,
-        description: res.data.sourceDescription || 'N/A',
-        date: res.data.date || new Date().toISOString(),
-        vehicleType: formValues.vehicleType || 'Unknown',
-        vehicleMiles: res.data.vehicleMiles,
-        co2Kg: res.data.co2Kg,
-        ch4g: res.data.ch4g,
-        n20g: res.data.n20g,
-      };
-
-      setRows((prev) => [...prev, newRow]);
+      fetchData(); // Refresh data to maintain pagination consistency
       setFormValues({
         description: '',
         date: '',
@@ -140,7 +134,7 @@ const BusinessTravelPage = () => {
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope3/travel/${deleteId}`);
-      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      fetchData(); // Refresh data to maintain pagination consistency
       setOpenDialog(false);
     } catch (error) {
       console.error('Error deleting record:', error);
@@ -249,9 +243,9 @@ const BusinessTravelPage = () => {
                   <TableCell>Date</TableCell>
                   <TableCell>Vehicle Type</TableCell>
                   <TableCell>Vehicle Miles</TableCell>
-                  <TableCell>CO2 Emissions (kg)</TableCell>
-                  <TableCell>CH4 Emissions (g)</TableCell>
-                  <TableCell>N2O Emissions (g)</TableCell>
+                  <TableCell>CO2 (kg)</TableCell>
+                  <TableCell>CH4 (g)</TableCell>
+                  <TableCell>N2O (g)</TableCell>
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -277,6 +271,27 @@ const BusinessTravelPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Pagination Controls */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button
+              variant="outlined"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </Button>
+            <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+              Page {page} of {totalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </Button>
+          </Box>
 
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
