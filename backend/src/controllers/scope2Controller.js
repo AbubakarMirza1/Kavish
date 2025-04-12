@@ -3,9 +3,14 @@
  * Controller for Scope 2 CRUD operations:
  *  - Electricity
  *  - Steam
+ * Updated with consistent pagination
  ***********************************************/
 
 const scope2Service = require('../services/scope2Service');
+
+// Default pagination constants
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
 
 // ----------------- ELECTRICITY -----------------
 async function createElectricity(req, res) {
@@ -18,12 +23,8 @@ async function createElectricity(req, res) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
     }
 
-    // Create a new ScopeType entry for Scope 2
-    //const scopeTypeRecord = await scope2Service.createScopeType('Scope2', 1); // Assuming userId = 1
-
     // Create the Electricity record
     const record = await scope2Service.createElectricity({
-      //scopeTypeId: scopeTypeRecord.scopeTypeId,
       description,
       areaSqFt,
       unitId: unitRecord.unitId,
@@ -41,7 +42,9 @@ async function createElectricity(req, res) {
 
 async function getAllElectricity(req, res) {
   try {
-    const records = await scope2Service.getAllElectricity();
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope2Service.getAllElectricity(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -99,12 +102,8 @@ async function createSteam(req, res) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
     }
 
-    // Create a new ScopeType entry for Scope 2
-    // const scopeTypeRecord = await scope2Service.createScopeType('Scope2', 1); // Assuming userId = 1
-
     // Create the Steam record
     const record = await scope2Service.createSteam({
-      // scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription,
       sourceArea,
       fuelTypeId: fuelTypeRecord.fuelTypeId,
@@ -125,7 +124,9 @@ async function createSteam(req, res) {
 
 async function getAllSteam(req, res) {
   try {
-    const records = await scope2Service.getAllSteam();
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope2Service.getAllSteam(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });

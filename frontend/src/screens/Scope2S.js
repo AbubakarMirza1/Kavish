@@ -26,9 +26,9 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import TopBar from '../Component/topbar.js'; // Import the TopBar component
-import useScope2Store from '../store/scope2Store'; // Import the Zustand store
+import Sidebar from '../Component/sidebar.js';
+import TopBar from '../Component/topbar.js';
+import useScope2Store from '../store/scope2Store';
 
 const SteamPage = () => {
   const navigate = useNavigate();
@@ -50,22 +50,27 @@ const SteamPage = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Get data from the store
   const unitRows = useScope2Store((state) => state.unitRows);
   const fuelTypeRows = useScope2Store((state) => state.fuelTypeRows);
 
   // Filter active items
-  const activeUnits = unitRows.filter((row) => row.active); // For units
-  const activeFuels = fuelTypeRows.filter((row) => row.active); // For fuel types
+  const activeUnits = unitRows.filter((row) => row.active);
+  const activeFuels = fuelTypeRows.filter((row) => row.active);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/scope2/steam');
-      const formattedData = res.data.map((item) => ({
+      const res = await axios.get(`http://localhost:5000/api/scope2/steam?page=${page}&limit=${limit}`);
+      const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
@@ -80,6 +85,7 @@ const SteamPage = () => {
         unit: item.unit?.unitName || 'Unknown',
       }));
       setRows(formattedData);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching steam data:', error);
     }
@@ -139,6 +145,7 @@ const SteamPage = () => {
         n20g: '',
         unit: '',
       });
+      fetchData(); // Refresh data to maintain pagination
     } catch (error) {
       console.error('Error adding steam record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -159,7 +166,7 @@ const SteamPage = () => {
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope2/steam/${deleteId}`);
-      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      fetchData(); // Refresh data to maintain pagination
       setOpenDialog(false);
     } catch (error) {
       console.error('Error deleting record:', error);
@@ -333,6 +340,27 @@ const SteamPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button
+              variant="outlined"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </Button>
+            <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+              Page {page} of {totalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </Button>
+          </Box>
 
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>

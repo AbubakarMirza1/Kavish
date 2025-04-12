@@ -26,9 +26,9 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import TopBar from '../Component/topbar.js'; // Import the TopBar component
-import useScope2Store from '../store/scope2Store'; // Import the Zustand store
+import Sidebar from '../Component/sidebar.js';
+import TopBar from '../Component/topbar.js';
+import useScope2Store from '../store/scope2Store';
 
 const ElectricityPage = () => {
   const navigate = useNavigate();
@@ -47,18 +47,23 @@ const ElectricityPage = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   // Get data from the store
   const unitRows = useScope2Store((state) => state.unitRows);
-  const activeUnits = unitRows.filter((row) => row.active); // For units
+  const activeUnits = unitRows.filter((row) => row.active);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/scope2/electricity');
-      const formattedData = res.data.map((item) => ({
+      const res = await axios.get(`http://localhost:5000/api/scope2/electricity?page=${page}&limit=${limit}`);
+      const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
         description: item.description || 'N/A',
@@ -70,6 +75,7 @@ const ElectricityPage = () => {
         n20Kg: item.n20Kg,
       }));
       setRows(formattedData);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching electricity data:', error);
     }
@@ -98,19 +104,7 @@ const ElectricityPage = () => {
         date: formValues.date,
       });
 
-      const newRow = {
-        id: res.data.id,
-        sourceId: res.data.scopeTypeId,
-        description: res.data.description || 'N/A',
-        date: res.data.date || new Date().toISOString(),
-        areaSqFt: res.data.areaSqFt,
-        unit: formValues.unit || 'Unknown',
-        co2eKg: res.data.co2eKg,
-        ch4Kg: res.data.ch4Kg,
-        n20Kg: res.data.n20Kg,
-      };
-
-      setRows((prev) => [...prev, newRow]);
+      fetchData(); // Refresh data to maintain pagination
       setFormValues({
         description: '',
         date: '',
@@ -140,7 +134,7 @@ const ElectricityPage = () => {
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope2/electricity/${deleteId}`);
-      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      fetchData(); // Refresh data to maintain pagination
       setOpenDialog(false);
     } catch (error) {
       console.error('Error deleting record:', error);
@@ -277,6 +271,27 @@ const ElectricityPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button
+              variant="outlined"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </Button>
+            <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+              Page {page} of {totalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </Button>
+          </Box>
 
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>

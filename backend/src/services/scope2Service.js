@@ -3,29 +3,33 @@
  * CRUD operations specifically for Scope 2 tables:
  *  - Electricity
  *  - Steam
+ * Updated with consistent pagination
  ***********************************************/
 
 const generalCrudService = require('./generalCrudService');
+const { prisma } = require('./generalCrudService');
+
+// Default pagination constants
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
 
 // ----------------- UTILITY FUNCTIONS -----------------
-
 async function createScopeType(scopeCategory, userId) {
-  const lastScopeType = await generalCrudService.prisma.scopeType.findFirst({
+  const lastScopeType = await prisma.scopeType.findFirst({
     where: { scopeCategory },
     orderBy: { scopeTypeId: 'desc' },
   });
 
   let nextId;
   if (lastScopeType) {
-    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]); // Extract the first digit
-    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1)); // Extract the rest
-    nextId = prefix * 100 + (suffix + 1); // Increment the suffix
+    const prefix = parseInt(lastScopeType.scopeTypeId.toString()[0]);
+    const suffix = parseInt(lastScopeType.scopeTypeId.toString().slice(1));
+    nextId = prefix * 100 + (suffix + 1);
   } else {
-    // If no records exist for this category, start with 101, 201, or 301
     nextId = scopeCategory === 'Scope1' ? 101 : scopeCategory === 'Scope2' ? 201 : 301;
   }
 
-  return generalCrudService.prisma.scopeType.create({
+  return prisma.scopeType.create({
     data: {
       scopeTypeId: nextId,
       scopeCategory,
@@ -35,46 +39,54 @@ async function createScopeType(scopeCategory, userId) {
 }
 
 async function getUnitByName(unitName) {
-  return generalCrudService.prisma.unit.findFirst({
+  return prisma.unit.findFirst({
     where: { unitName },
   });
 }
 
 async function getFuelTypeByName(typeName) {
-  return generalCrudService.prisma.fuelType.findFirst({
+  return prisma.fuelType.findFirst({
     where: { typeName },
   });
 }
 
 // ----------------- ELECTRICITY CRUD -----------------
-
 async function createElectricity(data) {
-  return generalCrudService.prisma.$transaction(async (prisma) => {
-    // Create a new ScopeType entry for Scope 2
-    const scopeTypeRecord = await createScopeType('Scope2',1);
-     // Change this to dynamic userId if needed
-      
-  
-  return generalCrudService.createRecord('electricity', {
-    scopeTypeId: scopeTypeRecord.scopeTypeId,
-    description: data.description,
-    areaSqFt: data.areaSqFt,
-    unitId: data.unitId,
-    co2eKg: data.co2eKg,
-    ch4Kg: data.ch4Kg,
-    n20Kg: data.n20Kg,
-    date: data.date,
+  return prisma.$transaction(async (prisma) => {
+    const scopeTypeRecord = await createScopeType('Scope2', 1);
+    return generalCrudService.createRecord('electricity', {
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      description: data.description,
+      areaSqFt: data.areaSqFt,
+      unitId: data.unitId,
+      co2eKg: data.co2eKg,
+      ch4Kg: data.ch4Kg,
+      n20Kg: data.n20Kg,
+      date: data.date,
+    });
   });
-});
 }
 
-async function getAllElectricity() {
-  return generalCrudService.getAllRecords('electricity', {
-    include: {
-      scopeType: true,
-      unit: true,
-    },
-  });
+async function getAllElectricity(page = DEFAULT_PAGE, limit = DEFAULT_LIMIT) {
+  const skip = (page - 1) * limit;
+  const [totalCount, records] = await Promise.all([
+    prisma.electricity.count(),
+    prisma.electricity.findMany({
+      skip,
+      take: limit,
+      include: {
+        scopeType: true,
+        unit: true,
+      },
+      orderBy: { date: 'desc' }
+    })
+  ]);
+  return {
+    totalCount,
+    page,
+    totalPages: Math.ceil(totalCount / limit),
+    records
+  };
 }
 
 async function getElectricityById(id) {
@@ -90,36 +102,46 @@ async function deleteElectricity(id) {
 }
 
 // ----------------- STEAM CRUD -----------------
-
 async function createSteam(data) {
-  return generalCrudService.prisma.$transaction(async (prisma) => {
-    // Create a new ScopeType entry for Scope 2
-    const scopeTypeRecord = await createScopeType('Scope2',1);
-     // Change this to dynamic userId if needed
-  return generalCrudService.createRecord('steam', {
-    scopeTypeId: scopeTypeRecord.scopeTypeId,
-    sourceDescription: data.sourceDescription,
-    sourceArea: data.sourceArea,
-    fuelTypeId: data.fuelTypeId,
-    boilerEfficiency: data.boilerEfficiency,
-    steamPurchasedKwh: data.steamPurchasedKwh,
-    co2Kg: data.co2Kg,
-    ch4g: data.ch4g,
-    n20g: data.n20g,
-    unitId: data.unitId,
-    date: data.date,
+  return prisma.$transaction(async (prisma) => {
+    const scopeTypeRecord = await createScopeType('Scope2', 1);
+    return generalCrudService.createRecord('steam', {
+      scopeTypeId: scopeTypeRecord.scopeTypeId,
+      sourceDescription: data.sourceDescription,
+      sourceArea: data.sourceArea,
+      fuelTypeId: data.fuelTypeId,
+      boilerEfficiency: data.boilerEfficiency,
+      steamPurchasedKwh: data.steamPurchasedKwh,
+      co2Kg: data.co2Kg,
+      ch4g: data.ch4g,
+      n20g: data.n20g,
+      unitId: data.unitId,
+      date: data.date,
+    });
   });
-});
 }
 
-async function getAllSteam() {
-  return generalCrudService.getAllRecords('steam', {
-    include: {
-      scopeType: true,
-      fuelType: true,
-      unit: true,
-    },
-  });
+async function getAllSteam(page = DEFAULT_PAGE, limit = DEFAULT_LIMIT) {
+  const skip = (page - 1) * limit;
+  const [totalCount, records] = await Promise.all([
+    prisma.steam.count(),
+    prisma.steam.findMany({
+      skip,
+      take: limit,
+      include: {
+        scopeType: true,
+        fuelType: true,
+        unit: true,
+      },
+      orderBy: { date: 'desc' }
+    })
+  ]);
+  return {
+    totalCount,
+    page,
+    totalPages: Math.ceil(totalCount / limit),
+    records
+  };
 }
 
 async function getSteamById(id) {
