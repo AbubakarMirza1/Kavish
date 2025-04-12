@@ -1,9 +1,14 @@
 /***********************************************
  * scope1Controller.js
  * Controller for Scope 1 CRUD operations
+ * Fully updated with consistent pagination
  ***********************************************/
 
 const scope1Service = require('../services/scope1Service');
+
+// Default pagination constants
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
 
 // ----------------- STATIONARY COMBUSTION -----------------
 async function createStationaryCombustion(req, res) {
@@ -43,9 +48,9 @@ async function createStationaryCombustion(req, res) {
 
 async function getAllStationaryCombustion(req, res) {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const records = await scope1Service.getAllStationaryCombustion(page,limit);
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope1Service.getAllStationaryCombustion(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -87,10 +92,9 @@ async function deleteStationaryCombustion(req, res) {
 }
 
 // ----------------- MOBILE SOURCES -----------------
-
 async function createMobileSource(req, res) {
   try {
-    const { sourceDescription, vehicleType, fuelUsage, unit, milesTravelled,date } = req.body;
+    const { sourceDescription, vehicleType, fuelUsage, unit, milesTravelled, date } = req.body;
 
     // Find the vehicleTypeId from the VehicleType table
     const vehicleTypeRecord = await scope1Service.getVehicleTypeByName(vehicleType);
@@ -126,13 +130,9 @@ async function createMobileSource(req, res) {
 
 async function getAllMobileSources(req, res) {
   try {
-    const records = await scope1Service.getAllMobileSources({
-      include: {
-        scopeType: true,
-        vehicleType: true,
-        unit: true,
-      },
-    });
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope1Service.getAllMobileSources(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -174,7 +174,6 @@ async function deleteMobileSource(req, res) {
 }
 
 // ----------------- REFRIGERATION & AC -----------------
-
 async function createRefrigerationAndAC(req, res) {
   try {
     const { sourceDescription, equipmentType, gas, gwp, unit, co2eKg, date } = req.body;
@@ -184,13 +183,15 @@ async function createRefrigerationAndAC(req, res) {
     if (!equipmentTypeRecord) {
       return res.status(400).json({ error: `Equipment type "${equipmentType}" not found.` });
     }
-    // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
     
+    // Find the unitId from the Unit table
     const unitRecord = await scope1Service.getUnitByName(unit);
     if (!unitRecord) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
     }
+    
+    // Create a new ScopeType entry for Scope 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
     
     // Create the RefrigerationAndAC record
     const record = await scope1Service.createRefrigerationAndAC({
@@ -211,7 +212,9 @@ async function createRefrigerationAndAC(req, res) {
 
 async function getAllRefrigerationAndAC(req, res) {
   try {
-    const records = await scope1Service.getAllRefrigerationAndAC();
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope1Service.getAllRefrigerationAndAC(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -253,22 +256,25 @@ async function deleteRefrigerationAndAC(req, res) {
 }
 
 // ----------------- FIRE SUPPRESSION -----------------
-
 async function createFireSuppression(req, res) {
   try {
     const { sourceDescription, fuelType, unit, co2eKg, date } = req.body;
     
-
+    // Find the fuelTypeId from the FuelType table
     const fuelTypeRecord = await scope1Service.getFuelTypeByName(fuelType);
     if (!fuelTypeRecord) {
       return res.status(400).json({ error: `Fuel type "${fuelType}" not found.` });
     }
+    
+    // Find the unitId from the Unit table
     const unitRecord = await scope1Service.getUnitByName(unit);
     if (!unitRecord) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
     }
+    
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    
     // Create the FireSuppression record
     const record = await scope1Service.createFireSuppression({
       scopeTypeId: scopeTypeRecord.scopeTypeId,
@@ -286,7 +292,9 @@ async function createFireSuppression(req, res) {
 
 async function getAllFireSuppression(req, res) {
   try {
-    const records = await scope1Service.getAllFireSuppression();
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope1Service.getAllFireSuppression(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -328,19 +336,21 @@ async function deleteFireSuppression(req, res) {
 }
 
 // ----------------- PURCHASED GASES -----------------
-
 async function createPurchasedGas(req, res) {
   try {
-    const { sourceDescription,purchasedAmount,Gas, unit, date } = req.body;
+    const { sourceDescription, purchasedAmount, Gas, unit, date } = req.body;
+    
+    // Find the unitId from the Unit table
     const unitRecord = await scope1Service.getUnitByName(unit);
     if (!unitRecord) {
       return res.status(400).json({ error: `Unit "${unit}" not found.` });
     }
+    
     // Create a new ScopeType entry for Scope 1
     const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    
     // Create the PurchasedGas record
     const record = await scope1Service.createPurchasedGas({
-      
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription,
       Gas,
@@ -357,7 +367,9 @@ async function createPurchasedGas(req, res) {
 
 async function getAllPurchasedGas(req, res) {
   try {
-    const records = await scope1Service.getAllPurchasedGas();
+    const page = parseInt(req.query.page) || DEFAULT_PAGE;
+    const limit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+    const records = await scope1Service.getAllPurchasedGas(page, limit);
     return res.json(records);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -399,14 +411,14 @@ async function deletePurchasedGas(req, res) {
 }
 
 module.exports = {
-  // Stationary
+  // Stationary Combustion
   createStationaryCombustion,
   getAllStationaryCombustion,
   getStationaryCombustionById,
   updateStationaryCombustion,
   deleteStationaryCombustion,
 
-  // Mobile
+  // Mobile Sources
   createMobileSource,
   getAllMobileSources,
   getMobileSourceById,

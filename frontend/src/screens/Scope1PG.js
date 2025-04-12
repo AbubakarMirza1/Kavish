@@ -26,26 +26,29 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
-import useScope1Store from '../store/scope1Store'; // Import the Zustand store
-import TopBar from '../Component/topbar.js'; // Import the TopBar component
+import Sidebar from '../Component/sidebar.js';
+import useScope1Store from '../store/scope1Store';
+import TopBar from '../Component/topbar.js';
 
 const PurchasedGasesPage = () => {
   const navigate = useNavigate();
-
   const [formValues, setFormValues] = useState({
     description: '',
     date: '',
-    gasType: '', // New field for gas type
+    gasType: '',
     purchasedAmount: '',
     unit: '',
   });
-
   const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Get data from the store
   const unitRows = useScope1Store((state) => state.unitRows);
@@ -56,21 +59,22 @@ const PurchasedGasesPage = () => {
   // Fetch data from the backend
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/scope1/purchased-gas');
-      const formattedData = res.data.map((item) => ({
+      const res = await axios.get(`http://localhost:5000/api/scope1/purchased-gas?page=${page}&limit=${limit}`);
+      const formattedData = res.data.records.map((item) => ({
         id: item.Id,
         sourceId: item.scopeTypeId,
         description: item.sourceDescription || 'N/A',
         date: item.date || new Date().toISOString(),
-        gasType: item.Gas || 'Unknown', // New field for gas type
+        gasType: item.Gas || 'Unknown',
         purchasedAmount: item.purchasedAmount,
         unit: item.unit?.unitName || 'Unknown',
       }));
       setRows(formattedData);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching purchased gases data:', error);
     }
@@ -91,7 +95,7 @@ const PurchasedGasesPage = () => {
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/purchased-gas', {
         sourceDescription: formValues.description,
-        Gas: formValues.gasType, // New field for gas type
+        Gas: formValues.gasType,
         purchasedAmount: parseInt(formValues.purchasedAmount, 10),
         unit: formValues.unit,
         date: formValues.date,
@@ -102,20 +106,20 @@ const PurchasedGasesPage = () => {
         sourceId: res.data.scopeTypeId,
         description: res.data.sourceDescription || 'N/A',
         date: res.data.date || new Date().toISOString(),
-        gasType: formValues.gasType || 'Unknown', // New field for gas type
+        gasType: formValues.gasType || 'Unknown',
         purchasedAmount: res.data.purchasedAmount,
         unit: formValues.unit || 'Unknown',
       };
 
       setRows((prev) => [...prev, newRow]);
       setFormValues({
-        
         description: '',
         date: '',
-        gasType: '', // Reset gas type
+        gasType: '',
         purchasedAmount: '',
         unit: '',
       });
+      fetchData(); // Refresh data to maintain pagination
     } catch (error) {
       console.error('Error adding purchased gas record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -136,7 +140,7 @@ const PurchasedGasesPage = () => {
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope1/purchased-gas/${deleteId}`);
-      setRows((prev) => prev.filter((row) => row.id !== deleteId));
+      fetchData(); // Refresh data to maintain pagination
       setOpenDialog(false);
     } catch (error) {
       console.error('Error deleting record:', error);
@@ -148,8 +152,6 @@ const PurchasedGasesPage = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar />
-
-      {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         <TopBar title="Scope 1" showDropdown={false} />
 
@@ -162,7 +164,6 @@ const PurchasedGasesPage = () => {
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              
               <TextField
                 label="Description"
                 name="description"
@@ -186,7 +187,6 @@ const PurchasedGasesPage = () => {
                 onChange={handleInputChange}
                 variant="outlined"
               />
-              
               <TextField
                 label="Purchased Amount"
                 name="purchasedAmount"
@@ -252,6 +252,27 @@ const PurchasedGasesPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+            <Button
+              variant="outlined"
+              disabled={page === 1}
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </Button>
+            <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+              Page {page} of {totalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              Next
+            </Button>
+          </Box>
 
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
