@@ -165,7 +165,7 @@ const RefrigerationAndACPage = () => {
             <Typography variant="h6">Add New Record</Typography>
             <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <TextField
-                label="Source Description"
+                label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}

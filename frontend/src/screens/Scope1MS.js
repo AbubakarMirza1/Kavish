@@ -160,15 +160,20 @@ const MobileSourcePage = () => {
           </Typography>
 
           {/* Form */}
+          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>          
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Vehicle Record</Typography>
-            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box component="form" sx={{ display: 'flex',flexWrap: 'wrap', gap: 2, mt: 2 }}>
               <TextField
                 label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}
                 variant="outlined"
+                multiline
+                minRows={3}
+                fullWidth
+                sx={{ flex: '1 1 100%' }}
               />
               <TextField
                 label="Date"
@@ -230,6 +235,7 @@ const MobileSourcePage = () => {
               </Button>
             </Box>
           </Box>
+          </Paper>
 
           {/* Table */}
           <Typography variant="h6">Vehicle Records</Typography>

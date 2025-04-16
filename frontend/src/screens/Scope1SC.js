@@ -78,6 +78,19 @@ const Scope1SC = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    // Special handling for the "description" field
+    if (name === 'description') {
+    // Remove spaces from the input value
+    const trimmedValue = value.replace(/\s+/g, '');
+
+    // Check if the length of non-space characters exceeds the limit (e.g., 20)
+    if (trimmedValue.length > 20) {
+      // Show a Snackbar message to inform the user
+      setSnackbarMessage('Description cannot exceed 20 characters (excluding spaces).');
+      setOpenSnackbar(true);
+      return; // Prevent updating the state
+    }
+  }
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -105,6 +118,7 @@ const Scope1SC = () => {
         quantity: res.data.quantity,
         units: formValues.units || 'Unknown',
       };
+      setPage(1); // Reset to the first page after adding a new row
 
       setRows((prev) => [...prev, newRow]);
       setFormValues({description: '', date: '', fuelCombusted: '', quantity: '', units: '' });
@@ -148,16 +162,26 @@ const Scope1SC = () => {
             Stationary Combustion
           </Typography>
           {/* Form */}
+          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
               <TextField
                 label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}
                 variant="outlined"
+                multiline
+                minRows={3}
+                fullWidth
+                sx={{ flex: '1 1 100%' }}
               />
+              {formValues.description.length > 0 && (
+              <Typography variant="caption" color={formValues.description.length > 20 ? 'error' : 'textSecondary'}>
+              {formValues.description.length}/20 characters used
+              </Typography>)}
+
               <TextField
                 label="Date"
                 name="date"
@@ -174,6 +198,8 @@ const Scope1SC = () => {
                   name="fuelCombusted"
                   value={formValues.fuelCombusted}
                   onChange={handleInputChange}
+                  sx={{ width: '250px' }}
+                  variant="outlined"
                 >
                   {activeFuels.map((fuel) => (
                     <MenuItem key={fuel.id} value={fuel.name}>
@@ -210,6 +236,7 @@ const Scope1SC = () => {
               </Button>
             </Box>
           </Box>
+          </Paper>
           {/* Table */}
           <Typography variant="h6">Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>

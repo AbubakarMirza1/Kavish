@@ -191,16 +191,24 @@ const SteamPage = () => {
           </Typography>
 
           {/* Form */}
+          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>  
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
               <TextField
                 label="Description"
                 name="description"
                 value={formValues.description}
                 onChange={handleInputChange}
                 variant="outlined"
+                multiline
+                minRows={3}
+                fullWidth
+                sx={{ flex: '1 1 100%' }}
               />
+              <Typography variant="caption" color="textSecondary">
+  {formValues.description.replace(/\s+/g, '').length}/20 characters used
+</Typography>
               <TextField
                 label="Date"
                 name="date"
@@ -209,6 +217,7 @@ const SteamPage = () => {
                 onChange={handleInputChange}
                 variant="outlined"
                 InputLabelProps={{ shrink: true }}
+                
               />
               <TextField
                 label="Source Area (sq ft)"
@@ -248,6 +257,7 @@ const SteamPage = () => {
                 value={formValues.steamPurchasedKwh}
                 onChange={handleInputChange}
                 variant="outlined"
+                sx={{ width: '250px' }}
               />
               <TextField
                 label="CO2 Emissions (kg)"
@@ -293,6 +303,7 @@ const SteamPage = () => {
               </Button>
             </Box>
           </Box>
+          </Paper>
 
           {/* Table */}
           <Typography variant="h6">Records</Typography>
