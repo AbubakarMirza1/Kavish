@@ -29,6 +29,9 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 import TopBar from '../Component/topbar.js'; // Import the Sidebar component
+import { fuelUnitMap, getValidUnitsForFuel } from '../store/fuel_unit'; // Import the function to get valid units for a given fuel type
+import { useRelatedDropdowns } from '../store/useRelatedDropdowns'; // Import the function to get valid units for a given fuel type
+
 
 const Scope1SC = () => {
   const navigate = useNavigate();
@@ -43,6 +46,9 @@ const Scope1SC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+
+  // const [validUnits, setValidUnits] = useState([]);
+
 
 
   // Get data from the store
@@ -75,6 +81,34 @@ const Scope1SC = () => {
       console.error('Error fetching stationary data:', error);
     }
   };
+  const [selectedFuelType, setSelectedFuelType] = useState("");
+  const [availableUnits, setAvailableUnits] = useState([]);
+
+  const handleFuelTypeChange = (e) => {
+    const fuel = e.target.value;
+    setSelectedFuelType(fuel);
+    setFormValues((prev) => ({ ...prev, fuelCombusted: fuel }));
+
+  
+    // Get matching units from your utility function
+    const units = getValidUnitsForFuel(fuel);
+    setAvailableUnits(units);
+  };
+  const handleUnitChange = (e) => {
+    const unit = e.target.value;
+    setFormValues((prev) => ({ ...prev, units: unit }));
+  };
+  
+
+  // const {
+  //   primarySelection: fuelType,
+  //   secondarySelection: unitType,
+  //   secondaryOptions: validUnits,
+  //   handlePrimaryChange: handleFuelChange,
+  //   handleSecondaryChange: handleUnitChange,
+  //   setPrimarySelection: setFuelType,
+  //   setSecondarySelection: setUnitType
+  // } = useRelatedDropdowns(fuelUnitMap);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -92,6 +126,17 @@ const Scope1SC = () => {
     }
   }
     setFormValues((prev) => ({ ...prev, [name]: value }));
+    // if (name === 'fuelCombusted') {
+    //   const validUnitsForFuel = getValidUnitsForFuel(value);
+    //   setValidUnits(validUnitsForFuel);
+      
+    //   // Clear unit selection if current selection is not valid for the new fuel
+    //   if (formValues.units && !validUnitsForFuel.includes(formValues.units)) {
+    //     setFormValues((prev) => ({ ...prev, units: '' }));
+    //   }
+    // }
+    // if (name === 'units') {
+    
   };
 
   const handleAddRow = async () => {
@@ -196,8 +241,10 @@ const Scope1SC = () => {
                 <Select
                   label="Fuel Combusted"
                   name="fuelCombusted"
-                  value={formValues.fuelCombusted}
-                  onChange={handleInputChange}
+                  // value={formValues.fuelCombusted}
+                  // onChange={handleInputChange}
+                  value={selectedFuelType} 
+                  onChange={handleFuelTypeChange}
                   sx={{ width: '250px' }}
                   variant="outlined"
                 >
@@ -223,12 +270,19 @@ const Scope1SC = () => {
                   name="units"
                   value={formValues.units}
                   onChange={handleInputChange}
+                  disabled={!selectedFuelType}
                 >
-                  {activeUnits.map((unit) => (
+                  {/* {activeUnits.map((unit) => (
                     <MenuItem key={unit.id} value={unit.name}>
                       {unit.name}
                     </MenuItem>
+                  ))} */}
+                  {availableUnits.map((unit) => (
+                    <MenuItem key={unit} value={unit}>
+                      {unit}
+                    </MenuItem>
                   ))}
+
                 </Select>
               </FormControl>
               <Button variant="contained" color="primary" onClick={handleAddRow}>
