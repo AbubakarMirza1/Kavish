@@ -30,7 +30,7 @@ import Sidebar from '../Component/sidebar.js'; // Import the Sidebar component
 import useScope1Store from '../store/scope1Store'; // Import the Zustand store
 import TopBar from '../Component/topbar.js'; // Import the Sidebar component
 import { fuelUnitMap, getValidUnitsForFuel } from '../store/fuel_unit'; // Import the function to get valid units for a given fuel type
-import { useRelatedDropdowns } from '../store/useRelatedDropdowns'; // Import the function to get valid units for a given fuel type
+// import { useRelatedDropdowns } from '../store/useRelatedDropdowns'; // Import the function to get valid units for a given fuel type
 
 
 const Scope1SC = () => {
@@ -57,7 +57,7 @@ const Scope1SC = () => {
 
   // Filter active items
   const activeFuels = stationaryCombustionRows.filter((row) => row.active); // For fuel combusted
-  const activeUnits = unitRows.filter((row) => row.active); // For units
+  // const activeUnits = unitRows.filter((row) => row.active); // For units
 
   useEffect(() => {
     fetchData();
@@ -99,17 +99,6 @@ const Scope1SC = () => {
     setFormValues((prev) => ({ ...prev, units: unit }));
   };
   
-
-  // const {
-  //   primarySelection: fuelType,
-  //   secondarySelection: unitType,
-  //   secondaryOptions: validUnits,
-  //   handlePrimaryChange: handleFuelChange,
-  //   handleSecondaryChange: handleUnitChange,
-  //   setPrimarySelection: setFuelType,
-  //   setSecondarySelection: setUnitType
-  // } = useRelatedDropdowns(fuelUnitMap);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     // Special handling for the "description" field
@@ -126,17 +115,6 @@ const Scope1SC = () => {
     }
   }
     setFormValues((prev) => ({ ...prev, [name]: value }));
-    // if (name === 'fuelCombusted') {
-    //   const validUnitsForFuel = getValidUnitsForFuel(value);
-    //   setValidUnits(validUnitsForFuel);
-      
-    //   // Clear unit selection if current selection is not valid for the new fuel
-    //   if (formValues.units && !validUnitsForFuel.includes(formValues.units)) {
-    //     setFormValues((prev) => ({ ...prev, units: '' }));
-    //   }
-    // }
-    // if (name === 'units') {
-    
   };
 
   const handleAddRow = async () => {
@@ -145,6 +123,12 @@ const Scope1SC = () => {
       setOpenSnackbar(true);
       return;
     }
+    if (parseInt(formValues.quantity, 10) <= 0) {
+      setSnackbarMessage('Quantity must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+    
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/stationary', {
         sourceDescription: formValues.description,
@@ -222,9 +206,9 @@ const Scope1SC = () => {
                 fullWidth
                 sx={{ flex: '1 1 100%' }}
               />
-              {formValues.description.length > 0 && (
-              <Typography variant="caption" color={formValues.description.length > 20 ? 'error' : 'textSecondary'}>
-              {formValues.description.length}/20 characters used
+              {formValues.description.replace(/\s+/g, '').length > 0 && (
+              <Typography variant="caption" color={formValues.description.replace(/\s+/g, '').length > 20 ? 'error' : 'textSecondary'}>
+              {formValues.description.replace(/\s+/g, '').length}/20 characters used
               </Typography>)}
 
               <TextField
