@@ -32,24 +32,20 @@ import TopBar from '../Component/topbar.js';
 
 const RefrigerationAndACPage = () => {
   const navigate = useNavigate();
-
   const [formValues, setFormValues] = useState({
     description: '',
     gas: '',
     equipmentTypeId: '',
     gwp: '',
-    unitId: '',
+    unitId: 'Cubic Meters', // Default value
     co2eKg: '',
     date: '',
   });
-
   const [rows, setRows] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -99,7 +95,6 @@ const RefrigerationAndACPage = () => {
       setOpenSnackbar(true);
       return;
     }
-
     try {
       const res = await axios.post('http://localhost:5000/api/scope1/refrigeration', {
         sourceDescription: formValues.description,
@@ -110,14 +105,13 @@ const RefrigerationAndACPage = () => {
         co2eKg: parseInt(formValues.co2eKg, 10),
         date: formValues.date,
       });
-
       fetchData(); // Refresh data to maintain pagination
       setFormValues({
         description: '',
         gas: '',
         equipmentTypeId: '',
         gwp: '',
-        unitId: '',
+        unitId: 'Cubic Meters', // Reset to default
         co2eKg: '',
         date: '',
       });
@@ -150,6 +144,8 @@ const RefrigerationAndACPage = () => {
     }
   };
 
+  const validUnit = "Cubic Meters"; // Only valid unit for this page
+
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidebar />
@@ -159,7 +155,6 @@ const RefrigerationAndACPage = () => {
           <Typography variant="h4" gutterBottom>
             Refrigeration and AC
           </Typography>
-
           {/* Form */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6">Add New Record</Typography>
@@ -212,12 +207,16 @@ const RefrigerationAndACPage = () => {
               />
               <FormControl variant="outlined" sx={{ minWidth: 120 }}>
                 <InputLabel>Unit</InputLabel>
-                <Select name="unitId" value={formValues.unitId} onChange={handleInputChange} label="Unit">
-                  {activeUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.name}>
-                      {unit.name}
-                    </MenuItem>
-                  ))}
+                <Select
+                  name="unitId"
+                  value={formValues.unitId}
+                  onChange={handleInputChange}
+                  label="Unit"
+                >
+                  {/* Show only the valid unit */}
+                  <MenuItem key={validUnit} value={validUnit}>
+                    {validUnit}
+                  </MenuItem>
                 </Select>
               </FormControl>
               <TextField
@@ -233,7 +232,6 @@ const RefrigerationAndACPage = () => {
               </Button>
             </Box>
           </Box>
-
           {/* Table */}
           <Typography variant="h6">Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
@@ -274,7 +272,6 @@ const RefrigerationAndACPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
           {/* Pagination */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
             <Button
@@ -295,7 +292,6 @@ const RefrigerationAndACPage = () => {
               Next
             </Button>
           </Box>
-
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button variant="contained" color="primary" onClick={() => navigate('/Scope1MS')}>
@@ -306,7 +302,6 @@ const RefrigerationAndACPage = () => {
             </Button>
           </Box>
         </Container>
-
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Confirm Deletion</DialogTitle>
@@ -322,7 +317,6 @@ const RefrigerationAndACPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
         {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error">

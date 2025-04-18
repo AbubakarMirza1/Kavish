@@ -12,15 +12,14 @@ export const fuelUnitMap = {
     return fuelUnitMap[fuelType] || [];
   };
   
-  // You can add more relationships here for other sections like mobile sources, etc.
-  export const vehicleUnitMap = {
-    "Car": ["Mile", "Kilometer"],
-    "Truck": ["Mile", "Kilometer", "Hour"],
-    "Ship": ["Nautical Mile", "Kilometer", "Hour"],
-    "Aircraft": ["Hour", "Kilometer"]
-  };
-  
-  export const getValidUnitsForVehicle = (vehicleType) => {
-    return vehicleUnitMap[vehicleType] || [];
-  };
-  
+// Vehicle Type to Unit Mapping
+export const vehicleUnitMap = {
+  "Sedan (Gasoline)": ["Liter", "Cubic Meter"],
+  "Delivery Truck (Diesel)": ["Liter"],
+  "Hybrid Vehicle": ["Kilowatt-hour", "Liter"]
+};
+
+// Function to get valid units for a given vehicle type
+export const getValidUnitsForVehicle = (vehicleType) => {
+  return vehicleUnitMap[vehicleType] || [];
+};

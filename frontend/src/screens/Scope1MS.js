@@ -29,6 +29,7 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
 import useScope1Store from '../store/scope1Store';
+import { vehicleUnitMap, getValidUnitsForVehicle } from '../store/fuel_unit';
 
 const MobileSourcePage = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const MobileSourcePage = () => {
   // Filter active items
   const activeVehicles = mobileRows.filter((row) => row.active);
   const activeUnits = unitRows.filter((row) => row.active);
-
+  const [availableUnits, setAvailableUnits] = useState([]);
   // Fetch data from the backend
   useEffect(() => {
     fetchData();
@@ -86,6 +87,18 @@ const MobileSourcePage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'vehicleType') {
+      // Get valid units for the selected vehicle type
+      const validUnits = getValidUnitsForVehicle(value);
+      setAvailableUnits(validUnits);
+  
+      // Clear the unit selection if the current unit is not valid for the new vehicle type
+      if (formValues.unit && !validUnits.includes(formValues.unit)) {
+        setFormValues((prev) => ({ ...prev, unit: '' }));
+      }
+    }
+
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -214,10 +227,11 @@ const MobileSourcePage = () => {
                   name="unit"
                   value={formValues.unit}
                   onChange={handleInputChange}
+                  disabled={!formValues.vehicleType}
                 >
-                  {activeUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.name}>
-                      {unit.name}
+                  {availableUnits.map((unit) => (
+                    <MenuItem key={unit} value={unit}>
+                      {unit}
                     </MenuItem>
                   ))}
                 </Select>

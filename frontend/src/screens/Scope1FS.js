@@ -29,6 +29,7 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
 import useScope1Store from '../store/scope1Store';
+import { getValidUnitsForFuel } from '../store/fuel_unit'; // Import utility function for valid units
 
 const FireSuppressionPage = () => {
   const navigate = useNavigate();
@@ -44,8 +45,6 @@ const FireSuppressionPage = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -57,6 +56,10 @@ const FireSuppressionPage = () => {
   // Filter active items
   const activeFuels = fuelTypeRows.filter((row) => row.active);
   const activeUnits = unitRows.filter((row) => row.active);
+
+  // State for available units based on selected fuel type
+  const [selectedFuelType, setSelectedFuelType] = useState('');
+  const [availableUnits, setAvailableUnits] = useState([]);
 
   // Fetch data from the backend
   useEffect(() => {
@@ -82,11 +85,39 @@ const FireSuppressionPage = () => {
     }
   };
 
+  // Handle Fuel Type Change
+  const handleFuelTypeChange = (e) => {
+    const fuel = e.target.value;
+    setSelectedFuelType(fuel);
+    setFormValues((prev) => ({ ...prev, fuelType: fuel }));
+
+    // Get valid units for the selected fuel type
+    const validUnits = getValidUnitsForFuel(fuel);
+    setAvailableUnits(validUnits);
+
+    // Clear the unit selection if the current unit is not valid for the new fuel type
+    if (formValues.unit && !validUnits.includes(formValues.unit)) {
+      setFormValues((prev) => ({ ...prev, unit: '' }));
+    }
+  };
+
+  // Handle Input Change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'description') {
+      const trimmedValue = value.replace(/\s+/g, '');
+      if (trimmedValue.length > 20) {
+        setSnackbarMessage('Description cannot exceed 20 characters (excluding spaces).');
+        setOpenSnackbar(true);
+        return;
+      }
+    }
+
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle Add Row
   const handleAddRow = async () => {
     if (Object.values(formValues).some((value) => value === '')) {
       setSnackbarMessage('Please fill in all fields before adding a record.');
@@ -115,7 +146,8 @@ const FireSuppressionPage = () => {
 
       setRows((prev) => [...prev, newRow]);
       setFormValues({ description: '', date: '', fuelType: '', unit: '', co2eKg: '' });
-      fetchData(); // Refresh data to maintain pagination
+      setSelectedFuelType('');
+      setAvailableUnits([]);
     } catch (error) {
       console.error('Error adding fire suppression record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -123,6 +155,7 @@ const FireSuppressionPage = () => {
     }
   };
 
+  // Handle Delete Row
   const handleClickOpen = (id) => {
     setOpenDialog(true);
     setDeleteId(id);
@@ -147,84 +180,96 @@ const FireSuppressionPage = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {/* Sidebar */}
       <Sidebar />
+      {/* Main Content */}
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
+        {/* Top Bar */}
         <TopBar title="Scope 1" showDropdown={false} />
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom>
             Fire Suppression
           </Typography>
-
           {/* Form */}
           <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6">Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-              <TextField
-                label="Description"
-                name="description"
-                value={formValues.description}
-                onChange={handleInputChange}
-                variant="outlined"
-                multiline
-                minRows={3}
-                fullWidth
-                sx={{ flex: '1 1 100%' }}
-              />
-              <TextField
-                label="Date"
-                name="date"
-                type="date"
-                value={formValues.date}
-                onChange={handleInputChange}
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-              />
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                <InputLabel>Fuel Type</InputLabel>
-                <Select
-                  label="Fuel Type"
-                  name="fuelType"
-                  value={formValues.fuelType}
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6">Add New Record</Typography>
+              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={formValues.description}
                   onChange={handleInputChange}
-                >
-                  {activeFuels.map((fuel) => (
-                    <MenuItem key={fuel.id} value={fuel.name}>
-                      {fuel.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                <InputLabel>Unit</InputLabel>
-                <Select
-                  label="Unit"
-                  name="unit"
-                  value={formValues.unit}
+                  variant="outlined"
+                  multiline
+                  minRows={3}
+                  fullWidth
+                  sx={{ flex: '1 1 100%' }}
+                />
+                {formValues.description.replace(/\s+/g, '').length > 0 && (
+                  <Typography
+                    variant="caption"
+                    color={
+                      formValues.description.replace(/\s+/g, '').length > 20 ? 'error' : 'textSecondary'
+                    }
+                  >
+                    {formValues.description.replace(/\s+/g, '').length}/20 characters used
+                  </Typography>
+                )}
+                <TextField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={formValues.date}
                   onChange={handleInputChange}
-                >
-                  {activeUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.name}>
-                      {unit.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="CO2e (kg)"
-                name="co2eKg"
-                type="number"
-                value={formValues.co2eKg}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <Button variant="contained" color="primary" onClick={handleAddRow}>
-                Add
-              </Button>
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                />
+                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                  <InputLabel>Fuel Type</InputLabel>
+                  <Select
+                    label="Fuel Type"
+                    name="fuelType"
+                    value={selectedFuelType}
+                    onChange={handleFuelTypeChange}
+                  >
+                    {activeFuels.map((fuel) => (
+                      <MenuItem key={fuel.id} value={fuel.name}>
+                        {fuel.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    label="Unit"
+                    name="unit"
+                    value={formValues.unit}
+                    onChange={handleInputChange}
+                    disabled={!selectedFuelType}
+                  >
+                    {availableUnits.map((unit) => (
+                      <MenuItem key={unit} value={unit}>
+                        {unit}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="CO2e (kg)"
+                  name="co2eKg"
+                  type="number"
+                  value={formValues.co2eKg}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                />
+                <Button variant="contained" color="primary" onClick={handleAddRow}>
+                  Add
+                </Button>
+              </Box>
             </Box>
-          </Box>
           </Paper>
-
           {/* Table */}
           <Typography variant="h6">Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
@@ -261,7 +306,6 @@ const FireSuppressionPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
           {/* Pagination */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
             <Button
@@ -282,7 +326,6 @@ const FireSuppressionPage = () => {
               Next
             </Button>
           </Box>
-
           {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button variant="contained" color="primary" onClick={() => navigate('/Scope1RA')}>
@@ -293,7 +336,6 @@ const FireSuppressionPage = () => {
             </Button>
           </Box>
         </Container>
-
         {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Confirm Deletion</DialogTitle>
@@ -309,7 +351,6 @@ const FireSuppressionPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
         {/* Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
           <Alert onClose={handleClose} severity="error">
