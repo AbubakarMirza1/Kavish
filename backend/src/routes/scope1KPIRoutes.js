@@ -22,10 +22,38 @@ router.get('/top', controller.getTopEmissionSources);
 
 /**
  * GET /api/scope1/trend
- * Returns monthly or yearly trend
+ * Returns monthly or yearly trend for total Scope 1 emissions
  * Accepts ?period=month or ?period=year
  */
 router.get('/trend', controller.getEmissionsTrend);
+
+/**
+ * GET /api/scope1/trend-by-source
+ * Returns monthly or yearly trend by source type
+ * Accepts ?period=month or ?period=year
+ */
+router.get('/trend-by-source', controller.getEmissionsTrendBySourceType);
+
+/**
+ * GET /api/scope1/trend-by-fuel
+ * Returns monthly or yearly trend by fuel type
+ * Accepts ?period=month or ?period=year
+ */
+router.get('/trend-by-fuel', controller.getEmissionsTrendByFuelType);
+
+/**
+ * GET /api/scope1/trend-by-vehicle
+ * Returns monthly or yearly trend by vehicle type
+ * Accepts ?period=month or ?period=year
+ */
+router.get('/trend-by-vehicle', controller.getEmissionsTrendByVehicleType);
+
+/**
+ * GET /api/scope1/trend-by-gas
+ * Returns monthly or yearly trend by gas type
+ * Accepts ?period=month or ?period=year
+ */
+router.get('/trend-by-gas', controller.getEmissionsTrendByGasType);
 
 /**
  * GET /api/scope1/fuel
