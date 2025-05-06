@@ -1,11 +1,21 @@
 // src/context/AuthContext.js
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext ,useEffect} from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Optionally validate token or just assume valid until expiration
+      setIsAuthenticated(true);
+      setUser(token);
+    }
+  }, []);
 
   // Signup function
   const signup = async (firstName, lastName, email, password, companyName, roleId) => {
@@ -59,6 +69,8 @@ export const AuthProvider = ({ children }) => {
         email, otp,
       });
       setUser(response.data.token); // Store JWT token
+      setIsAuthenticated(true);     // Mark as authenticated
+      localStorage.setItem("token", response.data.token); // Optional persistence
       return response.data;
     } catch (error) {
       console.error("OTP verification error:", error.response?.data || error.message);
@@ -66,8 +78,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, signup, verifySignupOTP, login, verifyLoginOTP }}>
+    <AuthContext.Provider value={{ user, isAuthenticated,signup, verifySignupOTP, login, verifyLoginOTP,logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -82,6 +82,14 @@ const Login = () => {
     }
   }, [isOTPStep]);
 
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("otpEmail");
+    if (savedEmail) {
+      setLoginEmail(savedEmail);
+      setIsOTPStep(true); // Show OTP screen
+    }
+  }, []);
+
   // Validate email and password inputs
   const validateCredentials = (email, password) => {
     let isValid = true;
@@ -137,6 +145,7 @@ const Login = () => {
       
       // If OTP was sent successfully
       if (response.message && response.message.includes('OTP')) {
+        localStorage.setItem("otpEmail", email); // Save email
         setLoginEmail(email);
         setIsOTPStep(true);  // Switch to OTP view
       }
@@ -166,6 +175,7 @@ const Login = () => {
     try {
       // Verify OTP with backend
       await verifyLoginOTP(loginEmail, otp);
+      localStorage.removeItem("otpEmail"); // Cleanup
       navigate('/dashboard');
     } catch (error) {
       setEmailError(true);
@@ -231,7 +241,10 @@ const Login = () => {
             <Button
               fullWidth
               variant="text"
-              onClick={() => setIsOTPStep(false)}
+              onClick={() => {
+                setIsOTPStep(false);
+                localStorage.removeItem("otpEmail");}
+                }
               sx={{ color: '#0D7377' }}
             >
               Back to Login

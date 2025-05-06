@@ -16,6 +16,8 @@ import { PhotoCamera } from "@mui/icons-material";
 import Sidebar from "../Component/sidebar.js";
 import TopBar from "../Component/topbar.js";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/authcontext';
+
 
 const SettingsPage = () => {
     const [darkMode, setDarkMode] = useState(false);
@@ -26,6 +28,8 @@ const SettingsPage = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [profilePic, setProfilePic] = useState(null);
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
 
     // Toggle Handlers
     const handleDarkModeToggle = () => setDarkMode(!darkMode);
@@ -41,6 +45,8 @@ const SettingsPage = () => {
       const handleLogout = () => {
         // Clear user session (if using localStorage or context)
         localStorage.removeItem("token"); // Remove authentication token
+        logout();
+
         navigate("/login"); // Redirect to login page
     };
 
