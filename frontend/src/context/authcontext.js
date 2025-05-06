@@ -5,8 +5,8 @@ import axios from "axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] =useState(localStorage.getItem("token"));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }) => {
       });
       setUser(response.data.token); // Store JWT token
       setIsAuthenticated(true);     // Mark as authenticated
+      console.log("Saving token:", response.data.token);
       localStorage.setItem("token", response.data.token); // Optional persistence
       return response.data;
     } catch (error) {
