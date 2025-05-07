@@ -198,15 +198,15 @@ const Scope3EmissionsSetup = () => {
         <TableHead>
           <TableRow>
             <TableCell>{title}</TableCell>
-            <TableCell>Active</TableCell>
-            <TableCell>Actions</TableCell>
+            {/* <TableCell>Active</TableCell>
+            <TableCell>Actions</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Checkbox
                   checked={row.active}
                   onChange={() => handleToggleActive(section, row.id)}
@@ -220,7 +220,7 @@ const Scope3EmissionsSetup = () => {
                 >
                   Delete
                 </Button>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -246,7 +246,7 @@ const Scope3EmissionsSetup = () => {
         <Container>
           {/* Vehicle Type */}
           <h2>Vehicle Type</h2>
-          <TextField
+          {/* <TextField
             label="Add Vehicle Type"
             value={formValues.vehicleType}
             onChange={(e) =>
@@ -255,12 +255,12 @@ const Scope3EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("vehicleType")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("vehicleType", vehicleTypes, "Vehicle Type")}
 
           {/* Units */}
           <h2>Units</h2>
-          <TextField
+          {/* <TextField
             label="Add Unit"
             value={formValues.units}
             onChange={(e) =>
@@ -269,12 +269,12 @@ const Scope3EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("units")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("units", units, "Unit")}
 
           {/* Waste Material */}
           <h2>Waste Material</h2>
-          <TextField
+          {/* <TextField
             label="Add Waste Material"
             value={formValues.wasteMaterial}
             onChange={(e) =>
@@ -283,7 +283,7 @@ const Scope3EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("wasteMaterial")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("wasteMaterial", wasteMaterials, "Waste Material")}
 
           {/* Disposal Method */}

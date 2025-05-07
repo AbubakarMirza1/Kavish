@@ -28,7 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
-import useScope2Store from '../store/scope2Store';
+import useScope2Store from '../store/scope2Store'; // Assuming this store is set up for Scope 2 units
 
 const ElectricityPage = () => {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const ElectricityPage = () => {
     description: '',
     date: '',
     areaSqFt: '',
-    unit: '',
+    unit: 'Cubic Meters', // Default and only unit for this page
     co2eKg: '',
     ch4Kg: '',
     n20Kg: '',
@@ -46,15 +46,13 @@ const ElectricityPage = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-
-  // Pagination state
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedSection, setSelectedSection] = useState('dashboard'); // For Sidebar
 
-  // Get data from the store
-  const unitRows = useScope2Store((state) => state.unitRows);
-  const activeUnits = unitRows.filter((row) => row.active);
+  // const unitRows = useScope2Store((state) => state.unitRows); // Not needed if unit is fixed
+  // const activeUnits = unitRows.filter((row) => row.active); // Not needed for dropdown
 
   useEffect(() => {
     fetchData();
@@ -66,7 +64,7 @@ const ElectricityPage = () => {
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
-        description: item.description || 'N/A',
+        description: item.description || 'N/A', // API uses 'description'
         date: item.date || new Date().toISOString(),
         areaSqFt: item.areaSqFt,
         unit: item.unit?.unitName || 'Unknown',
@@ -78,45 +76,87 @@ const ElectricityPage = () => {
       setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching electricity data:', error);
+      setSnackbarMessage('Failed to fetch electricity data. Please try again.');
+      setOpenSnackbar(true);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'description') {
+      const trimmedValue = value.replace(/\s+/g, '');
+      if (trimmedValue.length > 50) { // Character limit for description
+        setSnackbarMessage('Description cannot exceed 50 characters (excluding spaces).');
+        setOpenSnackbar(true);
+        return;
+      }
+    }
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddRow = async () => {
-    if (Object.values(formValues).some((value) => value === '')) {
+    const { description, date, areaSqFt, unit, co2eKg, ch4Kg, n20Kg } = formValues;
+    if (!description || !date || !areaSqFt || !unit || !co2eKg || !ch4Kg || !n20Kg) {
       setSnackbarMessage('Please fill in all fields before adding a record.');
       setOpenSnackbar(true);
       return;
     }
 
+    if (description.replace(/\s+/g, '').length > 50) {
+        setSnackbarMessage('Description cannot exceed 50 characters (excluding spaces).');
+        setOpenSnackbar(true);
+        return;
+    }
+
+    if (parseInt(areaSqFt, 10) <= 0) {
+      setSnackbarMessage('Area (sq ft) must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+    if (parseFloat(co2eKg) <= 0) {
+      setSnackbarMessage('CO2 Emissions must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+    if (parseFloat(ch4Kg) <= 0) {
+      setSnackbarMessage('CH4 Emissions must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+    if (parseFloat(n20Kg) <= 0) {
+      setSnackbarMessage('N2O Emissions must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+
     try {
-      const res = await axios.post('http://localhost:5000/api/scope2/electricity', {
-        description: formValues.description,
-        areaSqFt: parseInt(formValues.areaSqFt, 10),
-        unit: formValues.unit,
-        co2eKg: parseFloat(formValues.co2eKg),
-        ch4Kg: parseFloat(formValues.ch4Kg),
-        n20Kg: parseFloat(formValues.n20Kg),
-        date: formValues.date,
+      await axios.post('http://localhost:5000/api/scope2/electricity', {
+        description: description,
+        areaSqFt: parseInt(areaSqFt, 10),
+        unit: unit, // Will be 'Cubic Meters'
+        co2eKg: parseFloat(co2eKg),
+        ch4Kg: parseFloat(ch4Kg),
+        n20Kg: parseFloat(n20Kg),
+        date: date,
       });
 
-      fetchData(); // Refresh data to maintain pagination
+      setPage(1); // Reset to first page
+      fetchData();
       setFormValues({
         description: '',
         date: '',
         areaSqFt: '',
-        unit: '',
+        unit: 'Cubic Meters', // Reset to default
         co2eKg: '',
         ch4Kg: '',
         n20Kg: '',
       });
+      setSnackbarMessage('Electricity record added successfully!');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error adding electricity record:', error);
-      setSnackbarMessage('Failed to add the record. Please try again.');
+      setSnackbarMessage('Failed to add the electricity record. Please try again.');
       setOpenSnackbar(true);
     }
   };
@@ -134,8 +174,10 @@ const ElectricityPage = () => {
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope2/electricity/${deleteId}`);
-      fetchData(); // Refresh data to maintain pagination
+      fetchData();
       setOpenDialog(false);
+      setSnackbarMessage('Record deleted successfully!');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error deleting record:', error);
       setSnackbarMessage('Failed to delete the record. Please try again.');
@@ -143,14 +185,12 @@ const ElectricityPage = () => {
     }
   };
 
+  const fixedUnit = "Cubic Meters";
+
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
+      <Sidebar selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        {/* Top Bar */}
         <TopBar title="Scope 2" showDropdown={false} />
 
         <Container sx={{ mt: 10 }}>
@@ -158,81 +198,108 @@ const ElectricityPage = () => {
             Electricity
           </Typography>
 
-          {/* Form */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6">Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <TextField
-                label="Description"
-                name="description"
-                value={formValues.description}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                label="Date"
-                name="date"
-                type="date"
-                value={formValues.date}
-                onChange={handleInputChange}
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="Area (sq ft)"
-                name="areaSqFt"
-                type="number"
-                value={formValues.areaSqFt}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                <InputLabel>Units</InputLabel>
-                <Select
-                  label="Units"
-                  name="unit"
-                  value={formValues.unit}
+          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="h6">Add New Record</Typography>
+              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 2, mt: 2 }}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={formValues.description}
                   onChange={handleInputChange}
-                >
-                  {activeUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.name}>
-                      {unit.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="CO2 Emissions (kg)"
-                name="co2eKg"
-                type="number"
-                value={formValues.co2eKg}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                label="CH4 Emissions (kg)"
-                name="ch4Kg"
-                type="number"
-                value={formValues.ch4Kg}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                label="N2O Emissions (kg)"
-                name="n20Kg"
-                type="number"
-                value={formValues.n20Kg}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <Button variant="contained" color="primary" onClick={handleAddRow}>
-                Add
-              </Button>
-            </Box>
-          </Box>
+                  variant="outlined"
+                  multiline
+                  minRows={2}
+                  fullWidth
+                  sx={{ flex: '1 1 100%', mb: 1 }}
+                />
+                {formValues.description.replace(/\s+/g, '').length > 0 && (
+                  <Typography
+                    variant="caption"
+                    color={formValues.description.replace(/\s+/g, '').length > 50 ? 'error' : 'textSecondary'}
+                    sx={{ width: '100%', mt: -2, mb: 1, textAlign: 'right' }}
+                  >
+                    {formValues.description.replace(/\s+/g, '').length}/50 characters
+                  </Typography>
+                )}
 
-          {/* Table */}
-          <Typography variant="h6">Records</Typography>
+                <TextField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={formValues.date}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ flex: '1 1 auto', minWidth: '130px' }}
+                />
+                <TextField
+                  label="Area (sq ft)"
+                  name="areaSqFt"
+                  type="number"
+                  value={formValues.areaSqFt}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputProps={{ inputProps: { min: 0 } }}
+                  sx={{ flex: '1 1 auto', minWidth: '120px' }}
+                />
+                <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                  <InputLabel>Units</InputLabel>
+                  <Select
+                    label="Units"
+                    name="unit"
+                    value={formValues.unit}
+                    onChange={handleInputChange}
+                    disabled // Unit is fixed
+                  >
+                    <MenuItem key={fixedUnit} value={fixedUnit}>
+                      {fixedUnit}
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="CO2 Emissions (kg)"
+                  name="co2eKg"
+                  type="number"
+                  value={formValues.co2eKg}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputProps={{ inputProps: { min: 0 } }}
+                  sx={{ flex: '1 1 auto', minWidth: '150px' }}
+                />
+                <TextField
+                  label="CH4 Emissions (kg)"
+                  name="ch4Kg"
+                  type="number"
+                  value={formValues.ch4Kg}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputProps={{ inputProps: { min: 0 } }}
+                  sx={{ flex: '1 1 auto', minWidth: '150px' }}
+                />
+                <TextField
+                  label="N2O Emissions (kg)"
+                  name="n20Kg"
+                  type="number"
+                  value={formValues.n20Kg}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputProps={{ inputProps: { min: 0 } }}
+                  sx={{ flex: '1 1 auto', minWidth: '150px' }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddRow}
+                  sx={{ height: '56px' }}
+                >
+                  Add
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+
+          <Typography variant="h6" sx={{ mt: 3 }}>Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
             <Table stickyHeader>
               <TableHead>
@@ -272,7 +339,6 @@ const ElectricityPage = () => {
             </Table>
           </TableContainer>
 
-          {/* Pagination */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
             <Button
               variant="outlined"
@@ -286,14 +352,13 @@ const ElectricityPage = () => {
             </Typography>
             <Button
               variant="outlined"
-              disabled={page === totalPages}
+              disabled={page === totalPages || totalPages === 0}
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
             >
               Next
             </Button>
           </Box>
 
-          {/* Navigation Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button variant="contained" color="primary" onClick={() => navigate('/Scope1PG')}>
               Back to Scope 1
@@ -304,7 +369,6 @@ const ElectricityPage = () => {
           </Box>
         </Container>
 
-        {/* Confirmation Dialog */}
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogContent>
@@ -320,9 +384,17 @@ const ElectricityPage = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar */}
-        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error">
+        <Snackbar
+            open={openSnackbar}
+            autoHideDuration={6000}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={snackbarMessage.includes("successfully") ? "success" : "error"}
+            sx={{ width: '100%' }}
+          >
             {snackbarMessage}
           </Alert>
         </Snackbar>

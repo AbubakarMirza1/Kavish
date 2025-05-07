@@ -21,7 +21,7 @@ const scope2Routes = require('./routes/scope2Routes');
 const scope3Routes = require('./routes/scope3Routes');
 const emissionsRoutes = require('./routes/emissionsRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-// const authRoutes = require('./routes/authRoutes');  // ✅ Import authentication routes
+const authRoutes = require('./routes/authRoutes');  // ✅ Import authentication routes
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const scope1EmissionsRoutes = require('./routes/scope1EmissionsRoutes'); // ✅ Import the new scope1EmissionsRoutes
 const scope2EmissionsRoutes = require('./routes/scope2EmissionsRoute'); // ✅ Import the new scope1EmissionsRoutes
@@ -31,6 +31,9 @@ const wasteKPIsRoutes = require('./routes/wasteKPIsRoutes');
 const scope1KPIRoutes = require('./routes/scope1KPIRoutes')
 const scope2KPIsRoutes = require('./routes/Scope2KPIsRoutes'); // Added for Scope 2 KPIs
 const dashboardKPIsRoutes = require('./routes/dashboardKPIsRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+
+
 
 // --------------------------------------------
 // REGISTER ROUTES WITH BASE PATHS
@@ -43,7 +46,7 @@ app.use('/api/scope2', scope2Routes);        // e.g., /api/scope2/electricity
 app.use('/api/scope3', scope3Routes);        // e.g., /api/scope3/travel
 app.use('/emissions', emissionsRoutes);      // e.g., /emissions/total
 app.use('/dashboard', dashboardRoutes);      // e.g., /dashboard/kpis
-// app.use('/api/auth', authRoutes);            // ✅ Register authentication routes (e.g., /api/auth/login)
+app.use('/api/auth', authRoutes);            // ✅ Register authentication routes (e.g., /api/auth/login)
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope2-emissions', scope2EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
@@ -53,6 +56,8 @@ app.use('/api/waste-kpi', wasteKPIsRoutes);        // Changed to /api/waste so /
 app.use('/api/scope1-kpi', scope1KPIRoutes);
 app.use('/api/scope2-kpi', scope2KPIsRoutes); // Added for Scope 2 KPIs
 app.use('/api/dashboard-kpi', dashboardKPIsRoutes);
+app.use('/api/reports', reportRoutes);
+
 
 
 // Optional: a simple health check endpoint

@@ -27,6 +27,7 @@ import Scope1 from './screens/Emissions/Scope1Emissions';
 import Scope2 from './screens/Emissions/Scope2Emissions';
 import Scope3 from './screens/Emissions/Scope3Emissions';
 import Settings from './screens/settings';
+import PrivateRoute from './routing/PrivateRoute'; // ✅ Import PrivateRoute
 import { AuthProvider } from './context/authcontext';
 
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route element={<PrivateRoute />}>  
         <Route path="/dashboard" element={<SustainabilityDashboard />} />
         <Route path="/Setupform1" element={<Setupform1 />} />
         <Route path="/Setupform2" element={<Setupform2 />} />
@@ -61,11 +63,11 @@ function App() {
         <Route path="/Scope2Emissions" element={<Scope2 />} />
         <Route path="/Scope3Emissions" element={<Scope3 />} />
         <Route path="/settings" element={<Settings />} />
-
+        </Route>
       </Routes>
     </Router>
-    </AuthProvider>
-    </ThemeProvider>
+  </AuthProvider>
+</ThemeProvider>
 
   );
 }
