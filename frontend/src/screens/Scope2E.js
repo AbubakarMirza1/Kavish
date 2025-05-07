@@ -37,7 +37,7 @@ const ElectricityPage = () => {
     description: '',
     date: '',
     areaSqFt: '',
-    unit: 'Cubic Meters', // Default and only unit for this page
+    unit: 'Cubic Meter', // Default and only unit for this page
     co2eKg: '',
     ch4Kg: '',
     n20Kg: '',
@@ -148,7 +148,7 @@ const ElectricityPage = () => {
         description: '',
         date: '',
         areaSqFt: '',
-        unit: 'Cubic Meters', // Reset to default
+        unit: 'Cubic Meter', // Reset to default
         co2eKg: '',
         ch4Kg: '',
         n20Kg: '',
