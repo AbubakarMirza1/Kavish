@@ -332,9 +332,7 @@ const Login = () => {
 
         <Typography variant="body2" sx={{ mt: 4, textAlign: 'center' }}>
           Don't have an account?{' '}
-          <Link component="button"
-  onClick={() => navigate('/signup')}
-   color="secondary" underline="hover" sx={{ fontWeight: 500 }}>
+          <Link href="/signup" color="secondary" underline="hover" sx={{ fontWeight: 500 }}>
             Sign up
           </Link>
         </Typography>

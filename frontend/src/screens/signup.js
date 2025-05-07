@@ -319,7 +319,8 @@ const SignUp = () => {
 
             <Typography variant="body2" sx={{ mt: 4, textAlign: 'center' }}>
               Already have an account?{' '}
-              <Link href="/login" color="secondary">Sign in</Link>
+              <Link component="button"
+  onClick={() => navigate('/login')} color="secondary">Sign in</Link>
             </Typography>
           </Box>
         )}
