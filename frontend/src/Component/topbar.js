@@ -14,6 +14,8 @@ import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import HelpIcon from '@mui/icons-material/Help';
+import { useAuth } from '../context/authcontext'; // Adjust path if needed
+
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: '#e1fcf6',
@@ -35,6 +37,8 @@ const DropdownFormControl = styled(FormControl)(({ theme }) => ({
 
 const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [] }) => {
   const navigate = useNavigate();
+const { user, isAuthenticated } = useAuth(); // 'user' is now the full user object
+
 
   const handleFormChange = (event) => {
     const selectedValue = event.target.value;
@@ -44,14 +48,25 @@ const TopBar = ({ title, showDropdown, setupForm, setSetupForm, setupOptions = [
       navigate(selectedOption.route);
     }
   };
+  
+    // User is authenticated and user object is available
+    // const userName = user.name; // e.g., "John Doe"
+    // const userEmail = user.email;
+    // const userFirstName = user.firstName;
+
+    const userInitials = user.name // Use the 'name' property we created
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase())
+      .join('');
+
 
   // Retrieve user details (assuming they're stored in localStorage after login)
-  const user = JSON.parse(localStorage.getItem('user')) || {};
-  const userName = user.name || 'Guest';
-  const userInitials = userName
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('');
+  // const user = JSON.parse(localStorage.getItem('user')) || {};
+  // const userName = user.name || 'Guest';
+  // const userInitials = userName
+  //   .split(' ')
+  //   .map((word) => word.charAt(0).toUpperCase())
+  //   .join('');
 
   return (
     <StyledAppBar position="sticky">

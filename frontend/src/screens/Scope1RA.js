@@ -35,9 +35,9 @@ const RefrigerationAndACPage = () => {
   const [formValues, setFormValues] = useState({
     description: '',
     gas: '',
-    equipmentTypeId: '',
+    equipmentTypeId: '', // Stores the name of the equipment type
     gwp: '',
-    unitId: 'Cubic Meters', // Default value
+    unitId: 'Cubic Meter', // Default and only valid value for this page
     co2eKg: '',
     date: '',
   });
@@ -49,16 +49,16 @@ const RefrigerationAndACPage = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedSection, setSelectedSection] = useState('dashboard'); // For Sidebar highlighting
 
   // Get data from the store
   const refrigerationRows = useScope1Store((state) => state.refrigerationRows);
-  const unitRows = useScope1Store((state) => state.unitRows);
+  // const unitRows = useScope1Store((state) => state.unitRows); // Not directly used for dropdown, as unit is fixed
 
   // Filter active items
-  const activeUnits = unitRows.filter((row) => row.active);
+  // const activeUnits = unitRows.filter((row) => row.active); // Not strictly needed if unit is fixed
   const activeRefrigerationOptions = refrigerationRows.filter((row) => row.active);
 
-  // Fetch data from the backend
   useEffect(() => {
     fetchData();
   }, [page]);
@@ -81,40 +81,80 @@ const RefrigerationAndACPage = () => {
       setTotalPages(res.data.totalPages);
     } catch (error) {
       console.error('Error fetching Refrigeration & AC data:', error);
+      setSnackbarMessage('Failed to fetch data. Please try again.');
+      setOpenSnackbar(true);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'description') {
+      const trimmedValue = value.replace(/\s+/g, '');
+      if (trimmedValue.length > 50) { // Increased limit for description
+        setSnackbarMessage('Description cannot exceed 50 characters (excluding spaces).');
+        setOpenSnackbar(true);
+        return; 
+      }
+    }
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddRow = async () => {
-    if (Object.values(formValues).some((value) => value === '')) {
+    if (
+      !formValues.description ||
+      !formValues.date ||
+      !formValues.gas ||
+      !formValues.equipmentTypeId ||
+      !formValues.gwp ||
+      !formValues.unitId || // Though fixed, still check
+      !formValues.co2eKg
+    ) {
       setSnackbarMessage('Please fill in all fields before adding a record.');
       setOpenSnackbar(true);
       return;
     }
+
+    if (formValues.description.replace(/\s+/g, '').length > 50) {
+        setSnackbarMessage('Description cannot exceed 50 characters (excluding spaces).');
+        setOpenSnackbar(true);
+        return;
+    }
+
+    if (parseInt(formValues.gwp, 10) <= 0) {
+      setSnackbarMessage('Gas GWP must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+    if (parseInt(formValues.co2eKg, 10) <= 0) {
+      setSnackbarMessage('CO2 Equivalent Emissions must be greater than zero.');
+      setOpenSnackbar(true);
+      return;
+    }
+
     try {
-      const res = await axios.post('http://localhost:5000/api/scope1/refrigeration', {
+      await axios.post('http://localhost:5000/api/scope1/refrigeration', {
         sourceDescription: formValues.description,
-        equipmentType: formValues.equipmentTypeId,
+        equipmentType: formValues.equipmentTypeId, // Sends the name
         gas: formValues.gas,
         gwp: parseInt(formValues.gwp, 10),
         unit: formValues.unitId,
         co2eKg: parseInt(formValues.co2eKg, 10),
         date: formValues.date,
       });
-      fetchData(); // Refresh data to maintain pagination
+      setPage(1); // Reset to first page
+      fetchData(); 
       setFormValues({
         description: '',
         gas: '',
         equipmentTypeId: '',
         gwp: '',
-        unitId: 'Cubic Meters', // Reset to default
+        unitId: 'Cubic Meter', 
         co2eKg: '',
         date: '',
       });
+      setSnackbarMessage('Record added successfully!');
+      setOpenSnackbar(true); // Use severity="success" for this if you have different alert types
     } catch (error) {
       console.error('Error adding Refrigeration & AC record:', error);
       setSnackbarMessage('Failed to add the record. Please try again.');
@@ -129,14 +169,16 @@ const RefrigerationAndACPage = () => {
 
   const handleClose = () => {
     setOpenDialog(false);
-    setOpenSnackbar(false);
+    setOpenSnackbar(false); // Close snackbar on any action
   };
 
   const handleDeleteRow = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/scope1/refrigeration/${deleteId}`);
-      fetchData(); // Refresh data to maintain pagination
+      fetchData(); 
       setOpenDialog(false);
+      setSnackbarMessage('Record deleted successfully!');
+      setOpenSnackbar(true); // Use severity="success" for this
     } catch (error) {
       console.error('Error deleting record:', error);
       setSnackbarMessage('Failed to delete the record. Please try again.');
@@ -144,96 +186,123 @@ const RefrigerationAndACPage = () => {
     }
   };
 
-  const validUnit = "Cubic Meters"; // Only valid unit for this page
+  const validUnit = "Cubic Meter"; // Only valid unit for this page
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <Sidebar />
+      <Sidebar selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
         <TopBar title="Scope 1" showDropdown={false} />
         <Container sx={{ mt: 10 }}>
           <Typography variant="h4" gutterBottom>
             Refrigeration and AC
           </Typography>
-          {/* Form */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6">Add New Record</Typography>
-            <Box component="form" sx={{ display: 'flex', gap: 2, mt: 2 }}>
-              <TextField
-                label="Description"
-                name="description"
-                value={formValues.description}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <TextField
-                label="Date"
-                name="date"
-                type="date"
-                value={formValues.date}
-                onChange={handleInputChange}
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="Gas"
-                name="gas"
-                value={formValues.gas}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <FormControl variant="outlined" sx={{ minWidth: 200 }}>
-                <InputLabel>Type of Equipment</InputLabel>
-                <Select
-                  name="equipmentTypeId"
-                  value={formValues.equipmentTypeId}
+          
+          <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
+            <Box sx={{ mb: 2 }}> {/* Adjusted margin */}
+              <Typography variant="h6">Add New Record</Typography>
+              <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+                <TextField
+                  label="Description"
+                  name="description"
+                  value={formValues.description}
                   onChange={handleInputChange}
-                  label="Type of Equipment"
-                >
-                  {activeRefrigerationOptions.map((option) => (
-                    <MenuItem key={option.id} value={option.name}>
-                      {option.name}
+                  variant="outlined"
+                  multiline
+                  minRows={2} // Adjusted minRows
+                  fullWidth
+                  sx={{ flex: '1 1 100%', mb: 1 }} // Ensure it takes full width and has some bottom margin
+                />
+                {formValues.description.replace(/\s+/g, '').length > 0 && (
+                  <Typography 
+                    variant="caption" 
+                    color={formValues.description.replace(/\s+/g, '').length > 50 ? 'error' : 'textSecondary'}
+                    sx={{ width: '100%', mt: -2, mb: 1, textAlign: 'right' }} // Positioned better
+                  >
+                    {formValues.description.replace(/\s+/g, '').length}/50 characters
+                  </Typography>
+                )}
+
+                <TextField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={formValues.date}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ flex: '1 1 calc(25% - 16px)' }} // Adjust flex basis for 3 items per row
+                />
+                <TextField
+                  label="Gas"
+                  name="gas"
+                  value={formValues.gas}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  sx={{ flex: '1 1 calc(25% - 16px)' }}
+                />
+                <FormControl variant="outlined" sx={{ flex: '1 1 calc(25% - 16px)' }}>
+                  <InputLabel>Type of Equipment</InputLabel>
+                  <Select
+                    name="equipmentTypeId"
+                    value={formValues.equipmentTypeId}
+                    onChange={handleInputChange}
+                    label="Type of Equipment"
+                  >
+                    {activeRefrigerationOptions.map((option) => (
+                      <MenuItem key={option.id} value={option.name}>
+                        {option.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Gas GWP"
+                  name="gwp"
+                  type="number"
+                  value={formValues.gwp}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  sx={{ flex: '1 1 calc(25% - 16px)' }}
+                  InputProps={{ inputProps: { min: 0 } }}
+                />
+                <FormControl variant="outlined" sx={{ flex: '1 1 calc(25% - 16px)' }}>
+                  <InputLabel>Unit</InputLabel>
+                  <Select
+                    name="unitId"
+                    value={formValues.unitId}
+                    onChange={handleInputChange}
+                    label="Unit"
+                    disabled // Since it's fixed
+                  >
+                    <MenuItem key={validUnit} value={validUnit}>
+                      {validUnit}
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="Gas GWP"
-                name="gwp"
-                type="number"
-                value={formValues.gwp}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <FormControl variant="outlined" sx={{ minWidth: 120 }}>
-                <InputLabel>Unit</InputLabel>
-                <Select
-                  name="unitId"
-                  value={formValues.unitId}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="CO2 Equivalent Emissions (kg)"
+                  name="co2eKg"
+                  type="number"
+                  value={formValues.co2eKg}
                   onChange={handleInputChange}
-                  label="Unit"
+                  variant="outlined"
+                  sx={{ flex: '1 1 calc(25% - 16px)' }}
+                  InputProps={{ inputProps: { min: 0 } }}
+                />
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleAddRow}
+                  sx={{ alignSelf: 'flex', height: '56px' }} // Align with TextField height
                 >
-                  {/* Show only the valid unit */}
-                  <MenuItem key={validUnit} value={validUnit}>
-                    {validUnit}
-                  </MenuItem>
-                </Select>
-              </FormControl>
-              <TextField
-                label="CO2 Equivalent Emissions (kg)"
-                name="co2eKg"
-                type="number"
-                value={formValues.co2eKg}
-                onChange={handleInputChange}
-                variant="outlined"
-              />
-              <Button variant="contained" color="primary" onClick={handleAddRow}>
-                Add
-              </Button>
+                  Add Record
+                </Button>
+              </Box>
             </Box>
-          </Box>
-          {/* Table */}
-          <Typography variant="h6">Records</Typography>
+          </Paper>
+
+          <Typography variant="h6" sx={{mt: 3}}>Records</Typography>
           <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
             <Table stickyHeader>
               <TableHead>
@@ -272,7 +341,7 @@ const RefrigerationAndACPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          {/* Pagination */}
+          
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
             <Button
               variant="outlined"
@@ -286,13 +355,13 @@ const RefrigerationAndACPage = () => {
             </Typography>
             <Button
               variant="outlined"
-              disabled={page === totalPages}
+              disabled={page === totalPages || totalPages === 0} // Disable if no pages
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
             >
               Next
             </Button>
           </Box>
-          {/* Navigation Buttons */}
+          
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
             <Button variant="contained" color="primary" onClick={() => navigate('/Scope1MS')}>
               Back to Mobile Sources
@@ -302,7 +371,7 @@ const RefrigerationAndACPage = () => {
             </Button>
           </Box>
         </Container>
-        {/* Confirmation Dialog */}
+        
         <Dialog open={openDialog} onClose={handleClose}>
           <DialogTitle>Confirm Deletion</DialogTitle>
           <DialogContent>
@@ -317,9 +386,18 @@ const RefrigerationAndACPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-        {/* Snackbar */}
-        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose}>
-          <Alert onClose={handleClose} severity="error">
+        
+        <Snackbar 
+            open={openSnackbar} 
+            autoHideDuration={6000} 
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Better positioning
+        >
+          <Alert 
+            onClose={handleClose} 
+            severity={snackbarMessage.includes("successfully") ? "success" : "error"} // Dynamic severity
+            sx={{ width: '100%' }}
+          >
             {snackbarMessage}
           </Alert>
         </Snackbar>

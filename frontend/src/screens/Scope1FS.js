@@ -263,6 +263,7 @@ const FireSuppressionPage = () => {
                   value={formValues.co2eKg}
                   onChange={handleInputChange}
                   variant="outlined"
+                  InputProps={{ inputProps: { min: 0 } }}
                 />
                 <Button variant="contained" color="primary" onClick={handleAddRow}>
                   Add
