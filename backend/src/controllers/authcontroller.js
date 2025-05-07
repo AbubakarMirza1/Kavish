@@ -87,9 +87,39 @@ const verifyLoginOTP = async (req, res) => {
 
   try {
     otpStorage.delete(email); // Remove OTP after use
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    res.status(200).json({ message: "Login successful", token });
+     // ---- ADD THIS: Fetch user details ----
+     const user = await prisma.user.findUnique({
+      where: { email },
+      // Select only the fields you need to send back
+      select: {
+        userId: true, // or 'id' if that's your primary key name in Prisma schema
+        firstName: true,
+        lastName: true,
+        email: true,
+        // companyName: true, // if needed
+        // roleId: true, // if needed
+      }
+    });
+
+    if (!user) {
+      // This case should be rare if OTP was just verified for this email
+      return res.status(404).json({ message: "User not found after OTP verification." });
+    }
+    // ---- END OF ADDITION ----
+
+
+    const token = jwt.sign({ email: user.email, userId: user.userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.status(200).json({ message: "Login successful", token,
+      user: { // This is the object your frontend AuthContext will look for
+        id: user.userId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        // companyName: user.companyName, // if selected and needed
+        // roleId: user.roleId, // if selected and needed
+      } });
   } catch (error) {
     res.status(500).json({ message: "Error during login", error });
   }
