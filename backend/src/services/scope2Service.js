@@ -104,7 +104,7 @@ async function deleteElectricity(id) {
 // ----------------- STEAM CRUD -----------------
 async function createSteam(data) {
   return prisma.$transaction(async (prisma) => {
-    const scopeTypeRecord = await createScopeType('Scope2', 4);
+    const scopeTypeRecord = await createScopeType('Scope2', 3);
     return generalCrudService.createRecord('steam', {
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription: data.sourceDescription,

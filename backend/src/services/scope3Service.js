@@ -55,7 +55,7 @@ async function getUnitByName(unitName) {
 // ----------------- BUSINESS TRAVEL CRUD -----------------
 async function createBusinessTravel(data) {
   return prisma.$transaction(async (prisma) => {
-    const scopeTypeRecord = await createScopeType('Scope3', 4);
+    const scopeTypeRecord = await createScopeType('Scope3', 3);
     return generalCrudService.createRecord('businessTravel', {
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription: data.sourceDescription,

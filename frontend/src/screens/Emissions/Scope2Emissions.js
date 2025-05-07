@@ -52,7 +52,7 @@ const glassStyle = {
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Scope2Emissions = () => {
-  const userId = 1; // Hardcoded for now, matching Scope1Emissions.js
+  const userId = 3; // Hardcoded for now, matching Scope1Emissions.js
   const [kpis, setKpis] = useState({
     totalScope2Emissions: 0,
     emissionsBySource: [],
