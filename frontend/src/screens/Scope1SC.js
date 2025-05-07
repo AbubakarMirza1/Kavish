@@ -60,6 +60,15 @@ const Scope1SC = () => {
   const stationaryCombustionRows = useScope1Store((state) => state.stationaryCombustionRows);
   // const unitRows = useScope1Store((state) => state.unitRows); // Units are dynamic
 
+
+  const setupOptions = [
+    { label: "Scope 1 Setup Form", route: "/Setupform1" },
+    { label: "Scope 2 Setup Form", route: "/Setupform2" },
+    { label: "Scope 3 Setup Form", route: "/Setupform3" }
+];
+
+ const [setupForm, setSetupForm] = useState('Select Setup Form');
+ 
   const activeFuels = stationaryCombustionRows.filter((row) => row.active);
 
   useEffect(() => {
@@ -212,7 +221,10 @@ const Scope1SC = () => {
     <Box sx={{ display: 'flex' }}>
       <Sidebar selectedSection={selectedSection} setSelectedSection={setSelectedSection} />
       <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9', overflowX: 'hidden' }}>
-        <TopBar title="Scope 1" showDropdown={false} />
+        <TopBar title="Scope 1" showDropdown={true} 
+                setupForm={setupForm} 
+                setSetupForm={setSetupForm} 
+                setupOptions={setupOptions} />
         <Container maxWidth="lg" sx={{ mt: { xs: 2, md: 4 }, mb: 4 }}> {/* Use maxWidth and responsive margin */}
           <Typography variant="h4" gutterBottom sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
             Stationary Combustion
