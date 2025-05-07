@@ -82,7 +82,6 @@ const menuStructure = [
       { label: 'Scope 1 Overview', path: '/Scope1Emissions' },
       { label: 'Scope 2 Overview', path: '/Scope2Emissions' },
       { label: 'Scope 3 Overview', path: '/Scope3Emissions' },
-      { label: 'Total Emissions Report', path: '/TotalEmissions' },
     ],
   },
   { label: 'Waste Tracking', Icon: Delete, path: '/WasteManagement' },
