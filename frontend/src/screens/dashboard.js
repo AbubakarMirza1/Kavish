@@ -70,6 +70,9 @@ import { useSpring, animated } from 'react-spring';
 import TopBar from '../Component/topbar';
 import Sidebar from '../Component/sidebar';
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 // Define the color palette
 const COLORS = {
   primary: '#0D7377', // Deep teal
@@ -208,7 +211,7 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setRefreshing(true);
-      const response = await axios.get('http://localhost:5000/api/dashboard-kpi/kpis', {
+      const response = await axios.get(`${API_BASE_URL}/api/dashboard-kpi/kpis`, {
         params: {
           userId: 1, // Replace with actual user ID
           startDate: formattedDates.startDate,
@@ -291,6 +294,10 @@ const Dashboard = () => {
     return null;
   };
 
+
+
+
+  
   // Determine trend color
   const getTrendColor = (value, inverse = false) => {
     if (inverse) {
