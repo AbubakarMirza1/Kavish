@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const kpiConfig = require('../config/kpiConfig');
 const ss = require('simple-statistics');
 const { getEmissionsTrend, getEmissionsTrendBySourceType } = require('./scope1KPIService');
-const { getScope2KPIs } = require('./scope2KPIsService');
+const { getScope2KPIs } = require('./Scope2KPIsService');
 const { getScope3KPIs } = require('./scope3KPIsService');
 const { getWasteKPIs } = require('./wasteKPIsService');
 
