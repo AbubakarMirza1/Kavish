@@ -28,12 +28,15 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import useScope1Store from '../store/scope1Store';
+import { useAuth } from '../context/authcontext'; // Adjust path if necessary
 import TopBar from '../Component/topbar.js';
 import { getValidUnitsForFuel } from '../store/fuel_unit'; // Assuming this is correct
 // Access the environment variable directly
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const Scope1SC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // <--- Get the user object
+
   const initialFormValues = {
     description: '',
     date: '',
@@ -156,9 +159,19 @@ const Scope1SC = () => {
 
   const handleAddRow = async () => {
     if (!validateForm()) return;
+
+    if (!user || !user.id) { // <--- Add this check
+      console.error("User not found or user ID is missing. Cannot add record.");
+      setSnackbarMessage('User authentication is missing. Please log in again.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return;
+    }
+
     try {
       // The backend expects 'fuelType' not 'fuelCombusted' based on your fetchData mapping
       await axios.post(`${API_BASE_URL}/api/scope1/stationary`, {
+        userId: user.id, // <--- SEND THE USER ID HERE
         sourceDescription: formValues.description,
         fuelType: formValues.fuelCombusted, // Send the selected fuel name
         quantity: parseFloat(formValues.quantity), // Use parseFloat for quantity
