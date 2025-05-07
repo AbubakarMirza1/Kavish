@@ -1,4 +1,4 @@
-const { getScope2KPIs } = require('../services/scope2KPIsService');
+const { getScope2KPIs } = require('../services/Scope2KPIsService');
 
 async function getKPIs(req, res) {
   try {
