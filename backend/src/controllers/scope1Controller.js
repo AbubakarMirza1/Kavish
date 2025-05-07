@@ -109,7 +109,7 @@ async function createMobileSource(req, res) {
     }
 
     // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 3); // Assuming userId = 1
 
     // Create the MobileSource record
     const record = await scope1Service.createMobileSource({
@@ -191,7 +191,7 @@ async function createRefrigerationAndAC(req, res) {
     }
     
     // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 4); // Assuming userId = 1
     
     // Create the RefrigerationAndAC record
     const record = await scope1Service.createRefrigerationAndAC({
@@ -273,7 +273,7 @@ async function createFireSuppression(req, res) {
     }
     
     // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 4); // Assuming userId = 1
     
     // Create the FireSuppression record
     const record = await scope1Service.createFireSuppression({
@@ -347,7 +347,7 @@ async function createPurchasedGas(req, res) {
     }
     
     // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 4); // Assuming userId = 1
     
     // Create the PurchasedGas record
     const record = await scope1Service.createPurchasedGas({

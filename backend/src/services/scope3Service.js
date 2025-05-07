@@ -55,7 +55,7 @@ async function getUnitByName(unitName) {
 // ----------------- BUSINESS TRAVEL CRUD -----------------
 async function createBusinessTravel(data) {
   return prisma.$transaction(async (prisma) => {
-    const scopeTypeRecord = await createScopeType('Scope3', 1);
+    const scopeTypeRecord = await createScopeType('Scope3', 4);
     return generalCrudService.createRecord('businessTravel', {
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription: data.sourceDescription,
@@ -101,7 +101,7 @@ async function deleteBusinessTravel(id) {
 // ----------------- WASTE CRUD -----------------
 async function createWaste(data) {
   return prisma.$transaction(async (prisma) => {
-    const scopeTypeRecord = await createScopeType('Scope3', 1);
+    const scopeTypeRecord = await createScopeType('Scope3', 3);
     return generalCrudService.createRecord('waste', {
       scopeTypeId: scopeTypeRecord.scopeTypeId,
       sourceDescription: data.sourceDescription,
