@@ -213,7 +213,7 @@ const Dashboard = () => {
       setRefreshing(true);
       const response = await axios.get(`${API_BASE_URL}/api/dashboard-kpi/kpis`, {
         params: {
-          userId: 1, // Replace with actual user ID
+          userId: 3, // Replace with actual user ID
           startDate: formattedDates.startDate,
           endDate: formattedDates.endDate,
           period,
