@@ -48,6 +48,8 @@ const glassStyle = {
   transition: 'transform 0.3s ease-in-out',
   '&:hover': { transform: 'translateY(-5px)' },
 };
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Scope2Emissions = () => {
   const userId = 1; // Hardcoded for now, matching Scope1Emissions.js
@@ -75,7 +77,7 @@ const Scope2Emissions = () => {
   const fetchKPIs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/scope2-kpi/kpis`, {
+      const response = await axios.get(`${API_BASE_URL}/api/scope2-kpi/kpis`, {
         params: {
           userId,
           startDate: startDate.toISOString(),

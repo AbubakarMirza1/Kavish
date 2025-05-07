@@ -19,6 +19,9 @@ import { useNavigate } from "react-router-dom";
 import useScope1Store from "../store/scope1Store";
 import TopBar from '../Component/topbar.js'; // Import the TopBar component
 
+
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const Scope1EmissionsSetup = () => {
   const navigate = useNavigate();
 
@@ -70,7 +73,7 @@ const Scope1EmissionsSetup = () => {
     // Fetch initial data from the backend
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/scope1-emissions/data');
+        const response = await fetch(`${API_BASE_URL}/api/scope1-emissions/data`);
         const data = await response.json();
         setStationaryCombustionRows(data.stationaryCombustionRows);
         setMobileRows(data.mobileRows);
@@ -177,7 +180,7 @@ const Scope1EmissionsSetup = () => {
     if (storeSectionKey) {
       deleteRow(storeSectionKey, id);
       // Send the delete request to the backend
-      fetch(`http://localhost:5000/api/scope1-emissions/delete-row/${section}/${id}`, {
+      fetch(`${API_BASE_URL}/api/scope1-emissions/delete-row/${section}/${id}`, {
         method: 'DELETE',
       })
         .then((response) => response.json())
@@ -218,7 +221,7 @@ const Scope1EmissionsSetup = () => {
     if (storeSectionKey) {
       toggleActive(storeSectionKey, id);
       // Send the toggle request to the backend
-      fetch(`http://localhost:5000/api/scope1-emissions/toggle-active/${section}/${id}`, {
+      fetch(`${API_BASE_URL}/api/scope1-emissions/toggle-active/${section}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

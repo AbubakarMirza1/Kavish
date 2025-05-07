@@ -31,6 +31,9 @@ import TopBar from '../Component/topbar.js';
 import useScope2Store from '../store/scope2Store';
 import { getValidUnitsForFuel } from '../store/fuel_unit'; // Ensure this path and function are correct
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const SteamPage = () => {
   const navigate = useNavigate();
   const initialFormValues = {
@@ -69,7 +72,7 @@ const SteamPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope2/steam?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope2/steam?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId || 'N/A',
@@ -169,7 +172,7 @@ const SteamPage = () => {
   const handleAddRow = async () => {
     if (!validateForm()) return;
     try {
-      await axios.post('http://localhost:5000/api/scope2/steam', {
+      await axios.post(`${API_BASE_URL}/api/scope2/steam`, {
         sourceDescription: formValues.description,
         sourceArea: parseInt(formValues.sourceArea, 10),
         fuelType: formValues.fuelType,
@@ -203,7 +206,7 @@ const SteamPage = () => {
   const handleDeleteRow = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`http://localhost:5000/api/scope2/steam/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope2/steam/${deleteId}`);
       setSnackbarMessage('Record deleted successfully!');
       setSnackbarSeverity('success');
       setOpenSnackbar(true);

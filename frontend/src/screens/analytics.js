@@ -13,6 +13,8 @@ import {
   Paper, 
   Container 
 } from '@mui/material';
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const AnalyticsPage = () => {
   const [analyticsData, setAnalyticsData] = useState({ recyclingData: [], scopeSuggestions: [], circularEconomyStatus: { status: '' } });
@@ -22,7 +24,7 @@ const AnalyticsPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/analytics/recycling-recommendations');
+        const response = await fetch(`${API_BASE_URL}/api/analytics/recycling-recommendations`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

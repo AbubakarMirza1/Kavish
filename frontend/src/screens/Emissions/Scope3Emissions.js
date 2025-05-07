@@ -28,6 +28,9 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 // Color Palette (consistent with Scope1Emissions.js and Scope2Emissions.js)
 const COLORS = {
   primary: '#0D7377',
@@ -78,7 +81,7 @@ const Scope3Emissions = () => {
   const fetchKPIs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/scope3-kpi/kpis`, {
+      const response = await axios.get(`${API_BASE_URL}/api/scope3-kpi/kpis`, {
         params: {
           userId,
           startDate: startDate.toISOString(),

@@ -23,7 +23,9 @@ import axios from 'axios'; // Make sure axios is installed: npm install axios or
 // TODO: Replace with your actual User ID retrieval logic
 const USER_ID = 1; 
 // TODO: Adjust if your API is hosted elsewhere or on a different port
-const API_BASE_URL = 'http://localhost:5000/api/reports'; 
+//const API_BASE_URL = 'http://localhost:5000/api/reports'; 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const Reports = () => {
   const [startDate, setStartDate] = useState(null);

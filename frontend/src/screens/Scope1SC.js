@@ -30,7 +30,8 @@ import Sidebar from '../Component/sidebar.js';
 import useScope1Store from '../store/scope1Store';
 import TopBar from '../Component/topbar.js';
 import { getValidUnitsForFuel } from '../store/fuel_unit'; // Assuming this is correct
-
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const Scope1SC = () => {
   const navigate = useNavigate();
   const initialFormValues = {
@@ -67,7 +68,7 @@ const Scope1SC = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope1/stationary?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope1/stationary?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId || 'N/A',
@@ -148,7 +149,7 @@ const Scope1SC = () => {
     if (!validateForm()) return;
     try {
       // The backend expects 'fuelType' not 'fuelCombusted' based on your fetchData mapping
-      await axios.post('http://localhost:5000/api/scope1/stationary', {
+      await axios.post(`${API_BASE_URL}/api/scope1/stationary`, {
         sourceDescription: formValues.description,
         fuelType: formValues.fuelCombusted, // Send the selected fuel name
         quantity: parseFloat(formValues.quantity), // Use parseFloat for quantity
@@ -178,7 +179,7 @@ const Scope1SC = () => {
   const handleDeleteRow = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`http://localhost:5000/api/scope1/stationary/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope1/stationary/${deleteId}`);
       // Instead of manually filtering, refetch data to ensure consistency with backend and pagination
       setSnackbarMessage('Record deleted successfully!');
       setSnackbarSeverity('success');

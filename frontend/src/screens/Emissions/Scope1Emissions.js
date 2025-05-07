@@ -37,7 +37,8 @@ const COLORS = {
   textPrimary: '#2C3333',
   textSecondary: '#395B64',
 };
-
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 // Glassmorphism Style
 const glassStyle = {
   background: 'rgba(255, 255, 255, 0.2)',
@@ -110,54 +111,54 @@ const Scope1Emissions = () => {
   };
 
   const fetchBreakdown = async () => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/breakdown?userId=${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/breakdown?userId=${userId}`);
     const data = response.data;
     setBreakdown(data.breakdown);
     setTotalEmissions(data.totalScope1Emissions);
   };
 
   const fetchTrend = async (period) => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/trend?userId=${userId}&period=${period}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/trend?userId=${userId}&period=${period}`);
     setTrendData(response.data.trend);
   };
 
   const fetchTopSources = async () => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/top?userId=${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/top?userId=${userId}`);
     setTopSources(response.data.topSources);
   };
 
   const fetchFuelEmissions = async () => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/fuel?userId=${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/fuel?userId=${userId}`);
     setFuelEmissions(response.data.fuelTypeEmissions);
   };
 
   const fetchVehicleEmissions = async () => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/vehicle?userId=${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/vehicle?userId=${userId}`);
     setVehicleEmissions(response.data.vehicleTypeEmissions);
   };
 
   const fetchGasEmissions = async () => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/gas?userId=${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/gas?userId=${userId}`);
     setGasEmissions(response.data.gasTypeEmissions);
   };
 
   const fetchSourceTrend = async (period) => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/trend-by-source?userId=${userId}&period=${period}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/trend-by-source?userId=${userId}&period=${period}`);
     setSourceTrendData(response.data.trendBySource);
   };
 
   const fetchFuelTrend = async (period) => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/trend-by-fuel?userId=${userId}&period=${period}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/trend-by-fuel?userId=${userId}&period=${period}`);
     setFuelTrendData(response.data.trendByFuel);
   };
 
   const fetchVehicleTrend = async (period) => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/trend-by-vehicle?userId=${userId}&period=${period}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/trend-by-vehicle?userId=${userId}&period=${period}`);
     setVehicleTrendData(response.data.trendByVehicle);
   };
 
   const fetchGasTrend = async (period) => {
-    const response = await axios.get(`http://localhost:5000/api/scope1-kpi/trend-by-gas?userId=${userId}&period=${period}`);
+    const response = await axios.get(`${API_BASE_URL}/api/scope1-kpi/trend-by-gas?userId=${userId}&period=${period}`);
     setGasTrendData(response.data.trendByGas);
   };
 

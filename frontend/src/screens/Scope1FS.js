@@ -31,6 +31,9 @@ import TopBar from '../Component/topbar.js';
 import useScope1Store from '../store/scope1Store';
 import { getValidUnitsForFuel } from '../store/fuel_unit'; // Import utility function for valid units
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const FireSuppressionPage = () => {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
@@ -68,7 +71,7 @@ const FireSuppressionPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope1/fire?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope1/fire?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
@@ -126,7 +129,7 @@ const FireSuppressionPage = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/scope1/fire', {
+      const res = await axios.post(`${API_BASE_URL}/api/scope1/fire`, {
         sourceDescription: formValues.description,
         fuelType: formValues.fuelType,
         unit: formValues.unit,
@@ -168,7 +171,7 @@ const FireSuppressionPage = () => {
 
   const handleDeleteRow = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/scope1/fire/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope1/fire/${deleteId}`);
       fetchData(); // Refresh data to maintain pagination
       setOpenDialog(false);
     } catch (error) {

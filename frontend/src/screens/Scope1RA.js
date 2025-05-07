@@ -30,6 +30,9 @@ import useScope1Store from '../store/scope1Store';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const RefrigerationAndACPage = () => {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
@@ -65,7 +68,7 @@ const RefrigerationAndACPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope1/refrigeration?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope1/refrigeration?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
@@ -133,7 +136,7 @@ const RefrigerationAndACPage = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/scope1/refrigeration', {
+      await axios.post(`${API_BASE_URL}/api/scope1/refrigeration`, {
         sourceDescription: formValues.description,
         equipmentType: formValues.equipmentTypeId, // Sends the name
         gas: formValues.gas,
@@ -174,7 +177,7 @@ const RefrigerationAndACPage = () => {
 
   const handleDeleteRow = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/scope1/refrigeration/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope1/refrigeration/${deleteId}`);
       fetchData(); 
       setOpenDialog(false);
       setSnackbarMessage('Record deleted successfully!');

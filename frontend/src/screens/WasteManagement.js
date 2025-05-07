@@ -27,6 +27,9 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 // Color Palette (consistent with previous screens)
 const COLORS = {
   primary: '#0D7377',
@@ -79,7 +82,7 @@ const WasteEmissions = () => {
   const fetchKPIs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/waste-kpi/kpis`, {
+      const response = await axios.get(`${API_BASE_URL}/api/waste-kpi/kpis`, {
         params: {
           userId,
           startDate: startDate.toISOString(),

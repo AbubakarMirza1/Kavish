@@ -29,7 +29,8 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
 import useScope3Store from '../store/Scope3Store';
-
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const WastePage = () => {
   const navigate = useNavigate();
   const fixedUnitValue = "Kilogram"; // Define the fixed unit
@@ -66,7 +67,7 @@ const WastePage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope3/waste?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope3/waste?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId || 'N/A',
@@ -159,7 +160,7 @@ const WastePage = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/scope3/waste', {
+      await axios.post(`${API_BASE_URL}/api/scope3/waste`, {
         sourceDescription: formValues.description,
         wasteType: formValues.wasteType,
         disposalMethod: formValues.disposalMethod,
@@ -198,7 +199,7 @@ const WastePage = () => {
   const handleDeleteRow = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`http://localhost:5000/api/scope3/waste/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope3/waste/${deleteId}`);
       setSnackbarMessage('Record deleted successfully!');
       setSnackbarSeverity('success');
       setOpenSnackbar(true);

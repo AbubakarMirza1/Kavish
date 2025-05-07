@@ -29,7 +29,8 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import useScope1Store from '../store/scope1Store'; // Assuming this is the correct store
 import TopBar from '../Component/topbar.js';
-
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const PurchasedGasesPage = () => {
   const navigate = useNavigate();
   const fixedUnitValue = "Cubic Meter";
@@ -59,7 +60,7 @@ const PurchasedGasesPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope1/purchased-gas?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope1/purchased-gas?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.Id,
         sourceId: item.scopeTypeId || 'N/A',
@@ -118,7 +119,7 @@ const PurchasedGasesPage = () => {
   const handleAddRow = async () => {
     if (!validateForm()) return;
     try {
-      await axios.post('http://localhost:5000/api/scope1/purchased-gas', {
+      await axios.post(`${API_BASE_URL}/api/scope1/purchased-gas`, {
         sourceDescription: formValues.description,
         Gas: formValues.gasType,
         purchasedAmount: parseInt(formValues.purchasedAmount, 10),
@@ -145,7 +146,7 @@ const PurchasedGasesPage = () => {
   const handleDeleteRow = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`http://localhost:5000/api/scope1/purchased-gas/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope1/purchased-gas/${deleteId}`);
       setSnackbarMessage('Record deleted successfully!');
       setSnackbarSeverity('success');
       setOpenSnackbar(true);

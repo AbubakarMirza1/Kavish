@@ -29,7 +29,8 @@ import axios from 'axios';
 import Sidebar from '../Component/sidebar.js';
 import TopBar from '../Component/topbar.js';
 import useScope2Store from '../store/scope2Store'; // Assuming this store is set up for Scope 2 units
-
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const ElectricityPage = () => {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
@@ -60,7 +61,7 @@ const ElectricityPage = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scope2/electricity?page=${page}&limit=${limit}`);
+      const res = await axios.get(`${API_BASE_URL}/api/scope2/electricity?page=${page}&limit=${limit}`);
       const formattedData = res.data.records.map((item) => ({
         id: item.id,
         sourceId: item.scopeTypeId,
@@ -131,7 +132,7 @@ const ElectricityPage = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/scope2/electricity', {
+      await axios.post(`${API_BASE_URL}/api/scope2/electricity`, {
         description: description,
         areaSqFt: parseInt(areaSqFt, 10),
         unit: unit, // Will be 'Cubic Meters'
@@ -173,7 +174,7 @@ const ElectricityPage = () => {
 
   const handleDeleteRow = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/scope2/electricity/${deleteId}`);
+      await axios.delete(`${API_BASE_URL}/api/scope2/electricity/${deleteId}`);
       fetchData();
       setOpenDialog(false);
       setSnackbarMessage('Record deleted successfully!');

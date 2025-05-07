@@ -18,6 +18,10 @@ import { useNavigate } from "react-router-dom";
 import useScope3Store from "../store/Scope3Store";
 import TopBar from "../Component/topbar.js"; // Import the TopBar component
 
+
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const Scope3EmissionsSetup = () => {
   const navigate = useNavigate();
 
@@ -46,7 +50,7 @@ const Scope3EmissionsSetup = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/scope3-emissions/data");
+        const response = await fetch(`${API_BASE_URL}/api/scope3-emissions/data`);
         const data = await response.json();
         setVehicleTypes(data.vehicleTypes);
         setUnits(data.units);
