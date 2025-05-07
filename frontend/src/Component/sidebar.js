@@ -87,7 +87,7 @@ const menuStructure = [
   },
   { label: 'Waste Tracking', Icon: Delete, path: '/WasteManagement' },
   { label: 'Reporting', Icon: Assessment, path: '/Reports' },
-  { label: 'Advanced Analytics', Icon: Analytics, path: '/analytics' },
+  { label: 'Analytics', Icon: Analytics, path: '/analytics' },
   { label: 'System Settings', Icon: Settings, path: '/settings' },
 ];
 

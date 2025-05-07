@@ -1,204 +1,175 @@
-/***********************************************
- * services/wasteKPIsService.js
- * Service for calculating Waste Management KPIs
- ***********************************************/
-
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const kpiConfig = require('../config/kpiConfig');
+const ss = require('simple-statistics');
+
+// Helper function to format date into period string (e.g., '2023-01' for month)
+function getPeriod(date, period) {
+  if (!(date instanceof Date)) return null;
+  const year = date.getFullYear();
+  if (period === 'month') {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+  return `${year}`;
+}
+
+// Helper function to get the next period for regression predictions
+function getNextPeriod(currentPeriod, periodType) {
+  if (periodType === 'month') {
+    const [year, month] = currentPeriod.split('-').map(Number);
+    const date = new Date(year, month - 1);
+    date.setMonth(date.getMonth() + 1);
+    const nextYear = date.getFullYear();
+    const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+    return `${nextYear}-${nextMonth}`;
+  } else if (periodType === 'year') {
+    const year = parseInt(currentPeriod, 10);
+    return `${year + 1}`;
+  }
+  return null;
+}
+
+// Helper function to generate all periods between start and end dates
+function generatePeriods(startDate, endDate, periodType = 'month') {
+  const periods = [];
+  let current = new Date(startDate);
+  while (current <= endDate) {
+    periods.push(getPeriod(current, periodType));
+    if (periodType === 'month') {
+      current.setMonth(current.getMonth() + 1);
+    } else {
+      current.setFullYear(current.getFullYear() + 1);
+    }
+  }
+  return periods;
+}
+
+// Helper function to calculate linear regression line with future predictions
+function calculateRegressionLine(trendData, periodType = 'month', numFuturePeriods = 3) {
+  if (trendData.length < 2) return [];
+  const sortedData = [...trendData].sort((a, b) => a.period.localeCompare(b.period));
+  const periodToIndex = {};
+  sortedData.forEach((d, index) => {
+    periodToIndex[d.period] = index;
+  });
+  const regressionData = sortedData.map(d => [periodToIndex[d.period], d.value]);
+  const regression = ss.linearRegression(regressionData);
+  const line = ss.linearRegressionLine(regression);
+  let currentPeriod = sortedData[sortedData.length - 1].period;
+  const allPeriods = [...sortedData.map(d => d.period)];
+  for (let i = 0; i < numFuturePeriods; i++) {
+    currentPeriod = getNextPeriod(currentPeriod, periodType);
+    if (currentPeriod) allPeriods.push(currentPeriod);
+  }
+  return allPeriods.map((period, index) => ({
+    period,
+    predictedValue: line(index),
+  }));
+}
 
 /**
- * Calculate Waste Management KPIs.
- * @param {number} userId - The ID of the user.
- * @param {Date} startDate - Start date for the data range.
- * @param {Date} endDate - End date for the data range.
- * @returns {Promise<object>} - The calculated KPIs.
+ * Fetches and calculates Waste KPIs for a given user and date range.
+ * @param {string|number} userId - The ID of the user.
+ * @param {string} startDate - ISO string of the start date.
+ * @param {string} endDate - ISO string of the end date.
+ * @param {string} period - Time period granularity ('month' or 'year').
+ * @returns {Object} Waste KPIs including totals, breakdowns, and trends.
  */
-async function getWasteKPIs(userId, startDate, endDate) {
-  console.log('Inside getWasteKPIs with params:', { userId, startDate, endDate });
+async function getWasteKPIs(userId, startDate, endDate, period = 'month') {
   try {
-    if (userId === undefined || userId === null) {
-      console.log('userId is missing or invalid');
-      throw new Error('userId is missing or invalid.');
-    }
-
+    // Input validation
+    if (!userId || !startDate || !endDate) throw new Error('Missing required parameters');
     const parsedUserId = parseInt(userId, 10);
-    if (isNaN(parsedUserId)) {
-      console.log('userId is not a valid integer:', userId);
-      throw new Error('userId must be a valid integer.');
-    }
+    if (isNaN(parsedUserId)) throw new Error('Invalid userId');
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) throw new Error('Invalid date range');
 
-    if (!(startDate instanceof Date) || isNaN(startDate)) {
-      console.log('startDate is invalid:', startDate);
-      throw new Error('startDate must be a valid Date.');
-    }
-
-    if (!(endDate instanceof Date) || isNaN(endDate)) {
-      console.log('endDate is invalid:', endDate);
-      throw new Error('endDate must be a valid Date.');
-    }
-
-    console.log('Fetching waste records for userId:', parsedUserId);
-    console.log('Date range:', startDate.toISOString(), 'to', endDate.toISOString());
-
-    // Test the database connection by fetching a single record
-    const testRecord = await prisma.waste.findFirst();
-    console.log('Test record from Waste table:', testRecord);
-
-    // Fetch waste records for the specific user through the scopeType relation
-    const allWasteRecords = await prisma.waste.findMany({
+    // Fetch Waste records with unit and waste type details
+    const wasteRecords = await prisma.waste.findMany({
       where: {
-        scopeType: {
-          userId: parsedUserId,
-        },
+        scopeType: { userId: parsedUserId },
+        date: { gte: start, lte: end },
       },
-      include: {
-        wasteType: true,
-        unit: true,
-      },
+      include: { unit: true, wasteType: true },
     });
 
-    console.log('Total waste records in database for user:', allWasteRecords.length);
-    console.log('All waste records:', JSON.stringify(allWasteRecords, null, 2));
+    // Calculate total waste and CO2e, handling unit conversions (to kg)
+    let totalWaste = 0;
+    let totalCO2e = 0;
+    let divertedWaste = 0;
+    const wasteByType = {};
 
-    // Filter records by date in JavaScript
-    const wasteRecords = allWasteRecords.filter(record => {
-      const recordDate = new Date(record.date);
-      return recordDate >= startDate && recordDate <= endDate;
-    });
-
-    console.log('Number of waste records found after date filter:', wasteRecords.length);
-    console.log('Filtered waste records:', JSON.stringify(wasteRecords, null, 2));
-
-    if (wasteRecords.length === 0) {
-      console.warn('No waste records found in the specified date range. Returning default response.');
-      return {
-        totalWaste: 0,
-        totalCO2e: 0,
-        diversionRate: 0,
-        wasteByType: [],
-        wasteTrendData: [],
-        carbonFootprintData: [],
-      };
-    }
-
-    // KPI 1: Total Waste Generated
-    const totalWaste = wasteRecords.reduce((sum, record) => {
+    wasteRecords.forEach(record => {
       let weight = record.weight || 0;
-      if (record.unit?.unitName === 'Ton') weight *= 1000; // 1 ton = 1000 kg
-      if (record.unit?.unitName === 'Lb') weight *= 0.453592; // 1 lb = 0.453592 kg
-      return sum + weight;
-    }, 0);
+      if (record.unit?.unitName === 'Ton') weight *= 1000; // Convert tons to kg
+      if (record.unit?.unitName === 'Lb') weight *= 0.453592; // Convert pounds to kg
+      totalWaste += weight;
+      totalCO2e += record.co2eKg || 0;
+      if (['Recycling', 'Composting'].includes(record.disposalMethod)) divertedWaste += weight;
 
-    console.log('Calculated totalWaste:', totalWaste);
+      const typeName = record.wasteType.typeName;
+      wasteByType[typeName] = (wasteByType[typeName] || 0) + weight;
+    });
 
-    // KPI 2: Waste Carbon Footprint
-    const totalCO2e = wasteRecords.reduce((sum, record) => sum + (record.co2eKg || 0), 0);
-
-    console.log('Calculated totalCO2e:', totalCO2e);
-
-    // KPI 3: Waste Diversion Rate
-    const divertedWaste = wasteRecords
-      .filter(record => ['Recycling', 'Composting'].includes(record.disposalMethod))
-      .reduce((sum, record) => {
-        let weight = record.weight || 0;
-        if (record.unit?.unitName === 'Ton') weight *= 1000;
-        if (record.unit?.unitName === 'Lb') weight *= 0.453592;
-        return sum + weight;
-      }, 0);
+    // Calculate waste diversion rate
     const diversionRate = totalWaste > 0 ? (divertedWaste / totalWaste) * 100 : 0;
 
-    console.log('Calculated divertedWaste:', divertedWaste);
-    console.log('Calculated diversionRate:', diversionRate);
+    // Generate time periods for trends
+    const periods = generatePeriods(start, end, period);
 
-    // KPI 4: Waste by Type
-    const wasteByType = wasteRecords.reduce((acc, record) => {
-      const typeName = record.wasteType?.typeName || 'Unknown'; // Fallback if wasteType is null
-      let weight = record.weight || 0;
-      if (record.unit?.unitName === 'Ton') weight *= 1000;
-      if (record.unit?.unitName === 'Lb') weight *= 0.453592;
-      acc[typeName] = (acc[typeName] || 0) + weight;
-      return acc;
-    }, {});
+    // Initialize maps for trend calculations
+    const wasteTrendMap = new Map(periods.map(p => [p, 0]));
+    const carbonFootprintMap = new Map(periods.map(p => [p, 0]));
+    const diversionRateMap = new Map(periods.map(p => [p, { diverted: 0, total: 0 }]));
 
-    console.log('Calculated wasteByType (before mapping):', wasteByType);
-
-    // Trend data
-    const wasteTrendData = [];
-    const carbonFootprintData = [];
-    const monthYearLabels = [];
-    
-    let currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-      const monthYear = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
-      if (!monthYearLabels.includes(monthYear)) {
-        monthYearLabels.push(monthYear);
-      }
-      currentDate.setMonth(currentDate.getMonth() + 1);
-    }
-
-    console.log('Month-year labels:', monthYearLabels);
-
-    monthYearLabels.forEach(monthYear => {
-      const [month, year] = monthYear.split(' ');
-      const monthIndex = new Date(`${month} 1, ${year}`).getMonth();
-      const yearNum = parseInt(year, 10);
-
-      const monthRecords = wasteRecords.filter(record => {
-        const recordDate = new Date(record.date);
-        const recordMonth = recordDate.getMonth();
-        const recordYear = recordDate.getFullYear();
-        return recordMonth === monthIndex && recordYear === yearNum;
-      });
-
-      const monthlyWaste = monthRecords.reduce((sum, record) => {
+    // Populate trend maps
+    wasteRecords.forEach(record => {
+      const periodKey = getPeriod(record.date, period);
+      if (periodKey && wasteTrendMap.has(periodKey)) {
         let weight = record.weight || 0;
         if (record.unit?.unitName === 'Ton') weight *= 1000;
         if (record.unit?.unitName === 'Lb') weight *= 0.453592;
-        return sum + weight;
-      }, 0);
-
-      const monthlyCO2e = monthRecords.reduce((sum, record) => sum + (record.co2eKg || 0), 0);
-
-      wasteTrendData.push({ month: monthYear, wasteGenerated: monthlyWaste });
-      carbonFootprintData.push({ month: monthYear, emissions: monthlyCO2e });
+        wasteTrendMap.set(periodKey, wasteTrendMap.get(periodKey) + weight);
+        carbonFootprintMap.set(periodKey, carbonFootprintMap.get(periodKey) + (record.co2eKg || 0));
+        const current = diversionRateMap.get(periodKey);
+        if (['Recycling', 'Composting'].includes(record.disposalMethod)) {
+          current.diverted += weight;
+        }
+        current.total += weight;
+      }
     });
 
-    console.log('Calculated wasteTrendData:', wasteTrendData);
-    console.log('Calculated carbonFootprintData:', carbonFootprintData);
+    // Format trend data
+    const wasteTrendData = periods.map(p => ({ period: p, wasteGenerated: wasteTrendMap.get(p) }));
+    const carbonFootprintData = periods.map(p => ({ period: p, emissions: carbonFootprintMap.get(p) }));
+    const diversionRateTrend = periods.map(p => {
+      const { diverted, total } = diversionRateMap.get(p);
+      return { period: p, diversionRate: total > 0 ? (diverted / total) * 100 : 0 };
+    });
 
-    const result = {
-      totalWaste: parseFloat(totalWaste.toFixed(2)) || 0,
-      totalCO2e: parseFloat(totalCO2e.toFixed(2)) || 0,
-      diversionRate: parseFloat(diversionRate.toFixed(2)) || 0,
-      wasteByType: Object.entries(wasteByType).map(([name, value]) => ({
-        name,
-        value: parseFloat(value.toFixed(2)) || 0,
-        color: getRandomColor(),
-      })) || [],
-      wasteTrendData: wasteTrendData || [],
-      carbonFootprintData: carbonFootprintData || [],
+    // Calculate regression lines
+    const wasteRegression = calculateRegressionLine(wasteTrendData.map(d => ({ period: d.period, value: d.wasteGenerated })), period);
+    const carbonFootprintRegression = calculateRegressionLine(carbonFootprintData.map(d => ({ period: d.period, value: d.emissions })), period);
+    const diversionRateRegression = calculateRegressionLine(diversionRateTrend.map(d => ({ period: d.period, value: d.diversionRate })), period);
+
+    // Return structured KPIs
+    return {
+      totalWaste,
+      totalCO2e,
+      diversionRate,
+      wasteByType: Object.entries(wasteByType).map(([name, value]) => ({ name, value })),
+      wasteTrend: { historical: wasteTrendData, regression: wasteRegression },
+      carbonFootprintTrend: { historical: carbonFootprintData, regression: carbonFootprintRegression },
+      diversionRateTrend: { historical: diversionRateTrend, regression: diversionRateRegression },
     };
-
-    console.log('Returning KPI data:', JSON.stringify(result, null, 2));
-    return result;
   } catch (error) {
-    console.error('Error in getWasteKPIs:', error.message);
-    throw error; // Let the controller handle the error
+    console.error('Error in getWasteKPIs:', error);
+    throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
 
-// Helper function for random colors
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
-
-module.exports = {
-  getWasteKPIs,
-};
+module.exports = { getWasteKPIs };

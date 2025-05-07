@@ -1,0 +1,187 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const kpiConfig = require('../config/kpiConfig');
+const ss = require('simple-statistics');
+const { getEmissionsTrend, getEmissionsTrendBySourceType } = require('./scope1KPIService');
+const { getScope2KPIs } = require('./scope2KPIsService');
+const { getScope3KPIs } = require('./scope3KPIsService');
+const { getWasteKPIs } = require('./wasteKPIsService');
+
+// Helper function to format a Date object into "YYYY-MM" (month) or "YYYY" (year)
+function getPeriod(date, period) {
+  if (!(date instanceof Date)) return null;
+  const year = date.getFullYear();
+  if (period === 'month') {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+  return `${year}`;
+}
+
+// Helper function to generate all periods between start and end dates
+function generatePeriods(startDate, endDate, periodType = 'month') {
+  const periods = [];
+  let current = new Date(startDate);
+  while (current <= endDate) {
+    periods.push(getPeriod(current, periodType));
+    if (periodType === 'month') {
+      current.setMonth(current.getMonth() + 1);
+    } else {
+      current.setFullYear(current.getFullYear() + 1);
+    }
+  }
+  return periods;
+}
+
+// Helper function to calculate linear regression line with future predictions
+function calculateRegressionLine(trendData, periodType = 'month', numFuturePeriods = 3) {
+  if (trendData.length < 2) return [];
+  const sortedData = [...trendData].sort((a, b) => a.period.localeCompare(b.period));
+  const periodToIndex = {};
+  sortedData.forEach((d, index) => {
+    periodToIndex[d.period] = index;
+  });
+  const regressionData = sortedData.map(d => [periodToIndex[d.period], d.value]);
+  const regression = ss.linearRegression(regressionData);
+  const line = ss.linearRegressionLine(regression);
+  let currentPeriod = sortedData[sortedData.length - 1].period;
+  const allPeriods = [...sortedData.map(d => d.period)];
+  for (let i = 0; i < numFuturePeriods; i++) {
+    currentPeriod = getNextPeriod(currentPeriod, periodType);
+    if (currentPeriod) allPeriods.push(currentPeriod);
+  }
+  return allPeriods.map((period, index) => ({
+    period,
+    predictedValue: line(index),
+  }));
+}
+
+// Helper function to get the next period for regression predictions
+function getNextPeriod(currentPeriod, periodType) {
+  if (periodType === 'month') {
+    const [year, month] = currentPeriod.split('-').map(Number);
+    const date = new Date(year, month - 1);
+    date.setMonth(date.getMonth() + 1);
+    const nextYear = date.getFullYear();
+    const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+    return `${nextYear}-${nextMonth}`;
+  } else if (periodType === 'year') {
+    const year = parseInt(currentPeriod, 10);
+    return `${year + 1}`;
+  }
+  return null;
+}
+
+/**
+ * Fetches and calculates Dashboard KPIs by aggregating data across scopes.
+ * @param {string|number} userId - The ID of the user.
+ * @param {string} startDate - ISO string of the start date.
+ * @param {string} endDate - ISO string of the end date.
+ * @param {string} period - Time period granularity ('month' or 'year').
+ * @returns {Object} Dashboard KPIs including totals, trends, and summaries.
+ */
+async function getDashboardKPIs(userId, startDate, endDate, period = 'month') {
+  try {
+    // Input validation
+    if (!userId || !startDate || !endDate) throw new Error('Missing required parameters');
+    const parsedUserId = parseInt(userId, 10);
+    if (isNaN(parsedUserId)) throw new Error('Invalid userId');
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) throw new Error('Invalid date range');
+
+    // Generate periods within the date range
+    const periods = generatePeriods(start, end, period);
+
+    // Fetch Scope 1 trend data (full history)
+    const scope1TrendFull = await getEmissionsTrend(parsedUserId, period);
+    // Filter Scope 1 trend to the specified periods
+    const scope1TrendFiltered = scope1TrendFull.trend.filter(d => periods.includes(d.period));
+    // Calculate total Scope 1 emissions within the date range
+    const totalScope1Emissions = scope1TrendFiltered.reduce((sum, d) => sum + d.emissions, 0);
+
+    // Fetch Scope 1 trend by source type for top sources
+    const scope1TrendBySource = await getEmissionsTrendBySourceType(parsedUserId, period);
+    const scope1Sources = scope1TrendBySource.map(source => {
+      const filtered = source.trend.filter(d => periods.includes(d.period));
+      const totalEmissions = filtered.reduce((sum, d) => sum + d.emissions, 0);
+      return { name: source.sourceType, emissions: totalEmissions, scope: 'Scope 1' };
+    });
+
+    // Fetch Scope 2 KPIs
+    const scope2KPIs = await getScope2KPIs(parsedUserId, startDate, endDate, period);
+    const scope2Sources = scope2KPIs.emissionsBySource.map(s => ({ ...s, scope: 'Scope 2' }));
+
+    // Fetch Scope 3 KPIs
+    const scope3KPIs = await getScope3KPIs(parsedUserId, startDate, endDate, period);
+    const scope3Sources = scope3KPIs.emissionsByVehicleType.map(s => ({ name: s.name, emissions: s.value, scope: 'Scope 3' }));
+
+    // Combine and sort emission sources for top 3
+    const allSources = [...scope1Sources, ...scope2Sources, ...scope3Sources];
+    const topEmissionSources = allSources.sort((a, b) => b.emissions - a.emissions).slice(0, 3);
+
+    // Fetch Waste KPIs
+    const wasteKPIs = await getWasteKPIs(parsedUserId, startDate, endDate, period);
+
+    // Initialize overall emissions trend map with all periods set to 0
+    const overallTrendMap = new Map(periods.map(p => [p, 0]));
+
+    // Add Scope 1 emissions to overall trend
+    scope1TrendFiltered.forEach(d => {
+      overallTrendMap.set(d.period, overallTrendMap.get(d.period) + d.emissions);
+    });
+
+    // Add Scope 2 emissions to overall trend
+    scope2KPIs.emissionsTrend.historical.forEach(d => {
+      if (overallTrendMap.has(d.period)) {
+        overallTrendMap.set(d.period, overallTrendMap.get(d.period) + d.emissions);
+      }
+    });
+
+    // Add Scope 3 emissions to overall trend
+    scope3KPIs.emissionsTrend.historical.forEach(d => {
+      if (overallTrendMap.has(d.period)) {
+        overallTrendMap.set(d.period, overallTrendMap.get(d.period) + d.emissions);
+      }
+    });
+
+    // Convert overall trend to array
+    const overallTrendData = Array.from(overallTrendMap, ([period, emissions]) => ({ period, emissions }));
+
+    // Calculate regression for overall trend
+    const overallRegression = calculateRegressionLine(overallTrendData.map(d => ({ period: d.period, value: d.emissions })), period);
+
+    // Total emissions by scope
+    const totalEmissionsByScope = {
+      scope1: totalScope1Emissions,
+      scope2: scope2KPIs.totalScope2Emissions,
+      scope3: scope3KPIs.totalScope3Emissions,
+    };
+
+    // Waste management overview
+    const wasteManagementOverview = {
+      totalWaste: wasteKPIs.totalWaste,
+      diversionRate: wasteKPIs.diversionRate,
+      carbonFootprint: wasteKPIs.totalCO2e,
+    };
+
+    // Key metrics
+    const totalEmissions = totalScope1Emissions + scope2KPIs.totalScope2Emissions + scope3KPIs.totalScope3Emissions;
+
+    // Return structured KPIs
+    return {
+      totalEmissionsByScope,
+      overallEmissionsTrend: { historical: overallTrendData, regression: overallRegression },
+      topEmissionSources,
+      wasteManagementOverview,
+      keyMetrics: { totalEmissions },
+    };
+  } catch (error) {
+    console.error('Error in getDashboardKPIs:', error);
+    throw error;
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+module.exports = { getDashboardKPIs };

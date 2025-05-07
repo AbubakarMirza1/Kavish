@@ -1,125 +1,289 @@
-/***********************************************
- * src/screens/Emissions/Scope3Emissions.js
- * Screen for displaying Scope 3 KPIs (Business Travel)
- ***********************************************/
-import TopBar from '../../Component/topbar.js'; // Adjusted path
-import Sidebar from '../../Component/sidebar.js'; // Adjusted path
 import React, { useState, useEffect } from 'react';
+import TopBar from '../../Component/topbar';
+import Sidebar from '../../Component/sidebar';
 import {
   Box,
-  Typography,
   Container,
   Grid,
   Paper,
+  Card,
+  CardContent,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Avatar,
+  Skeleton,
+  Fade,
+  Tabs,
+  Tab,
   TextField,
 } from '@mui/material';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell,
-  PieChart,
-  Pie,
-  AreaChart,
-  Area,
-} from 'recharts';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import Chart from 'react-apexcharts';
+import {
+  Flight as FlightIcon,
+  DirectionsCar as DirectionsCarIcon,
+  Train as TrainIcon,
+} from '@mui/icons-material';
 import axios from 'axios';
 
+// Color Palette (consistent with Scope1Emissions.js and Scope2Emissions.js)
+const COLORS = {
+  primary: '#0D7377',
+  secondary: '#14FFEC',
+  accent1: '#4ECDC4',
+  accent2: '#A3D8D6',
+  backgroundGradient: 'linear-gradient(135deg, #E0F2F1 0%, #A3D8D6 100%)',
+  textPrimary: '#2C3333',
+  textSecondary: '#395B64',
+};
+
+// Glassmorphism Style (consistent with Scope1Emissions.js)
+const glassStyle = {
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
+  borderRadius: '12px',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': { transform: 'translateY(-5px)' },
+};
+
+// Trend Chart Color Palette for Multiple Series (consistent with Scope1Emissions.js)
+const colorPalette = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFA1', '#FF8C33', '#33FFF5', '#FF33F5', '#33A1FF'];
+
 const Scope3Emissions = () => {
-  const [kpiData, setKpiData] = useState({
-    totalCO2e: 0,
-    emissionsPerMile: 0,
+  const userId = 1; // Hardcoded for now, matching Scope1Emissions.js
+  const [kpis, setKpis] = useState({
+    totalScope3Emissions: 0,
     emissionsByVehicleType: [],
-    emissionsTrendData: [],
-    emissionsBreakdown: [], // For CO2, CH4, N2O breakdown
+    emissionsTrend: { historical: [], regression: [] },
+    emissionsPerMileTrend: { historical: [], regression: [] },
+    emissionsTrendByVehicleType: [],
   });
-  const [startDate, setStartDate] = useState(new Date('2024-01-01'));
+  const [startDate, setStartDate] = useState(new Date('2023-01-01'));
   const [endDate, setEndDate] = useState(new Date());
+  const [trendPeriod, setTrendPeriod] = useState('month');
+  const [change, setChange] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
-  // Hardcode userId for now; replace with dynamic userId if needed
-  const userId = 1;
+  // Number formatting function (consistent with Scope1Emissions.js)
+  const formatNumber = (num) =>
+    Number(num).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  // Fetch Scope 3 KPIs from the API
+  const fetchKPIs = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/scope3-kpi/kpis`, {
+        params: {
+          userId,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          period: trendPeriod,
+        },
+      });
+      setKpis(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  // Calculate percentage change based on emissions trend
   useEffect(() => {
-    const fetchKpiData = async () => {
-      try {
-        const url = `http://localhost:5000/api/scope3/kpis?userId=${userId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        console.log('Fetching KPI data from:', url);
+    const { emissionsTrend } = kpis;
+    if (emissionsTrend.historical && emissionsTrend.historical.length >= 2) {
+      const last = emissionsTrend.historical[emissionsTrend.historical.length - 1].emissions;
+      const prev = emissionsTrend.historical[emissionsTrend.historical.length - 2].emissions;
+      const percentageChange = ((last - prev) / prev) * 100;
+      setChange(percentageChange.toFixed(2));
+    } else {
+      setChange(0);
+    }
+  }, [kpis]);
 
-        const response = await axios.get(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+  // Fetch data when component mounts or when dates/period change
+  useEffect(() => {
+    fetchKPIs();
+  }, [startDate, endDate, trendPeriod]);
 
-        console.log('Response status:', response.status);
-        if (response.status !== 200) {
-          const errorText = await response.text();
-          console.error('Response error:', errorText);
-          throw new Error(`Failed to fetch KPI data: ${errorText}`);
+  // Helper function to convert period to timestamp (consistent with Scope1Emissions.js)
+  const periodToTimestamp = (period) => {
+    if (trendPeriod === 'month') {
+      const [year, month] = period.split('-');
+      return new Date(year, month - 1, 1).getTime();
+    } else {
+      return new Date(period, 0, 1).getTime();
+    }
+  };
+
+  // Base trend options for line charts with regression
+  const baseTrendOptions = {
+    chart: { type: 'line', animations: { enabled: true, easing: 'easeinout', speed: 800 } },
+    colors: [COLORS.primary, COLORS.secondary],
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        formatter: (val) => {
+          const date = new Date(val);
+          return trendPeriod === 'month'
+            ? date.toLocaleString('default', { month: 'short', year: 'numeric' })
+            : date.getFullYear();
+        },
+      },
+    },
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+    tooltip: { y: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+    dataLabels: { enabled: false },
+    legend: { position: 'top', fontFamily: 'Poppins, sans-serif' },
+    grid: { borderColor: '#E0E0E0' },
+    stroke: { width: [2, 2], dashArray: [0, 5] }, // Solid for historical, dashed for predicted
+  };
+
+  // Total Emissions Trend Chart
+  const trendOptions = {
+    ...baseTrendOptions,
+    title: { text: 'Total Scope 3 Emissions Trend', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+    annotations: kpis.emissionsTrend.historical.length > 0
+      ? {
+          xaxis: [
+            {
+              x: periodToTimestamp(kpis.emissionsTrend.historical[kpis.emissionsTrend.historical.length - 1].period),
+              borderColor: '#999',
+              label: { text: 'Prediction Starts', style: { color: '#fff', background: '#999' } },
+            },
+          ],
         }
+      : {},
+  };
+  const trendSeries = [
+    { name: 'Historical Emissions', data: kpis.emissionsTrend.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.emissions })) },
+    { name: 'Predicted Emissions', data: kpis.emissionsTrend.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })) },
+  ];
 
-        const data = await response.data;
-        console.log('Fetched KPI data:', data);
+  // Emissions per Mile Trend Chart
+  const emissionsPerMileOptions = {
+    ...baseTrendOptions,
+    title: { text: 'Emissions per Mile Trend', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg CO2e / mile` } },
+    tooltip: { y: { formatter: (val) => `${formatNumber(val)} kg CO2e / mile` } },
+    annotations: kpis.emissionsPerMileTrend.historical.length > 0
+      ? {
+          xaxis: [
+            {
+              x: periodToTimestamp(kpis.emissionsPerMileTrend.historical[kpis.emissionsPerMileTrend.historical.length - 1].period),
+              borderColor: '#999',
+              label: { text: 'Prediction Starts', style: { color: '#fff', background: '#999' } },
+            },
+          ],
+        }
+      : {},
+  };
+  const emissionsPerMileSeries = [
+    { name: 'Historical Emissions per Mile', data: kpis.emissionsPerMileTrend.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.emissionsPerMile })) },
+    { name: 'Predicted Emissions per Mile', data: kpis.emissionsPerMileTrend.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })) },
+  ];
 
-        // Calculate emissions breakdown (CO2, CH4, N2O) - placeholder for now
-        const totalCO2e = data.totalCO2e || 0;
-        const emissionsBreakdown = [
-          { name: 'CO2', value: totalCO2e * 0.8, color: '#0D7377' }, // 80% CO2
-          { name: 'CH4', value: totalCO2e * 0.15, color: '#FF5252' }, // 15% CH4
-          { name: 'N2O', value: totalCO2e * 0.05, color: '#FFD700' }, // 5% N2O
-        ];
+  // Donut Chart for Emissions by Vehicle Type
+  const vehicleTypeOptions = {
+    chart: { type: 'donut', animations: { enabled: true, easing: 'easeinout', speed: 800 } },
+    colors: colorPalette.slice(0, kpis.emissionsByVehicleType.length),
+    labels: kpis.emissionsByVehicleType.map((v) => v.name),
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => `${val.toFixed(0)}%`,
+      style: { fontSize: '14px', fontFamily: 'Poppins, sans-serif', fontWeight: 600 },
+    },
+    legend: { position: 'bottom', fontFamily: 'Poppins, sans-serif' },
+    tooltip: { y: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+    plotOptions: { pie: { donut: { size: '50%' } } },
+    title: { text: 'Emissions by Vehicle Type', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+  };
+  const vehicleTypeSeries = kpis.emissionsByVehicleType.map((v) => v.value);
 
-        // Update emissionsByVehicleType with consistent colors
-        const updatedEmissionsByVehicleType = data.emissionsByVehicleType.map((entry, index) => ({
-          ...entry,
-          color: '#0D7377', // Match WasteManagement color
-        }));
+  // Helper to generate trend chart for vehicle types with regression
+  const generateVehicleTypeTrendChart = (trendData, title) => {
+    if (!trendData || trendData.length === 0) return { options: {}, series: [] };
 
-        setKpiData({
-          ...data,
-          emissionsByVehicleType: updatedEmissionsByVehicleType,
-          emissionsBreakdown,
-        });
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching KPI data:', error.message);
-        setError(`Unable to load KPI data: ${error.message}. Please try again later.`);
-      }
+    const series = trendData.flatMap((item, index) => {
+      const color = colorPalette[index % colorPalette.length];
+      return [
+        {
+          name: `${item.vehicleType} - Historical`,
+          data: item.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.emissions })),
+          color: color,
+          type: 'line',
+        },
+        {
+          name: `${item.vehicleType} - Prediction`,
+          data: item.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })),
+          color: color,
+          type: 'line',
+          dashArray: 5,
+        },
+      ];
+    });
+
+    const lastHistoricalPeriod = trendData[0]?.historical[trendData[0].historical.length - 1]?.period;
+    const lastHistoricalTimestamp = lastHistoricalPeriod ? periodToTimestamp(lastHistoricalPeriod) : null;
+
+    const options = {
+      chart: { type: 'line', animations: { enabled: true, easing: 'easeinout', speed: 800 } },
+      xaxis: {
+        type: 'datetime',
+        labels: {
+          formatter: (val) => {
+            const date = new Date(val);
+            return trendPeriod === 'month'
+              ? date.toLocaleString('default', { month: 'short', year: 'numeric' })
+              : date.getFullYear();
+          },
+        },
+      },
+      yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+      tooltip: { y: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+      legend: { position: 'top', fontFamily: 'Poppins, sans-serif' },
+      grid: { borderColor: '#E0E0E0' },
+      stroke: { width: 2 },
+      title: { text: title, align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+      annotations: lastHistoricalTimestamp
+        ? {
+            xaxis: [
+              {
+                x: lastHistoricalTimestamp,
+                borderColor: '#999',
+                label: {
+                  text: 'Prediction Starts',
+                  style: { color: '#fff', background: '#999' },
+                },
+              },
+            ],
+          }
+        : {},
     };
-    fetchKpiData();
-  }, [startDate, endDate]);
 
-  if (error) {
-    return (
-      <Box sx={{ display: 'flex' }}>
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <TopBar title="Scope 3 Emissions (Business Travel)" showDropdown={false} />
-          <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Typography color="error">{error}</Typography>
-          </Container>
-        </Box>
-      </Box>
-    );
-  }
+    return { options, series };
+  };
+
+  // Icons for vehicle types (assumed types based on business travel context)
+  const vehicleIcons = {
+    Airplane: <FlightIcon sx={{ fontSize: 40, color: COLORS.primary }} />,
+    Car: <DirectionsCarIcon sx={{ fontSize: 40, color: COLORS.accent1 }} />,
+    Train: <TrainIcon sx={{ fontSize: 40, color: COLORS.accent2 }} />,
+  };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', background: COLORS.backgroundGradient, minHeight: '100vh', p: 4, fontFamily: 'Poppins, sans-serif' }}>
       <Sidebar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        <TopBar title="Scope 3 Emissions (Business Travel)" showDropdown={false} />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <TopBar title="Scope 3 Emissions" showDropdown={false} />
         <Container maxWidth="xl" sx={{ mt: 4 }}>
-          {/* Date Range Picker */}
+          {/* Date Range Picker and Period Toggle */}
           <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
@@ -135,98 +299,115 @@ const Scope3Emissions = () => {
                 renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
+            <ToggleButtonGroup
+              value={trendPeriod}
+              exclusive
+              onChange={(e, newPeriod) => newPeriod && setTrendPeriod(newPeriod)}
+            >
+              <ToggleButton value="month" sx={{ color: COLORS.primary, '&.Mui-selected': { backgroundColor: COLORS.primary, color: '#FFF' } }}>
+                Monthly
+              </ToggleButton>
+              <ToggleButton value="year" sx={{ color: COLORS.primary, '&.Mui-selected': { backgroundColor: COLORS.primary, color: '#FFF' } }}>
+                Yearly
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
-          <Grid container spacing={3}>
-            {/* Total CO2e Emissions - Line Chart (like Total Waste Generated) */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Total CO2e Emissions: {kpiData.totalCO2e} kg CO2e
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <LineChart data={kpiData.emissionsTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="emissions" stroke="#0D7377" name="Emissions (kg CO2e)" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+          {error && <Typography color="error">{error}</Typography>}
 
-            {/* Emissions Breakdown - Pie Chart (like Waste Diversion Rate) */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Emissions Breakdown
+          {/* Total Emissions Card */}
+          <Fade in={!loading} timeout={500}>
+            <Card sx={{ ...glassStyle, mb: 4, p: 3, background: COLORS.primary }}>
+              <CardContent>
+                <Typography variant="h5" sx={{ mb: 1, color: '#FFF' }}>
+                  Total Scope 3 Emissions
                 </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <PieChart>
-                    <Pie
-                      data={kpiData.emissionsBreakdown}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={120}
-                      label
-                    >
-                      {kpiData.emissionsBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="h2" sx={{ fontWeight: 700, mr: 2, color: '#FFF' }}>
+                    {formatNumber(kpis.totalScope3Emissions)} kg CO2e
+                  </Typography>
+                  {change !== 0 && (
+                    <Typography variant="h5" sx={{ color: change >= 0 ? '#FF6B6B' : '#4ECDC4' }}>
+                      {change >= 0 ? '↑' : '↓'} {Math.abs(change)}%
+                    </Typography>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+          </Fade>
 
-            {/* Emissions by Vehicle Type - Bar Chart (like Waste by Type) */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Emissions by Vehicle Type
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <BarChart data={kpiData.emissionsByVehicleType}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="vehicleType" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="emissions" fill="#0D7377" name="Emissions by Vehicle Type (kg CO2e)">
-                      {kpiData.emissionsByVehicleType.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-
-            {/* Emissions per Mile - Area Chart (like Carbon Footprint) */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Emissions per Mile: {kpiData.emissionsPerMile} kg CO2e/mile
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  <AreaChart data={kpiData.emissionsTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="emissions" stroke="#0D7377" fill="#0D737750" name="Emissions (kg CO2e)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+          {/* Breakdown Cards for Vehicle Types */}
+          <Grid container spacing={4} sx={{ mb: 4 }}>
+            {loading
+              ? [...Array(3)].map((_, index) => (
+                  <Grid item xs={12} sm={4} key={index}>
+                    <Skeleton variant="rectangular" height={150} />
+                  </Grid>
+                ))
+              : kpis.emissionsByVehicleType.map((vehicle, index) => (
+                  <Grid item xs={12} sm={4} key={index}>
+                    <Fade in={!loading} timeout={500}>
+                      <Card sx={{ ...glassStyle, p: 2, height: '150px' }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Avatar sx={{ backgroundColor: `${COLORS.primary}20`, mr: 2 }}>
+                              {vehicleIcons[vehicle.name] || <FlightIcon />}
+                            </Avatar>
+                            <Typography variant="h6" sx={{ color: COLORS.textPrimary }}>
+                              {vehicle.name}
+                            </Typography>
+                          </Box>
+                          <Typography variant="h4" sx={{ color: COLORS.primary, fontWeight: 700 }}>
+                            {formatNumber(vehicle.value)} kg CO2e
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Fade>
+                  </Grid>
+                ))}
           </Grid>
+
+          {/* Total Emissions Trend Section */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h3" sx={{ mb: 2, color: COLORS.primary, fontWeight: 700 }}>
+              Total Emissions Trend
+            </Typography>
+            <Fade in={!loading} timeout={500}>
+              <Paper sx={{ ...glassStyle, p: 3, height: '400px' }}>
+                <Chart options={trendOptions} series={trendSeries} type="line" height="100%" />
+              </Paper>
+            </Fade>
+          </Box>
+
+          {/* Insights Section with Tabs */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h3" sx={{ mb: 2, color: COLORS.primary, fontWeight: 700 }}>
+              Insights
+            </Typography>
+            <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+              <Tab label="Emissions by Vehicle Type" />
+              <Tab label="Emissions per Mile Trend" />
+              <Tab label="Trend by Vehicle Type" />
+            </Tabs>
+            <Fade in={!loading} timeout={500}>
+              <Paper sx={{ ...glassStyle, p: 3, height: '400px', mt: 2 }}>
+                {activeTab === 0 && (
+                  <Chart options={vehicleTypeOptions} series={vehicleTypeSeries} type="donut" height="100%" />
+                )}
+                {activeTab === 1 && (
+                  <Chart options={emissionsPerMileOptions} series={emissionsPerMileSeries} type="line" height="100%" />
+                )}
+                {activeTab === 2 && (
+                  <Chart
+                    options={generateVehicleTypeTrendChart(kpis.emissionsTrendByVehicleType, 'Emissions Trend by Vehicle Type').options}
+                    series={generateVehicleTypeTrendChart(kpis.emissionsTrendByVehicleType, 'Emissions Trend by Vehicle Type').series}
+                    type="line"
+                    height="100%"
+                  />
+                )}
+              </Paper>
+            </Fade>
+          </Box>
         </Container>
       </Box>
     </Box>

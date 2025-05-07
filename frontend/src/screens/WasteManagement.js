@@ -1,148 +1,242 @@
-/***********************************************
- * src/screens/WasteManagement.js (Scope3W.js)
- * Screen for displaying Waste Management KPIs
- ***********************************************/
-
 import React, { useState, useEffect } from 'react';
+import TopBar from '../Component/topbar';
+import Sidebar from '../Component/sidebar';
 import {
   Box,
-  Typography,
   Container,
   Grid,
   Paper,
+  Card,
+  CardContent,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  Avatar,
+  Skeleton,
+  Fade,
+  Tabs,
+  Tab,
   TextField,
 } from '@mui/material';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-} from 'recharts';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import Sidebar from '../Component/sidebar.js';
-import TopBar from '../Component/topbar.js';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import Chart from 'react-apexcharts';
+import {
+  Delete as DeleteIcon,
+  Recycling as RecyclingIcon,
+} from '@mui/icons-material';
+import axios from 'axios';
 
-const WasteManagement = () => {
-  const [kpiData, setKpiData] = useState({
+// Color Palette (consistent with previous screens)
+const COLORS = {
+  primary: '#0D7377',
+  secondary: '#14FFEC',
+  accent1: '#4ECDC4',
+  accent2: '#A3D8D6',
+  backgroundGradient: 'linear-gradient(135deg, #E0F2F1 0%, #A3D8D6 100%)',
+  textPrimary: '#2C3333',
+  textSecondary: '#395B64',
+};
+
+// Glassmorphism Style (consistent with previous screens)
+const glassStyle = {
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  border: '1px solid rgba(255, 255, 255, 0.3)',
+  borderRadius: '12px',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+  transition: 'transform 0.3s ease-in-out',
+  '&:hover': { transform: 'translateY(-5px)' },
+};
+
+// Trend Chart Color Palette for Multiple Series (consistent with Scope1Emissions.js)
+const colorPalette = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFA1', '#FF8C33', '#33FFF5', '#FF33F5', '#33A1FF'];
+
+const WasteEmissions = () => {
+  const userId = 1; // Hardcoded for now, matching previous screens
+  const [kpis, setKpis] = useState({
     totalWaste: 0,
     totalCO2e: 0,
     diversionRate: 0,
     wasteByType: [],
-    wasteTrendData: [],
-    carbonFootprintData: [],
+    wasteTrend: { historical: [], regression: [] },
+    carbonFootprintTrend: { historical: [], regression: [] },
+    diversionRateTrend: { historical: [], regression: [] },
   });
-  const [startDate, setStartDate] = useState(new Date('2024-01-01'));
-  const [endDate, setEndDate] = useState(new Date('2025-03-27')); // Match screenshot date
+  const [startDate, setStartDate] = useState(new Date('2023-01-01'));
+  const [endDate, setEndDate] = useState(new Date());
+  const [trendPeriod, setTrendPeriod] = useState('month');
+  const [change, setChange] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
 
-  // Hardcode userId for now; replace with dynamic userId if needed
-  const userId = 1;
+  // Number formatting function (consistent with previous screens)
+  const formatNumber = (num) =>
+    Number(num).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  // Fetch Waste KPIs from the API
+  const fetchKPIs = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/waste-kpi/kpis`, {
+        params: {
+          userId,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          period: trendPeriod,
+        },
+      });
+      setKpis(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  // Calculate percentage change based on waste trend
   useEffect(() => {
-    const fetchKpiData = async (useProxy = true) => {
-      try {
-        setLoading(true);
-        // Use proxy URL by default, fallback to direct URL if specified
-        const baseUrl = useProxy ? '' : 'http://localhost:5000';
-        const url = `${baseUrl}/api/waste/kpis?userId=${userId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-        console.log('Fetching KPI data from:', url);
+    const { wasteTrend } = kpis;
+    if (wasteTrend.historical && wasteTrend.historical.length >= 2) {
+      const last = wasteTrend.historical[wasteTrend.historical.length - 1].wasteGenerated;
+      const prev = wasteTrend.historical[wasteTrend.historical.length - 2].wasteGenerated;
+      const percentageChange = ((last - prev) / prev) * 100;
+      setChange(percentageChange.toFixed(2));
+    } else {
+      setChange(0);
+    }
+  }, [kpis]);
 
-        const response = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+  // Fetch data when component mounts or when dates/period change
+  useEffect(() => {
+    fetchKPIs();
+  }, [startDate, endDate, trendPeriod]);
 
-        console.log('Response status:', response.status);
-        console.log('Response headers:', JSON.stringify([...response.headers.entries()]));
+  // Helper function to convert period to timestamp (consistent with previous screens)
+  const periodToTimestamp = (period) => {
+    if (trendPeriod === 'month') {
+      const [year, month] = period.split('-');
+      return new Date(year, month - 1, 1).getTime();
+    } else {
+      return new Date(period, 0, 1).getTime();
+    }
+  };
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Response error text:', errorText);
-          throw new Error(`Failed to fetch KPI data: ${errorText}`);
+  // Base trend options for line charts with regression
+  const baseTrendOptions = {
+    chart: { type: 'line', animations: { enabled: true, easing: 'easeinout', speed: 800 } },
+    colors: [COLORS.primary, COLORS.secondary],
+    xaxis: {
+      type: 'datetime',
+      labels: {
+        formatter: (val) => {
+          const date = new Date(val);
+          return trendPeriod === 'month'
+            ? date.toLocaleString('default', { month: 'short', year: 'numeric' })
+            : date.getFullYear();
+        },
+      },
+    },
+    tooltip: { y: { formatter: (val) => `${formatNumber(val)} ${activeTab === 2 ? '%' : 'kg'}` } },
+    dataLabels: { enabled: false },
+    legend: { position: 'top', fontFamily: 'Poppins, sans-serif' },
+    grid: { borderColor: '#E0E0E0' },
+    stroke: { width: [2, 2], dashArray: [0, 5] }, // Solid for historical, dashed for predicted
+  };
+
+  // Waste Trend Chart
+  const wasteTrendOptions = {
+    ...baseTrendOptions,
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg` } },
+    title: { text: 'Waste Generated Trend', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+    annotations: kpis.wasteTrend.historical.length > 0
+      ? {
+          xaxis: [
+            {
+              x: periodToTimestamp(kpis.wasteTrend.historical[kpis.wasteTrend.historical.length - 1].period),
+              borderColor: '#999',
+              label: { text: 'Prediction Starts', style: { color: '#fff', background: '#999' } },
+            },
+          ],
         }
+      : {},
+  };
+  const wasteTrendSeries = [
+    { name: 'Historical Waste', data: kpis.wasteTrend.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.wasteGenerated })) },
+    { name: 'Predicted Waste', data: kpis.wasteTrend.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })) },
+  ];
 
-        const data = await response.json();
-        console.log('Fetched KPI data:', JSON.stringify(data, null, 2));
-
-        // Ensure the data has the expected structure
-        setKpiData({
-          totalWaste: data.totalWaste || 0,
-          totalCO2e: data.totalCO2e || 0,
-          diversionRate: data.diversionRate || 0,
-          wasteByType: Array.isArray(data.wasteByType) ? data.wasteByType : [],
-          wasteTrendData: Array.isArray(data.wasteTrendData) ? data.wasteTrendData : [],
-          carbonFootprintData: Array.isArray(data.carbonFootprintData) ? data.carbonFootprintData : [],
-        });
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching KPI data:', error.message);
-        // If the proxy fails, try a direct request to the backend
-        if (useProxy) {
-          console.log('Proxy request failed, attempting direct request to backend...');
-          fetchKpiData(false); // Retry without proxy
-        } else {
-          setError(`Unable to load KPI data: ${error.message}. Please try again later.`);
+  // Carbon Footprint Trend Chart
+  const carbonFootprintOptions = {
+    ...baseTrendOptions,
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg CO2e` } },
+    title: { text: 'Carbon Footprint Trend', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+    annotations: kpis.carbonFootprintTrend.historical.length > 0
+      ? {
+          xaxis: [
+            {
+              x: periodToTimestamp(kpis.carbonFootprintTrend.historical[kpis.carbonFootprintTrend.historical.length - 1].period),
+              borderColor: '#999',
+              label: { text: 'Prediction Starts', style: { color: '#fff', background: '#999' } },
+            },
+          ],
         }
-      } finally {
-        if (useProxy) setLoading(false);
-      }
-    };
-    fetchKpiData();
-  }, [startDate, endDate]);
+      : {},
+  };
+  const carbonFootprintSeries = [
+    { name: 'Historical CO2e', data: kpis.carbonFootprintTrend.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.emissions })) },
+    { name: 'Predicted CO2e', data: kpis.carbonFootprintTrend.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })) },
+  ];
 
-  // Display loading state
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex' }}>
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <TopBar title="Waste Management" showDropdown={false} />
-          <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Typography>Loading waste management data...</Typography>
-          </Container>
-        </Box>
-      </Box>
-    );
-  }
+  // Diversion Rate Trend Chart
+  const diversionRateOptions = {
+    ...baseTrendOptions,
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} %` } },
+    title: { text: 'Waste Diversion Rate Trend', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+    annotations: kpis.diversionRateTrend.historical.length > 0
+      ? {
+          xaxis: [
+            {
+              x: periodToTimestamp(kpis.diversionRateTrend.historical[kpis.diversionRateTrend.historical.length - 1].period),
+              borderColor: '#999',
+              label: { text: 'Prediction Starts', style: { color: '#fff', background: '#999' } },
+            },
+          ],
+        }
+      : {},
+  };
+  const diversionRateSeries = [
+    { name: 'Historical Diversion Rate', data: kpis.diversionRateTrend.historical.map((d) => ({ x: periodToTimestamp(d.period), y: d.diversionRate })) },
+    { name: 'Predicted Diversion Rate', data: kpis.diversionRateTrend.regression.map((d) => ({ x: periodToTimestamp(d.period), y: d.predictedValue })) },
+  ];
 
-  // Display error state
-  if (error) {
-    return (
-      <Box sx={{ display: 'flex' }}>
-        <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-          <TopBar title="Waste Management" showDropdown={false} />
-          <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Typography color="error">{error}</Typography>
-          </Container>
-        </Box>
-      </Box>
-    );
-  }
+  // Bar Chart for Waste by Type
+  const wasteByTypeOptions = {
+    chart: { type: 'bar', animations: { enabled: true, easing: 'easeinout', speed: 800 } },
+    colors: [COLORS.primary],
+    xaxis: { categories: kpis.wasteByType.map((w) => w.name) },
+    yaxis: { labels: { formatter: (val) => `${formatNumber(val)} kg` } },
+    tooltip: { y: { formatter: (val) => `${formatNumber(val)} kg` } },
+    dataLabels: { enabled: false },
+    legend: { position: 'top', fontFamily: 'Poppins, sans-serif' },
+    title: { text: 'Waste by Type', align: 'center', style: { fontSize: '18px', fontWeight: 600 } },
+  };
+  const wasteByTypeSeries = [{ name: 'Waste (kg)', data: kpis.wasteByType.map((w) => w.value) }];
 
-  console.log('Rendering with kpiData:', JSON.stringify(kpiData, null, 2));
+  // Icons for waste types (assumed based on context)
+  const wasteIcons = {
+    Landfill: <DeleteIcon sx={{ fontSize: 40, color: COLORS.primary }} />,
+    Recycling: <RecyclingIcon sx={{ fontSize: 40, color: COLORS.accent1 }} />,
+  };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', background: COLORS.backgroundGradient, minHeight: '100vh', p: 4, fontFamily: 'Poppins, sans-serif' }}>
       <Sidebar />
-      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: '#f9f9f9' }}>
-        <TopBar title="Waste Management" showDropdown={false} />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <TopBar title="Waste Emissions" showDropdown={false} />
         <Container maxWidth="xl" sx={{ mt: 4 }}>
-          {/* Date Range Picker */}
+          {/* Date Range Picker and Period Toggle */}
           <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
@@ -158,122 +252,120 @@ const WasteManagement = () => {
                 renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
+            <ToggleButtonGroup
+              value={trendPeriod}
+              exclusive
+              onChange={(e, newPeriod) => newPeriod && setTrendPeriod(newPeriod)}
+            >
+              <ToggleButton value="month" sx={{ color: COLORS.primary, '&.Mui-selected': { backgroundColor: COLORS.primary, color: '#FFF' } }}>
+                Monthly
+              </ToggleButton>
+              <ToggleButton value="year" sx={{ color: COLORS.primary, '&.Mui-selected': { backgroundColor: COLORS.primary, color: '#FFF' } }}>
+                Yearly
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
-          <Grid container spacing={3}>
-            {/* Total Waste Generated - Line Chart */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Total Waste Generated: {kpiData.totalWaste} kg
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  {kpiData.wasteTrendData && kpiData.wasteTrendData.length > 0 ? (
-                    <LineChart data={kpiData.wasteTrendData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="wasteGenerated" stroke="#0D7377" />
-                    </LineChart>
-                  ) : (
-                    <Typography>No waste trend data available for the selected date range.</Typography>
-                  )}
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+          {error && <Typography color="error">{error}</Typography>}
 
-            {/* Waste Diversion Rate - Pie Chart */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Waste Diversion Rate: {kpiData.diversionRate}%
+          {/* Total Waste and CO2e Card */}
+          <Fade in={!loading} timeout={500}>
+            <Card sx={{ ...glassStyle, mb: 4, p: 3, background: COLORS.primary }}>
+              <CardContent>
+                <Typography variant="h5" sx={{ mb: 1, color: '#FFF' }}>
+                  Waste Overview
                 </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  {kpiData.diversionRate > 0 ? (
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Diverted', value: kpiData.diversionRate, color: '#0D7377' },
-                          { name: 'Landfilled', value: 100 - kpiData.diversionRate, color: '#FF5252' },
-                        ]}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={120}
-                        label
-                      >
-                        {[
-                          { name: 'Diverted', value: kpiData.diversionRate, color: '#0D7377' },
-                          { name: 'Landfilled', value: 100 - kpiData.diversionRate, color: '#FF5252' },
-                        ].map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  ) : (
-                    <Typography>No diversion rate data available.</Typography>
-                  )}
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 700, mr: 2, color: '#FFF' }}>
+                    Total Waste: {formatNumber(kpis.totalWaste)} kg
+                  </Typography>
+                  <Typography variant="h5" sx={{ color: COLORS.accent1 }}>
+                    CO2e: {formatNumber(kpis.totalCO2e)} kg
+                  </Typography>
+                </Box>
+                <Typography variant="h6" sx={{ color: '#FFF' }}>
+                  Diversion Rate: {formatNumber(kpis.diversionRate)}%
+                </Typography>
+                {change !== 0 && (
+                  <Typography variant="h6" sx={{ color: change >= 0 ? '#FF6B6B' : '#4ECDC4' }}>
+                    {change >= 0 ? '↑' : '↓'} {Math.abs(change)}% (Waste Change)
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Fade>
 
-            {/* Waste by Type - Bar Chart */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Waste by Type
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  {kpiData.wasteByType && kpiData.wasteByType.length > 0 ? (
-                    <BarChart data={kpiData.wasteByType}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="value" fill="#0D7377">
-                        {kpiData.wasteByType.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  ) : (
-                    <Typography>No waste type data available for the selected date range.</Typography>
-                  )}
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
-
-            {/* Carbon Footprint - Area Chart */}
-            <Grid item xs={12} md={6}>
-              <Paper elevation={2} sx={{ p: 3, height: '400px' }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#0D7377' }}>
-                  Carbon Footprint: {kpiData.totalCO2e} kg CO2e
-                </Typography>
-                <ResponsiveContainer width="100%" height="80%">
-                  {kpiData.carbonFootprintData && kpiData.carbonFootprintData.length > 0 ? (
-                    <AreaChart data={kpiData.carbonFootprintData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="emissions" stroke="#0D7377" fill="#0D737750" />
-                    </AreaChart>
-                  ) : (
-                    <Typography>No carbon footprint data available for the selected date range.</Typography>
-                  )}
-                </ResponsiveContainer>
-              </Paper>
-            </Grid>
+          {/* Breakdown Cards for Waste by Type */}
+          <Grid container spacing={4} sx={{ mb: 4 }}>
+            {loading
+              ? [...Array(3)].map((_, index) => (
+                  <Grid item xs={12} sm={4} key={index}>
+                    <Skeleton variant="rectangular" height={150} />
+                  </Grid>
+                ))
+              : kpis.wasteByType.map((waste, index) => (
+                  <Grid item xs={12} sm={4} key={index}>
+                    <Fade in={!loading} timeout={500}>
+                      <Card sx={{ ...glassStyle, p: 2, height: '150px' }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Avatar sx={{ backgroundColor: `${COLORS.primary}20`, mr: 2 }}>
+                              {wasteIcons[waste.name] || <DeleteIcon />}
+                            </Avatar>
+                            <Typography variant="h6" sx={{ color: COLORS.textPrimary }}>
+                              {waste.name}
+                            </Typography>
+                          </Box>
+                          <Typography variant="h4" sx={{ color: COLORS.primary, fontWeight: 700 }}>
+                            {formatNumber(waste.value)} kg
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Fade>
+                  </Grid>
+                ))}
           </Grid>
+
+          {/* Waste Trend Section */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h3" sx={{ mb: 2, color: COLORS.primary, fontWeight: 700 }}>
+              Waste Trend
+            </Typography>
+            <Fade in={!loading} timeout={500}>
+              <Paper sx={{ ...glassStyle, p: 3, height: '400px' }}>
+                <Chart options={wasteTrendOptions} series={wasteTrendSeries} type="line" height="100%" />
+              </Paper>
+            </Fade>
+          </Box>
+
+          {/* Insights Section with Tabs */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h3" sx={{ mb: 2, color: COLORS.primary, fontWeight: 700 }}>
+              Insights
+            </Typography>
+            <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+              <Tab label="Waste by Type" />
+              <Tab label="Carbon Footprint Trend" />
+              <Tab label="Diversion Rate Trend" />
+            </Tabs>
+            <Fade in={!loading} timeout={500}>
+              <Paper sx={{ ...glassStyle, p: 3, height: '400px', mt: 2 }}>
+                {activeTab === 0 && (
+                  <Chart options={wasteByTypeOptions} series={wasteByTypeSeries} type="bar" height="100%" />
+                )}
+                {activeTab === 1 && (
+                  <Chart options={carbonFootprintOptions} series={carbonFootprintSeries} type="line" height="100%" />
+                )}
+                {activeTab === 2 && (
+                  <Chart options={diversionRateOptions} series={diversionRateSeries} type="line" height="100%" />
+                )}
+              </Paper>
+            </Fade>
+          </Box>
         </Container>
       </Box>
     </Box>
   );
 };
 
-export default WasteManagement;
+export default WasteEmissions;

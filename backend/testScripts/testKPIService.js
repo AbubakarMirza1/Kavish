@@ -1,111 +1,110 @@
-// scripts/test-kpi-service.js
+// scripts/test-dashboard-service.js
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const kpiService = require('../src/services/scope1KPIService.js');
-const kpiConfig = require('../src/config/kpiConfig');
+const { getDashboardKPIs } = require('../src/services/dashboardKPIsService');
 
-/// Test configuration
-const TEST_USER_ID = 1;
-const TEST_PERIOD = 'year';
-const REGRESSION_TOLERANCE = 0.01; // 1% variance allowed
-
-async function main() {
+async function testDashboardService() {
   try {
-    console.log('🚀 Starting KPI Service Tests...\n');
+    console.log('🚀 Testing Dashboard KPI Service Functionality...\n');
     await prisma.$connect();
-    console.log('✅ Database connection established');
 
-    // 1. Core Calculations with Actual Values
-    console.log('\n🔢 Core Emission Values:');
-    
-    const tests = {
-      totalEmissions: await kpiService.calculateTotalScope1Emissions(TEST_USER_ID),
-      stationary: await kpiService.calculateStationaryCombustionEmissions(TEST_USER_ID),
-      mobile: await kpiService.calculateMobileSourceEmissions(TEST_USER_ID),
-      refrigeration: await kpiService.calculateRefrigerationEmissions(TEST_USER_ID),
-      fireSuppression: await kpiService.calculateFireSuppressionEmissions(TEST_USER_ID),
-      purchasedGas: await kpiService.calculatePurchasedGasEmissions(TEST_USER_ID),
-      topSources: await kpiService.getTopEmissionSources(TEST_USER_ID),
-      mainTrend: await kpiService.getEmissionsTrend(TEST_USER_ID, TEST_PERIOD),
-      sourceTrends: await kpiService.getEmissionsTrendBySourceType(TEST_USER_ID, TEST_PERIOD),
-      fuelTrends: await kpiService.getEmissionsTrendByFuelType(TEST_USER_ID, TEST_PERIOD),
-      vehicleTrends: await kpiService.getEmissionsTrendByVehicleType(TEST_USER_ID, TEST_PERIOD),
-      gasTrends: await kpiService.getEmissionsTrendByGasType(TEST_USER_ID, TEST_PERIOD)
-    };
+    // Test parameters
+    const userId = 1;
+    const startDate = '2023-01-01';
+    const endDate = '2023-12-31';
+    const period = 'month';
 
-    // 2. Display Actual Values
-    console.log('\n📊 Actual Emission Values:');
-    console.log(`- Total Scope 1: ${tests.totalEmissions.toLocaleString(undefined, { maximumFractionDigits: 2 })} kg CO₂e`);
-    console.log(`- Stationary Combustion: ${tests.stationary.toFixed(2)} kg`);
-    console.log(`- Mobile Sources: ${tests.mobile.toFixed(2)} kg`);
-    console.log(`- Refrigeration: ${tests.refrigeration.toFixed(2)} kg`);
-    console.log(`- Fire Suppression: ${tests.fireSuppression.toFixed(2)} kg`);
-    console.log(`- Purchased Gases: ${tests.purchasedGas.toFixed(2)} kg`);
+    // 1. Execute the service
+    const dashboardData = await getDashboardKPIs(userId, startDate, endDate, period);
 
-    // 3. Detailed Trend Validation
-    console.log('\n📈 Trend Analysis:');
-    
-    // Main Trend Check
-    const firstTrend = tests.mainTrend.trend[0];
-    const lastTrend = tests.mainTrend.trend.slice(-1)[0];
-    console.log(`Main Trend: ${tests.mainTrend.trend.length} periods`);
-    console.log(`- First Period: ${firstTrend?.period} = ${firstTrend?.emissions.toFixed(2)} kg`);
-    console.log(`- Last Period: ${lastTrend?.period} = ${lastTrend?.emissions.toFixed(2)} kg`);
+    // 2. Show actual values
+    console.log('📊 DASHBOARD METRICS:');
+    console.log('Total Emissions by Scope:');
+    console.log(`- Scope 1: ${dashboardData.totalEmissionsByScope.scope1.toLocaleString()} kg`);
+    console.log(`- Scope 2: ${dashboardData.totalEmissionsByScope.scope2.toLocaleString()} kg`);
+    console.log(`- Scope 3: ${dashboardData.totalEmissionsByScope.scope3.toLocaleString()} kg`);
+    console.log(`- Total: ${dashboardData.keyMetrics.totalEmissions.toLocaleString()} kg\n`);
 
-    // Regression Validation
-    console.log('\n🧮 Regression Validation:');
-    const regressionValid = tests.mainTrend.regression.every((point, idx, arr) => {
-      if (idx === 0) return true;
-      const prev = arr[idx - 1].predictedValue;
-      return Math.abs((point.predictedValue - prev) / prev) < REGRESSION_TOLERANCE;
-    });
-    console.log(`- Regression Line Consistency: ${regressionValid ? '✅' : '❌'}`);
-
-    // 4. Source Type Trend Verification
-    console.log('\n🔍 Source Type Trends:');
-    tests.sourceTrends.forEach(source => {
-      console.log(`\n${source.sourceType}:`);
-      console.log(`- Periods: ${source.trend.length}`);
-      console.log(`- Regression Points: ${source.regression.length}`);
-      console.log(`- First Prediction: ${source.regression[0]?.predictedValue.toFixed(2)} kg`);
-      console.log(`- Last Prediction: ${source.regression.slice(-1)[0]?.predictedValue.toFixed(2)} kg`);
+    console.log('🔥 Top 3 Emission Sources:');
+    dashboardData.topEmissionSources.forEach((source, index) => {
+      console.log(`${index + 1}. ${source.name} (${source.scope}): ${source.emissions.toLocaleString()} kg`);
     });
 
-    // 5. Final Validation Checks
-    console.log('\n🎯 Final Validation:');
+    console.log('\n🗑️ Waste Management Overview:');
+    console.log(`- Total Waste: ${dashboardData.wasteManagementOverview.totalWaste.toLocaleString()} kg`);
+    console.log(`- Diversion Rate: ${(dashboardData.wasteManagementOverview.diversionRate * 100).toFixed(1)}%`);
+    console.log(`- Carbon Footprint: ${dashboardData.wasteManagementOverview.carbonFootprint.toLocaleString()} kg CO₂e\n`);
+
+    console.log('📈 Overall Emissions Trend (First 3 Months):');
+    dashboardData.overallEmissionsTrend.historical.slice(0, 3).forEach(period => {
+      console.log(`- ${period.period}: ${period.emissions.toLocaleString()} kg`);
+    });
+
+    console.log('\n🔮 Overall Regression Predictions (Next 3 Periods):');
+    dashboardData.overallEmissionsTrend.regression.slice(-3).forEach(prediction => {
+      console.log(`- ${prediction.period}: ${prediction.predictedValue.toFixed(2)} kg`);
+    });
+
+    // 3. Core validation checks
+    console.log('\n✅ VALIDATION CHECKS:');
+
+    // Check total emissions consistency
+    const calculatedTotal = Object.values(dashboardData.totalEmissionsByScope).reduce((a, b) => a + b, 0);
+    const totalMatch = Math.abs(calculatedTotal - dashboardData.keyMetrics.totalEmissions) < 0.01;
+    console.log(`- Total Emissions Consistency: ${totalMatch ? 'Pass' : 'Fail'}`);
+
+    // Verify trend aggregation
+    const validTrendAggregation = dashboardData.overallEmissionsTrend.historical.every(period => {
+      const scope1 = dashboardData.totalEmissionsByScope.scope1Historic?.find(p => p.period === period.period)?.emissions || 0;
+      const scope2 = dashboardData.scope2?.emissionsTrend.historical.find(p => p.period === period.period)?.emissions || 0;
+      const scope3 = dashboardData.scope3?.emissionsTrend.historical.find(p => p.period === period.period)?.emissions || 0;
+      return Math.abs(period.emissions - (scope1 + scope2 + scope3)) < 0.01;
+    });
+    console.log(`- Trend Aggregation Accuracy: ${validTrendAggregation ? 'Pass' : 'Fail'}`);
+
+    // Verify top sources validity
+    const validTopSources = dashboardData.topEmissionSources.every(source => 
+      source.emissions >= dashboardData.topEmissionSources[0].emissions ||
+      source.emissions >= dashboardData.topEmissionSources[1].emissions
+    );
+    console.log(`- Top Sources Validity: ${validTopSources ? 'Pass' : 'Fail'}`);
+
+    // Check regression properties
+    const validRegression = dashboardData.overallEmissionsTrend.regression.length === 
+      dashboardData.overallEmissionsTrend.historical.length + 3 &&
+      dashboardData.overallEmissionsTrend.regression.every(p => !isNaN(p.predictedValue));
+    console.log(`- Regression Integrity: ${validRegression ? 'Pass' : 'Fail'}`);
+
+    // 4. Edge case testing
+    console.log('\n🧪 EDGE CASE TESTING:');
     
-    // Value Consistency Check
-    const totalFromComponents = tests.stationary + tests.mobile + tests.refrigeration + 
-                               tests.fireSuppression + tests.purchasedGas;
-    const totalMatch = Math.abs(tests.totalEmissions - totalFromComponents) < 0.01;
-    console.log(`Total Emissions Match: ${totalMatch ? '✅' : '❌'}`);
+    // Test invalid user
+    try {
+      await getDashboardKPIs(9999, startDate, endDate, period);
+      console.log('- Invalid User Handling: Fail (no error thrown)');
+    } catch (e) {
+      console.log('- Invalid User Handling: Pass');
+    }
 
-    // Regression Line Sanity Check
-    const hasValidRegression = tests.mainTrend.regression.length > 0 &&
-                              tests.mainTrend.regression.every(p => p.predictedValue > 0);
-    console.log(`Valid Regression Data: ${hasValidRegression ? '✅' : '❌'}`);
+    // Test invalid dates
+    try {
+      await getDashboardKPIs(userId, 'invalid-date', endDate, period);
+      console.log('- Invalid Date Handling: Fail (no error thrown)');
+    } catch (e) {
+      console.log('- Invalid Date Handling: Pass');
+    }
 
-    // Top Sources Check
-    const topSourcesValid = tests.topSources.length === 3 && 
-                           tests.topSources.every(s => s.emissions > 0);
-    console.log(`Valid Top Sources: ${topSourcesValid ? '✅' : '❌'}`);
-
-    // Configuration Validation
-    const fuelTypes = await prisma.fuelType.findMany();
-    const vehicleTypes = await prisma.vehicleType.findMany();
-    const configValid = fuelTypes.every(ft => ft.fuelTypeId in kpiConfig.fuelEmissionFactors) &&
-                       vehicleTypes.every(vt => vt.vehicleTypeId in kpiConfig.vehicleEmissionFactors);
-    console.log(`Configuration Coverage: ${configValid ? '✅' : '❌'}`);
-
-    console.log('\n🧪 All Validation Checks Completed');
+    // Test empty data range
+    const emptyData = await getDashboardKPIs(userId, '2024-01-01', '2024-01-31');
+    const emptyTotal = Object.values(emptyData.totalEmissionsByScope).every(v => v === 0);
+    console.log(`- Empty Data Handling: ${emptyTotal ? 'Pass' : 'Fail'}`);
 
   } catch (error) {
-    console.error('\n❌ Test Failed:', error.message);
-    if (error.stack) console.log('Error Context:', error.stack.split('\n')[1]);
+    console.error('\n❌ Test Failed:', error);
   } finally {
     await prisma.$disconnect();
     console.log('\n🔌 Database connection closed');
   }
 }
 
-main();
+testDashboardService();

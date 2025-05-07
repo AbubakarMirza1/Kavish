@@ -30,7 +30,7 @@ const scope3KPIsRoutes = require('./routes/scope3KPIsRoutes');
 const wasteKPIsRoutes = require('./routes/wasteKPIsRoutes');
 const scope1KPIRoutes = require('./routes/scope1KPIRoutes')
 const scope2KPIsRoutes = require('./routes/Scope2KPIsRoutes'); // Added for Scope 2 KPIs
-
+const dashboardKPIsRoutes = require('./routes/dashboardKPIsRoutes');
 
 // --------------------------------------------
 // REGISTER ROUTES WITH BASE PATHS
@@ -48,11 +48,11 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/scope1-emissions', scope1EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope2-emissions', scope2EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
 app.use('/api/scope3-emissions', scope3EmissionsRoutes); // ✅ Register the new scope1EmissionsRoutes
-app.use('/api/scope3/kpis', scope3KPIsRoutes); // Scope 3 KPIs (Business Travel)
-app.use('/api/waste', wasteKPIsRoutes);        // Changed to /api/waste so /kpis maps to /api/waste/kpis
+app.use('/api/scope3-kpi', scope3KPIsRoutes); // Scope 3 KPIs (Business Travel)
+app.use('/api/waste-kpi', wasteKPIsRoutes);        // Changed to /api/waste so /kpis maps to /api/waste/kpis
 app.use('/api/scope1-kpi', scope1KPIRoutes);
-app.use('/api/scope2/kpis', scope2KPIsRoutes); // Added for Scope 2 KPIs
-
+app.use('/api/scope2-kpi', scope2KPIsRoutes); // Added for Scope 2 KPIs
+app.use('/api/dashboard-kpi', dashboardKPIsRoutes);
 
 
 // Optional: a simple health check endpoint
