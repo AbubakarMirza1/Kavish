@@ -182,21 +182,21 @@ const Scope2EmissionsSetup = () => {
         <TableHead>
           <TableRow>
             <TableCell>{title}</TableCell>
-            {/* <TableCell>Active</TableCell>
-            <TableCell>Actions</TableCell> */}
+            <TableCell>Active</TableCell>
+            {/* <TableCell>Actions</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
-              {/* <TableCell>
+               <TableCell>
                 <Checkbox
                   checked={row.active}
                   onChange={() => handleToggleActive(section, row.id)}
                 />
               </TableCell>
-              <TableCell>
+              {/*<TableCell>
                 <Button
                   variant="outlined"
                   color="error"
