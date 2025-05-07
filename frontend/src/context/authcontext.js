@@ -4,6 +4,9 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
+// Access the environment variable directly
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 export const AuthProvider = ({ children }) => {
   // Helper function to get initial user from localStorage
   const getInitialUser = () => {
@@ -52,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   // Signup function (remains the same)
   const signup = async (firstName, lastName, email, password, companyName, roleId) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signup", {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/signup`, {
         firstName, lastName, email, password, companyName, roleId,
       });
       return response.data;
@@ -65,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   // Verify Signup OTP
   const verifySignupOTP = async (email, otp, password, firstName, lastName, companyName, roleId) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/verify-signup-otp", {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/verify-signup-otp`, {
         email, otp, password, firstName, lastName, companyName, roleId
       });
       // NOTE: Your backend's verifySignupOTP currently returns:
@@ -86,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   // Login function (remains the same)
   const login = async (email, password) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email, password,
       });
       return response.data;
@@ -99,7 +102,7 @@ export const AuthProvider = ({ children }) => {
   // Verify Login OTP - MODIFIED
   const verifyLoginOTP = async (email, otp) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/verify-login-otp", {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/verify-login-otp`, {
         email, otp,
       });
 

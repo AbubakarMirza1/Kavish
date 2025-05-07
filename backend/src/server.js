@@ -9,6 +9,45 @@ const app = express();
 
 app.use(cors());
 
+// --- START: CORS Configuration ---
+const allowedOrigins = [
+  'http://localhost:3000', // Your local React frontend development URL (if it's port 3000)
+  // Add other local development URLs if needed (e.g., if you use a different port)
+];
+
+// IMPORTANT: Add your deployed frontend's URL from Render here
+// This will be an environment variable for flexibility
+const FRONTEND_RENDER_URL = process.env.FRONTEND_RENDER_URL; // e.g., https://my-cool-frontend.onrender.com
+
+if (FRONTEND_RENDER_URL) {
+  allowedOrigins.push(FRONTEND_RENDER_URL);
+  console.log(`CORS: Added ${FRONTEND_RENDER_URL} to allowed origins.`);
+} else {
+  console.warn('CORS: FRONTEND_RENDER_URL environment variable is not set. Deployed frontend might not connect.');
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      console.error(msg); // Log the blocked origin
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // Allow cookies to be sent from the frontend if you use them (e.g., for session management)
+  // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Optionally specify allowed methods
+  // allowedHeaders: ['Content-Type', 'Authorization', /* other headers */], // Optionally specify allowed headers
+};
+
+app.use(cors(corsOptions));
+// --- END: CORS Configuration ---
+
+
+
 // Middleware for parsing JSON bodies
 app.use(express.json());
 
