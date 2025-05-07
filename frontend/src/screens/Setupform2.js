@@ -178,15 +178,15 @@ const Scope2EmissionsSetup = () => {
         <TableHead>
           <TableRow>
             <TableCell>{title}</TableCell>
-            <TableCell>Active</TableCell>
-            <TableCell>Actions</TableCell>
+            {/* <TableCell>Active</TableCell>
+            <TableCell>Actions</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Checkbox
                   checked={row.active}
                   onChange={() => handleToggleActive(section, row.id)}
@@ -200,7 +200,7 @@ const Scope2EmissionsSetup = () => {
                 >
                   Delete
                 </Button>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -226,7 +226,7 @@ const Scope2EmissionsSetup = () => {
         <Container>
           {/* Fuel Type */}
           <h2>Fuel Type</h2>
-          <TextField
+          {/* <TextField
             label="Add Fuel Type"
             value={formValues.fuelType}
             onChange={(e) =>
@@ -238,12 +238,12 @@ const Scope2EmissionsSetup = () => {
             variant="contained"
           >
             Add
-          </Button>
+          </Button> */}
           {renderTable("fuelType", fuelTypeRows, "Fuel Type")}
 
           {/* Units */}
           <h2>Units</h2>
-          <TextField
+          {/* <TextField
             label="Add Unit"
             value={formValues.units}
             onChange={(e) =>
@@ -252,7 +252,7 @@ const Scope2EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("units")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("units", unitRows, "Unit")}
         </Container>
 

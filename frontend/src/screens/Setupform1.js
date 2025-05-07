@@ -241,15 +241,15 @@ const Scope1EmissionsSetup = () => {
         <TableHead>
           <TableRow>
             <TableCell>{title}</TableCell>
-            <TableCell>Active</TableCell>
-            <TableCell>Actions</TableCell>
+            {/* <TableCell>Active</TableCell>
+            <TableCell>Actions</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
               <TableCell>{row.name}</TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Checkbox
                   checked={row.active}
                   onChange={() => handleToggleActive(section, row.id)}
@@ -263,7 +263,7 @@ const Scope1EmissionsSetup = () => {
                 >
                   Delete
                 </Button>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
@@ -294,7 +294,7 @@ const Scope1EmissionsSetup = () => {
         <Container>
           {/* Stationary Combustion */}
           <h2>Stationary Combustion</h2>
-          <TextField
+          {/* <TextField
             label="Add Fuel Type"
             value={formValues.stationaryCombustion}
             onChange={(e) =>
@@ -306,12 +306,12 @@ const Scope1EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("stationaryCombustion")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("stationaryCombustion", stationaryCombustionRows, "Fuel Type")}
 
           {/* Mobile Sources */}
           <h2>Mobile Sources</h2>
-          <TextField
+          {/* <TextField
             label="Add Vehicle Type"
             value={formValues.mobile}
             onChange={(e) =>
@@ -323,12 +323,12 @@ const Scope1EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("mobile")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("mobile", mobileRows, "Vehicle Type")}
 
           {/* Refrigeration */}
           <h2>Refrigeration</h2>
-          <TextField
+          {/* <TextField
             label="Add Refrigeration Type"
             value={formValues.refrigeration}
             onChange={(e) =>
@@ -340,12 +340,12 @@ const Scope1EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("refrigeration")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("refrigeration", refrigerationRows, "Refrigeration Type")}
 
           {/* Fire Suppression */}
           <h2>Fire Suppression</h2>
-          <TextField
+          {/* <TextField
             label="Add Fire Suppression Type"
             value={formValues.fireSuppression}
             onChange={(e) =>
@@ -354,15 +354,15 @@ const Scope1EmissionsSetup = () => {
                 fireSuppression: e.target.value,
               })
             }
-          />
-          <Button onClick={() => handleAddRow("fireSuppression")} variant="contained">
+          /> */}
+          {/* <Button onClick={() => handleAddRow("fireSuppression")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("fireSuppression", fireSuppressionRows, "Fire Suppression Type")}
 
           {/* Purchased Gases */}
           <h2>Purchased Gases</h2>
-          <TextField
+          {/* <TextField
             label="Add Gas Type"
             value={formValues.purchasedGases}
             onChange={(e) =>
@@ -374,12 +374,12 @@ const Scope1EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("purchasedGases")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("purchasedGases", purchasedGasesRows, "Gas Type")}
 
           {/* Units */}
           <h2>Units</h2>
-          <TextField
+          {/* <TextField
             label="Add Unit"
             value={formValues.units}
             onChange={(e) =>
@@ -391,7 +391,7 @@ const Scope1EmissionsSetup = () => {
           />
           <Button onClick={() => handleAddRow("units")} variant="contained">
             Add
-          </Button>
+          </Button> */}
           {renderTable("units", unitRows, "Unit")}
         </Container>
 
