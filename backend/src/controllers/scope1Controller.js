@@ -13,7 +13,7 @@ const DEFAULT_LIMIT = 10;
 // ----------------- STATIONARY COMBUSTION -----------------
 async function createStationaryCombustion(req, res) {
   try {
-    const { sourceDescription, fuelType, quantity, unit, date } = req.body;
+    const { userId, sourceDescription, fuelType, quantity, unit, date } = req.body;
 
     // Find the fuelTypeId from the FuelType table
     const fuelTypeRecord = await scope1Service.getFuelTypeByName(fuelType);
@@ -28,7 +28,7 @@ async function createStationaryCombustion(req, res) {
     }
 
     // Create a new ScopeType entry for Scope 1
-    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', 1); // Assuming userId = 1
+    const scopeTypeRecord = await scope1Service.createScopeType('Scope1', userId); // Assuming userId = 1
 
     // Create the StationaryCombustion record
     const record = await scope1Service.createStationaryCombustion({
