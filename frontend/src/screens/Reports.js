@@ -49,7 +49,7 @@ const Reports = () => {
     setPdfPreviewUrl('');
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/preview`, {
+      const response = await axios.post(`${API_BASE_URL}/api/reports/preview`, {
         userId: USER_ID,
         startDate: startDate.format('YYYY-MM-DD'),
         endDate: endDate.format('YYYY-MM-DD'),
