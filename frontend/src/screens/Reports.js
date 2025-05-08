@@ -79,7 +79,7 @@ const Reports = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/generate`, {
+      const response = await axios.post(`${API_BASE_URL}/api/reports/generate`, {
         userId: USER_ID,
         startDate: startDate.format('YYYY-MM-DD'),
         endDate: endDate.format('YYYY-MM-DD'),
