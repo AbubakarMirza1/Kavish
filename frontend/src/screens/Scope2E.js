@@ -186,7 +186,7 @@ const ElectricityPage = () => {
     }
   };
 
-  const fixedUnit = "Cubic Meters";
+  const fixedUnit = "Cubic Meter";
 
   return (
     <Box sx={{ display: 'flex' }}>
