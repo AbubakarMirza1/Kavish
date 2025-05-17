@@ -186,7 +186,6 @@ const Dashboard = () => {
   const [period, setPeriod] = useState('month');
   const [selectedTab, setSelectedTab] = useState(0);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [chartView, setChartView] = useState('trend');
   const [expandedCard, setExpandedCard] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [openDialog, setOpenDialog] = useState('');
@@ -258,11 +257,6 @@ const Dashboard = () => {
     setSelectedTab(newValue);
   };
 
-  // Handle chart view change
-  const handleChartViewChange = (view) => {
-    setChartView(view);
-  };
-
   // Handle card expansion
   const handleExpandCard = (cardId) => {
     setExpandedCard(expandedCard === cardId ? null : cardId);
@@ -294,10 +288,6 @@ const Dashboard = () => {
     return null;
   };
 
-
-
-
-  
   // Determine trend color
   const getTrendColor = (value, inverse = false) => {
     if (inverse) {
@@ -1087,27 +1077,7 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <SectionTitle variant="h5">Overall Emissions Trend</SectionTitle>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant={chartView === 'trend' ? 'contained' : 'outlined'}
-                  size="small"
-                  onClick={() => handleChartViewChange('trend')}
-                  sx={{ textTransform: 'none', bgcolor: chartView === 'trend' ? COLORS.primary : 'transparent', color: chartView === 'trend' ? '#fff' : COLORS.primary }}
-                >
-                  Trend
-                </Button>
-                <Button
-                  variant={chartView === 'comparison' ? 'contained' : 'outlined'}
-                  size="small"
-                  onClick={() => handleChartViewChange('comparison')}
-                  sx={{ textTransform: 'none', bgcolor: chartView === 'comparison' ? COLORS.primary : 'transparent', color: chartView === 'comparison' ? '#fff' : COLORS.primary }}
-                >
-                  Comparison
-                </Button>
-              </Box>
-            </Box>
+            <SectionTitle variant="h5" sx={{ mb: 2 }}>Overall Emissions Trend</SectionTitle>
             <StyledCard>
               <CardHeader>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
