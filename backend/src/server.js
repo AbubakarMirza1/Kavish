@@ -101,7 +101,7 @@ app.use('/api/reports', reportRoutes);
 
 // Optional: a simple health check endpoint
 app.get('/', (req, res) => {
-  res.send('Welcome to the Sustainability Dashboard API!');
+  res.send('Welcome to the Sustainability Dashboard!!');
 });
 
 // --------------------------------------------
