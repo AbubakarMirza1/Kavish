@@ -35,7 +35,7 @@ import { AuthProvider } from './context/authcontext';
 function App() {
   return (
     <ThemeProvider theme={theme}>
- <AuthProvider>
+// <AuthProvider>
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -66,7 +66,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
-  </AuthProvider>
+//  </AuthProvider>
 </ThemeProvider>
 
   );
